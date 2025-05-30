@@ -1,190 +1,1463 @@
 [
   {
-    "id": 1748589010307,
-    "name": "juillet",
-    "date_created": "2025-05-30T07:10:10.307Z",
+    "id": 1748938928636,
+    "name": "rentree septembre",
+    "date_created": "2025-06-03T08:22:08.636Z",
     "films": [
       {
-        "title": "Jurassic World : Renaissance",
-        "tmdb_id": 1234821,
-        "director": "Gareth Edwards",
-        "actors": "Scarlett Johansson, Jonathan Bailey, Mahershala Ali, Rupert Friend",
-        "genre": "Science-Fiction",
-        "duration": 133,
-        "synopsis": "7 ans après la destruction d'Isla Nublar, les dinosaures commencent à disparaître de la surface de la Terre, à cause d'une flore et d'une faune inadaptées. Une experte nommée Zora Bennett est engagée pour mener une mission secrète. Son équipe doit récupérer l'ADN de 3 dinosaures dans une zone où ils ont trouvé refuge loin des climats changeants et des humains. Zora et son équipe vont croiser Reuben Delgado, un père accompagné de ses enfants et dont le bateau a chaviré. Tous vont se retrouver sur une des 5 îles renfermant un secret non divulgué à l’humanité jusqu’à aujourd’hui.",
-        "category": "Grand Public",
-        "budget": 0,
-        "keywords": [],
-        "release_date": "2025-07-01",
-        "production_countries": [
-          "United States of America"
-        ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/yq9PfUpsBEUZXPvRiubiBiWkOYn.jpg",
-        "exclude": false
-      },
-      {
-        "title": "I huvudet på Bo",
-        "tmdb_id": 1477121,
-        "director": "Jon Asp",
-        "actors": "Bo Widerberg, Roy Andersson, Thommy Berggren, Kalle Boman",
+        "title": "Put Your Soul on Your Hand and Walk",
+        "tmdb_id": 1465560,
+        "director": "Sepideh Farsi",
+        "actors": "Fatima Hassouna, Sepideh Farsi",
         "genre": "Documentaire",
-        "duration": 105,
-        "synopsis": "",
+        "duration": 110,
+        "synopsis": "Put Your Soul on Your Hand and Walk est ma réponse en tant que cinéaste, aux massacres en cours des Palestiniens. Un miracle a eu lieu lorsque j’ai trouvé Fatem Hassouna, présentée à moi par un ami palestinien. Depuis, elle m’a prêté ses yeux pour voir Gaza où elle résistait en documentant la guerre, et moi, je suis devenue un lien entre elle et le reste du monde, depuis sa « prison de Gaza » comme elle le disait. Nous avons maintenu cette ligne de vie pendant plus de 200 jours. Les bouts de pixels et sons que l’on a échangé, sont devenu le film que vous voyez. L’assassinat de Fatem le 16 avril 2025 suite à une attaque israélienne sur sa maison en change à jamais le sens.",
         "category": "Documentaire",
         "budget": 0,
         "keywords": [],
-        "release_date": "2025-07-02",
-        "production_countries": [
-          "Sweden"
-        ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/6zf7dx5xgS332o3HPH9ub6a86ps.jpg",
-        "exclude": false
-      },
-      {
-        "title": "Le bonheur est une bête sauvage",
-        "tmdb_id": 1438405,
-        "director": "Bertrand Guerry",
-        "actors": "Sacha Guerry, Sophie Davout, Chris Walder, Cédric Marchal",
-        "genre": "Comédie",
-        "duration": 95,
-        "synopsis": "Jeanne, la cinquantaine, est brisée. Elle a perdu son mari lors d’un naufrage survenu 10 ans plus tôt au large de l’île d’Yeu. Tom, son neveu de 19 ans, lui annonce qu’il va quitter l’île. Jeanne est sous le choc. Le soir-même, un ours est aperçu sur l’île. Sous l'œil de la lune, les islais partent à sa recherche. Durant une semaine, une quête collective du bonheur revêt des atours magiques et cocasses sur le manque et l’absence grâce à l’éloge des forces de la nature et des humains.",
-        "category": "Grand Public",
-        "budget": 0,
-        "keywords": [],
-        "release_date": "2025-07-02",
+        "release_date": "2025-09-24",
         "production_countries": [
           "France"
         ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/wTYRvWraF78rWHu11ZWo8qdhykr.jpg",
-        "exclude": false
+        "poster_url": "https://image.tmdb.org/t/p/w500/bEM5wV6yktY5lBrcLCvSrXKcScd.jpg",
+        "include": true
       },
       {
-        "title": "Kjærlighet",
-        "tmdb_id": 1228685,
-        "director": "Dag Johan Haugerud",
-        "actors": "Andrea Bræin Hovig, Tayo Cittadella Jacobsen, Thomas Gullestad, Lars Jacob Holm",
+        "title": "Silent Shot",
+        "tmdb_id": 1389448,
+        "director": "Robin Entreinger",
+        "actors": "Désirée Deboës, Nagisa Chauveau, Loïc Garnier",
         "genre": "Drame",
-        "duration": 119,
-        "synopsis": "Sur un ferry qui les ramène à Oslo, Marianne, médecin, retrouve Tor, infirmier dans l’hôpital où elle exerce. Il lui raconte qu’il passe souvent ses nuits à bord, à la recherche d’aventures sans lendemain avec des hommes croisés sur des sites de rencontre. Ces propos résonnent en Marianne, qui revient d’un blind date organisé par sa meilleure amie et s’interroge sur le sens d’une vie amoureuse sans engagement. Ce soir-là, Tor succombe au charme de Bjorn, qui lui résiste et lui échappe...",
+        "duration": 60,
+        "synopsis": "Alex, jeune artiste electro française pétillante, vient tourner au Japon des images pour les clips de son nouvel album. Sur le tournage, elle se rapproche de Mia, sa belle assistante japonaise. Cette histoire d’amour naissante est stoppée nette quand le réalisateur du clip commence à mettre en scène Mia plutôt qu’Alex... Une jalousie s’installe, de plus en plus profonde, et Alex sombre peu à peu dans une folie paranoïaque...",
         "category": "Art et Essai",
         "budget": 0,
         "keywords": [],
-        "release_date": "2024-12-25",
-        "production_countries": [
-          "Norway"
-        ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/3doqUbqb4Kv0hZ2NPVinqMDLB67.jpg",
-        "exclude": false
-      },
-      {
-        "title": "Drømmer",
-        "tmdb_id": 1228682,
-        "director": "Dag Johan Haugerud",
-        "actors": "Ella Øverbye, Selome Emnetu, Anne Marit Jacobsen, Ane Dahl Torp",
-        "genre": "Drame",
-        "duration": 110,
-        "synopsis": "",
-        "category": "Art et Essai",
-        "budget": 0,
-        "keywords": [],
-        "release_date": "2024-10-04",
-        "production_countries": [
-          "Norway"
-        ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/jB077kwValRa5rjsKVBITZ0tGmP.jpg",
-        "exclude": false
-      },
-      {
-        "title": "Islands",
-        "tmdb_id": 1128547,
-        "director": "Jan Ole Gerster",
-        "actors": "Sam Riley, Stacy Martin, Jack Farthing, Dylan Torrell",
-        "genre": "Drame",
-        "duration": 123,
-        "synopsis": "Coach de tennis dans un complexe hôtelier, Tom mène une vie sans attaches au rythme de virées nocturnes alcoolisées et de cours monotones sous le soleil de Fuerteventura. Un jour, parmi le flot incessant des vacanciers, débarque sur l’île Anne, accompagnée de son fils et de son mari. Tom accepte de jouer le guide touristique pour la famille et très vite d’étranges liens commencent à se nouer entre eux.",
-        "category": "Art et Essai",
-        "budget": 0,
-        "keywords": [],
-        "release_date": "2025-05-08",
-        "production_countries": [
-          "Germany"
-        ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/y9W0KytjdHdpV3OGrSgFwl79TsL.jpg",
-        "exclude": false
-      },
-      {
-        "title": "Falcon Express",
-        "tmdb_id": 1107216,
-        "director": "Benoît Daffis",
-        "actors": "",
-        "genre": "Animation",
-        "duration": 99,
-        "synopsis": "Des animaux de compagnie, piégés dans un train lancé à toute allure, vont devoir déjouer les plans de Hans, un blaireau rancunier en quête de vengeance. Alors que le crash semble inévitable, les animaux peuvent compter sur Falcon, un raton-laveur filou et débrouillard, prêt à tout pour les sauver !",
-        "category": "Jeunesse",
-        "budget": 0,
-        "keywords": [],
-        "release_date": "2025-07-02",
+        "release_date": "2025-09-24",
         "production_countries": [
           "France",
+          "Japan"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/krpfbk3JmXO4zzNKzyZuxbTykue.jpg",
+        "include": true
+      },
+      {
+        "title": "Classe moyenne",
+        "tmdb_id": 1313211,
+        "director": "Antony Cordier",
+        "actors": "Laurent Lafitte, Élodie Bouchez, Ramzy Bedia, Laure Calamy",
+        "genre": "Comédie",
+        "duration": 96,
+        "synopsis": "Mehdi a prévu de passer un été tranquille dans la somptueuse demeure de ses beaux-parents. Mais dès son arrivée, un conflit éclate entre la famille de sa fiancée et le couple de gardiens de la villa. Comme Mehdi est issu d’un milieu modeste, il pense pouvoir mener les négociations entre les deux parties et ramener tout le monde à la raison. Pourtant, tout s’envenime…",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-24",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/olV1d36wQNyZe1vPcF8YOXNdxCZ.jpg",
+        "include": true
+      },
+      {
+        "title": "L’Homme qui a vu l’ours qui a vu l’homme",
+        "tmdb_id": 1312312,
+        "director": "Pierre Richard",
+        "actors": "Pierre Richard, Timi-Joy Marbot, Gustave Kervern, Anny Duperey",
+        "genre": "Comédie",
+        "duration": 88,
+        "synopsis": "Grégoire et Michel ne sont pas de la même génération mais ils sont unis par l’amitié, l’amour de la nature et une grande affection pour un ours échappé d’un cirque.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-24",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/nVtJKQ034b3blVitW3DIClf2r83.jpg",
+        "include": true
+      },
+      {
+        "title": "Deux procureurs",
+        "tmdb_id": 1257406,
+        "director": "Sergei Loznitsa",
+        "actors": "Aleksandr Kuznetsov, Aleksandr Filippenko, Anatoliy Belyy, Andris Keišs",
+        "genre": "Drame",
+        "duration": 118,
+        "synopsis": "Union Soviétique, 1937. Des milliers de lettres de détenus accusés à tort par le régime sont brûlées dans une cellule de prison. Contre toute attente, l’une d’entre elles arrive à destination, sur le bureau du procureur local fraîchement nommé, Alexander Kornev. Il se démène pour rencontrer le prisonnier, victime d’agents de la police secrète, la NKVD. Bolchévique chevronné et intègre, le jeune procureur croit à un dysfonctionnement. Sa quête de justice le conduira jusqu’au bureau du procureur-général à Moscou. A l’heure des grandes purges staliniennes, c’est la plongée d’un homme dans un régime totalitaire qui ne dit pas son nom.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-24",
+        "production_countries": [
+          "France",
+          "Netherlands",
+          "Germany",
+          "Latvia",
+          "Romania",
+          "Lithuania"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/tZvE4CkWvazDWuG44RzhU2AhmAc.jpg",
+        "include": true
+      },
+      {
+        "title": "TKT (T'inquiète)",
+        "tmdb_id": 1161751,
+        "director": "Solange Cicurel",
+        "actors": "Lanna de Palmaert, Émilie Dequenne, Stéphane De Groodt, Raphaëlle Lubansu",
+        "genre": "Comédie",
+        "duration": 82,
+        "synopsis": "Emma, une jeune fille de 16 ans bien dans sa peau, populaire dans son lycée, est tombée dans le coma. Pourquoi ? Que lui est-il arrivé ? Pour le comprendre, elle va devenir \" fantôme \" pour quelques jours. Invisible, elle peut alors tout voir, tout entendre et retourner dans ses souvenirs pour reconstituer son histoire. Avec ce film, elle aborde notamment la question du harcèlement scolaire, dans la vraie vie comme sur les réseaux sociaux.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-09-24",
+        "production_countries": [
+          "Belgium"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/3OsnEjOkzKv6UCMGBhTVA9N182G.jpg",
+        "include": true
+      },
+      {
+        "title": "Sukkwan Island",
+        "tmdb_id": 1149764,
+        "director": "Vladimir de Fontenay",
+        "actors": "Swann Arlaud, Woody Norman, Ruaridh Mollica, Alma Pöysti",
+        "genre": "Drame",
+        "duration": 114,
+        "synopsis": "Un homme se rend sur une île sauvage pour renouer avec son père. Dix ans auparavant, ils ont partagé une expérience bouleversante qui a transformé leur relation.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-24",
+        "production_countries": [
+          "Belgium",
+          "Finland",
+          "France",
+          "Norway",
+          "United Kingdom"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/9CrzZIhIU1jF75LWDUuebI7IoTb.jpg",
+        "include": true
+      },
+      {
+        "title": "Une bataille après l'autre",
+        "tmdb_id": 1054867,
+        "director": "Paul Thomas Anderson",
+        "actors": "Leonardo DiCaprio, Sean Penn, Benicio del Toro, Regina Hall",
+        "genre": "Crime",
+        "duration": 170,
+        "synopsis": "Une bande d'anciens révolutionnaires se réunit pour sauver la fille de l'un des leurs quand leurs ennemis refont surface après 16 ans.",
+        "category": "Grand Public",
+        "budget": 110000000,
+        "keywords": [],
+        "release_date": "2025-09-24",
+        "production_countries": [
           "United States of America"
         ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/jf2wB6idJ8N4gMC9OqNxDD51Ayp.jpg",
-        "exclude": false
+        "poster_url": "https://image.tmdb.org/t/p/w500/7U8V3o2585Q9m04wU9yUOjYflQF.jpg",
+        "include": true
       },
       {
-        "title": "Mamie-sitting",
-        "tmdb_id": 1081196,
-        "director": "Darren Thornton",
-        "actors": "James McArdle, Fionnula Flanagan, Dearbhla Molloy, Paddy Glynn",
-        "genre": "Comédie",
-        "duration": 89,
-        "synopsis": "À Dublin, Edward, un romancier introverti au grand cœur, touche enfin du doigt le succès. Mais alors qu’une prestigieuse tournée promotionnelle se profile, il doit s’occuper, le temps d’un week-end, de quatre femmes âgées hautes en couleur – dont sa propre mère. Entre situations improbables et révélations émouvantes, cette cohabitation imprévue pourrait bien changer leur vie.",
+        "title": "HIM",
+        "tmdb_id": 986097,
+        "director": "Justin Tipping",
+        "actors": "Tyriq Withers, Marlon Wayans, Julia Fox, Tim Heidecker",
+        "genre": "Horreur",
+        "duration": null,
+        "synopsis": "Un jeune athlète prometteur est invité à s'entraîner avec la star d'une équipe bientôt à la retraite.",
         "category": "Grand Public",
         "budget": 0,
         "keywords": [],
-        "release_date": "2025-04-04",
+        "release_date": "2025-09-18",
         "production_countries": [
-          "Ireland"
+          "United States of America"
         ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/bvpXFlOuSYN0AOo9KAd0XOEs8mX.jpg",
-        "exclude": false
+        "poster_url": "https://image.tmdb.org/t/p/w500/3T4yN4GgmwdQom1kCiO8v1fwsHC.jpg",
+        "include": true
       },
       {
-        "title": "Les amants astronautes",
-        "tmdb_id": 1058128,
-        "director": "Marco Berger",
-        "actors": "Javier Orán, Lautaro Bettoni, Mora Arenillas, Agustín Frías",
-        "genre": "Comédie",
-        "duration": 116,
-        "synopsis": "Pedro rentre d’Espagne dans son pays natal l’Argentine pour revoir ses proches. Mais les retrouvailles avec un ami d’enfance, le séduisant Maxi, prennent une tournure inattendue à mesure que leur relation devient de plus en plus ambigüe. Bien que Maxi soit hétérosexuel, la montée du désir entre eux ne cesse de croître tandis qu’ils cherchent à le cacher, et peut-être à l’accepter ?",
-        "category": "Grand Public",
+        "title": "Cosmos",
+        "tmdb_id": 1385015,
+        "director": "Germinal Roaux",
+        "actors": "Ángela Molina, Andrés Catzín, Marco Antonio Treviño, Abraham Sarabia",
+        "genre": "Drame",
+        "duration": 150,
+        "synopsis": "Dans un village oublié du Yucatán, Lena, 68 ans, une veuve esseulée condamnée par la maladie, croise le chemin de Leon, 62 ans, un Indien maya gardien des secrets de la nature et des esprits. Lena trouve en Leon un compagnon inattendu. Malgré leurs différences, leurs univers apparemment opposés, une connexion profonde se forme entre eux.",
+        "category": "Art et Essai",
         "budget": 0,
         "keywords": [],
-        "release_date": "2024-06-20",
+        "release_date": "2025-09-18",
         "production_countries": [
-          "Argentina",
-          "Spain"
+          "France",
+          "Switzerland",
+          "Mexico"
         ],
-        "poster_url": "https://image.tmdb.org/t/p/w500/yQ5iYpYjVNZXgslPTgIbrb62c5.jpg",
-        "exclude": false
+        "poster_url": "",
+        "include": true
       },
       {
-        "title": "Rapaces",
-        "tmdb_id": 1002158,
-        "director": "Peter Dourountzis",
-        "actors": "Sami Bouajila, Mallory Wanecque, Jean-Pierre Darroussin, Valérie Donzelli",
-        "genre": "Thriller",
-        "duration": 104,
-        "synopsis": "Un père et sa fille : Samuel, journaliste, et Ava, sa stagiaire, couvrent le meurtre d’une jeune fille attaquée à l’acide, pour leur magazine. Frappé par la brutalité de ce meurtre, ainsi que par l’intérêt de sa fille pour l’affaire, Samuel décide de mener une enquête indépendante, à l’insu de sa rédaction, et découvre des similitudes troublantes avec le meurtre d’une autre femme…",
+        "title": "ルノワール",
+        "tmdb_id": 1392527,
+        "director": "Chie Hayakawa",
+        "actors": "Yui Suzuki, Hikari Ishida, Lily Franky, Ayumu Nakajima",
+        "genre": "Drame",
+        "duration": 120,
+        "synopsis": "Tokyo, 1987. Fuki, 11 ans, vit entre un père hospitalisé et une mère débordée et absente. Un été suspendu commence pour Fuki, entre solitude, rituels étranges et élans d’enfance. Le portrait d’une fillette à la sensibilité hors du commun, qui cherche à entrer en contact avec les vivants, les morts, et peut-être avec elle-même.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-20",
+        "production_countries": [
+          "Japan",
+          "France",
+          "Philippines",
+          "Singapore",
+          "Indonesia"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/l8SW5j7bQbw7QRUKQA3wK8CDdJv.jpg",
+        "include": true
+      },
+      {
+        "title": "Día de caza",
+        "tmdb_id": 1318339,
+        "director": "Pedro Aguilera",
+        "actors": "Carmen Machi, Rossy de Palma, Blanca Portillo, Zoe Arnao",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "Blanca, Rosa et Carmen sont trois amies d'âge mûr qui, après une longue période sans se voir, se retrouvent avec Diana, la réservée nièce de Rosa, pour aller chasser le lapin dans une propriété que Blanca a héritée de son oncle.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "Spain",
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Dalloway",
+        "tmdb_id": 1315702,
+        "director": "Yann Gozlan",
+        "actors": "Mylène Farmer, Cécile de France, Anna Mouglalis, Lars Mikkelsen",
+        "genre": "Drame",
+        "duration": 120,
+        "synopsis": "Clarissa, romancière en mal d’inspiration, rejoint une résidence d’artistes prestigieuse à la pointe de la technologie. Elle trouve en Dalloway, son assistante virtuelle, un soutien et même une confidente qui l’aide à écrire. Mais peu à peu, Clarissa éprouve un malaise face au comportement de plus en plus intrusif de son IA, renforcé par les avertissements complotistes d’un autre résident. Se sentant alors surveillée, Clarissa se lance secrètement dans une enquête pour découvrir les réelles intentions de ses hôtes. Menace réelle ou délire paranoïaque ?",
+        "category": "Art et Essai",
+        "budget": 200000,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "Belgium",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/u7qCz8p5WdSKuH8GlbaDdV9TJd5.jpg",
+        "include": true
+      },
+      {
+        "title": "Nino",
+        "tmdb_id": 1313229,
+        "director": "Pauline Loquès",
+        "actors": "Théodore Pellerin, Salomé Dewaels, Jeanne Balibar, William Lebghil",
+        "genre": "Drame",
+        "duration": 96,
+        "synopsis": "Dans trois jours, Nino devra affronter une grande épreuve. D’ici là, les médecins lui ont confié deux missions. Deux impératifs qui vont mener le jeune homme à travers Paris, le pousser à refaire corps avec les autres et avec lui-même.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/sLcb7iPIByXyBav3cPfKlfAOy8c.jpg",
+        "include": true
+      },
+      {
+        "title": "Les tourmentés",
+        "tmdb_id": 1284493,
+        "director": "Lucas Belvaux",
+        "actors": "Niels Schneider, Linh-Dan Pham, Ramzy Bedia, Déborah François",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "Ça vaut quoi la vie d’un homme ? D’un homme comme lui. Un homme sans rien. Skender, ancien légionnaire, le découvrira bien assez tôt. \"Madame\", veuve fortunée et passionnée de chasse, s’ennuie. Elle charge alors son majordome d’une terrible mission. Lui trouver un candidat pour une chasse à l’homme moyennant un très juteux salaire. Skender est le gibier idéal. Mais rien ne se passera comme prévu...",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "Belgium",
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Regarde !",
+        "tmdb_id": 1242426,
+        "director": "Emmanuel Poulain-Arnaud",
+        "actors": "Audrey Fleurot, Dany Boon, Nicolas Marié, Manon Villa",
+        "genre": "Comédie",
+        "duration": null,
+        "synopsis": "Chris et Antoine sont séparés, et depuis quelque temps, Milo, leur fils de 14 ans, semble avoir une gêne pour voir. Le diagnostic est sans appel. Milo va devenir aveugle. Chris et Antoine vont devoir mettre de côté leurs disputes répétées pour partir, en famille, admirer une dernière fois les vagues d’Hossegor, et bien plus encore…",
         "category": "Grand Public",
         "budget": 0,
         "keywords": [],
-        "release_date": "2025-07-02",
+        "release_date": "2025-09-17",
         "production_countries": [
           "France"
         ],
         "poster_url": "",
-        "exclude": false
+        "include": true
+      },
+      {
+        "title": "Panoptikoni",
+        "tmdb_id": 1213193,
+        "director": "George Sikharulidze",
+        "actors": "Data Chachua, Ia Sukhitashvili, Vakhtang Kedeladze, Malkhaz Abuladze",
+        "genre": "Drame",
+        "duration": 95,
+        "synopsis": "Après que son père l'abandonne pour devenir moine orthodoxe, le jeune Sandro se retrouve livré à lui-même dans la société turbulente de la Géorgie post-soviétique. Il s'efforce de concilier son devoir envers Dieu et sa sexualité naissante, qui se manifeste de manière incontrôlable et le conduit à des comportements malsains.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "France",
+          "Georgia",
+          "Italy",
+          "Romania"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/bxlOwbqyNgekIvtKpP64g9Dm4f7.jpg",
+        "include": true
+      },
+      {
+        "title": "Yes",
+        "tmdb_id": 1149614,
+        "director": "Nadav Lapid",
+        "actors": "Ariel Bronz, Efrat Dor, Naama Preis, Aleksey Serebryakov",
+        "genre": "Drame",
+        "duration": 150,
+        "synopsis": "Israël au lendemain du 7 octobre. Y., musicien de jazz précaire, et sa femme Jasmine, danseuse, donnent leur art, leur âme et leur corps aux plus offrants, apportent plaisir et consolation à leur pays qui saigne. Bientôt, Y. se voit confier une mission de la plus haute importance : mettre en musique un nouvel hymne national.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "Germany",
+          "France",
+          "Israel",
+          "Cyprus"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/tuRrL7F3aEg0smXUlUEbaGS4Ooo.jpg",
+        "include": true
+      },
+      {
+        "title": "La tour de glace",
+        "tmdb_id": 1143440,
+        "director": "Lucile Hadžihalilović",
+        "actors": "Marion Cotillard, Clara Pacini, August Diehl, Gaspar Noé",
+        "genre": "Drame",
+        "duration": 118,
+        "synopsis": "Années 1970. Jeanne fugue de son foyer de haute montagne pour rejoindre la ville. Dans le studio où elle s'est réfugiée, la jeune fille tombe sous le charme de Cristina, l'énigmatique star du film La Reine des Neiges, son conte fétiche. Une troublante relation s'installe entre l'actrice et la jeune fille.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "France",
+          "Germany",
+          "Italy"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/3PeKQJMrpFysN8dnakd9vnUXgRL.jpg",
+        "include": true
+      },
+      {
+        "title": "Muganga - Celui qui soigne",
+        "tmdb_id": 1000169,
+        "director": "Marie-Hélène Roux",
+        "actors": "Isaach de Bankolé, Vincent Macaigne, Manon Bresch, Babetida Sadjo",
+        "genre": "Histoire",
+        "duration": 120,
+        "synopsis": "Denis Mukwege, docteur Congolais, pasteur et futur lauréat du Prix Nobel de la Paix, rencontre Guy Cadière, chirurgien belge et athée. Au-delà de leurs differences, ils s’unissent pour une mission commune : redonner un corps et une dignité à des milliers de femmes utilisées comme armes de guerre dans l’est de la République démocratique du Congo.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "Belgium",
+          "France",
+          "Gabon"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Bardot",
+        "tmdb_id": 977168,
+        "director": "Alain Berliner",
+        "actors": "Brigitte Bardot, Claude Lelouch, Naomi Campbell, Paul Watson",
+        "genre": "Documentaire",
+        "duration": 90,
+        "synopsis": "Jamais vraiment dans une case, muse de cinéastes finissant par sacrifier tout à la cause animale, Brigitte Bardot est une femme libre mais sans doute incomprise. BARDOT revient sur les aspects si contradictoires de sa vie, de sa carrière artistique légendaire à sa célèbre fondation. Elle qui bouscula l’image des femmes et fut en avance sur la conscience écologique et le bien-être animal qui semblent, enfin, pour tous une évidence.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-17",
+        "production_countries": [
+          "France",
+          "United Kingdom"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/zOYIJhhzPL1iCtanG3kzm8olt6s.jpg",
+        "include": true
+      },
+      {
+        "title": "I am the Future",
+        "tmdb_id": 1455069,
+        "director": "Rachel Cisinski",
+        "actors": "",
+        "genre": "Documentaire",
+        "duration": 98,
+        "synopsis": "Des rêves plein la tête malgré les difficultés qu’ils rencontrent, quatre jeunes s’interrogent sur leur avenir et celui de leur communauté. Venus de France, Indonésie, Inde et Liban, leurs destins convergent à New York où ils témoignent de leur expérience de la pauvreté aux Nations Unies. Au travers de l’écriture, de la danse, de la photographie et du dessin, les protagonistes posent, avec courage et joie, un œil rare sur les grands défis contemporains.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/skPSaZOnPDz4o9ukbx8HZqQBqnG.jpg",
+        "include": true
+      },
+      {
+        "title": "Стрічка часу",
+        "tmdb_id": 1421157,
+        "director": "Kateryna Gornostai",
+        "actors": "Olha Bryhynets, Borys Khovriak, Mykola Kolomiiets, Valeriia Hukova",
+        "genre": "Documentaire",
+        "duration": 125,
+        "synopsis": "",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "Ukraine",
+          "Luxembourg",
+          "Netherlands",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/b49YNh0qTTBbxS7IP4sWdypTKoP.jpg",
+        "include": true
+      },
+      {
+        "title": "Splitsville",
+        "tmdb_id": 1337562,
+        "director": "Michael Angelo Covino",
+        "actors": "Dakota Johnson, Adria Arjona, Michael Angelo Covino, Kyle Marvin",
+        "genre": "Comédie",
+        "duration": 100,
+        "synopsis": "",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-22",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/zfXywho2Q5xzYxy46Mrq7Lc0gUg.jpg",
+        "include": true
+      },
+      {
+        "title": "Toujours possible ?",
+        "tmdb_id": 1313168,
+        "director": "Jacques Ouaniche",
+        "actors": "Nadia Farès, Amanda Lear, Patrick Ridremont, Jean-Baptiste Maunier",
+        "genre": "Comédie",
+        "duration": 90,
+        "synopsis": "À 55 ans, Gaby, biologiste, perd son job…et gagne une idée folle : avoir un enfant ! Avec sa mère fantasque et un fichier de donneurs, elle traque le sperme parfait, tandis que Pierre, 56 ans, tente de rajeunir à tout prix pour séduire. Mais l’amour pourrait bien prouver que tout reste… toujours possible !",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "L'Intérêt d'Adam",
+        "tmdb_id": 1293858,
+        "director": "Laura Wandel",
+        "actors": "Léa Drucker, Anamaria Vartolomei, Alex Descas, Jules Delsart",
+        "genre": "Drame",
+        "duration": 73,
+        "synopsis": "Adam, 4 ans, est hospitalisé pour malnutrition à la suite d’une décision de justice. Lucy, l’infirmière en chef autorise la mère d’Adam à rester auprès de son fils au-delà des heures de visite fixées par le juge. Mais la situation se complique quand celle-ci refuse une nouvelle fois de quitter son fils. Dans l’intérêt de l’enfant, Lucy fera tout pour venir en aide à cette mère en détresse.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "Belgium",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7oNyeYr9kRLXekfEmnEmKsr12lq.jpg",
+        "include": true
+      },
+      {
+        "title": "Downton Abbey: The Grand Finale",
+        "tmdb_id": 1289936,
+        "director": "Simon Curtis",
+        "actors": "Hugh Bonneville, Laura Carmichael, Phyllis Logan, Robert James-Collier",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "United Kingdom",
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/bux6avxSvsO3IJuKag4gwdTQMG4.jpg",
+        "include": true
+      },
+      {
+        "title": "Wilding, Retour à la Nature Sauvage",
+        "tmdb_id": 1172091,
+        "director": "David Allen",
+        "actors": "Isabella Tree, Rhiannon Hughes, Matthew Collyer, Charlie Burrell",
+        "genre": "Documentaire",
+        "duration": 75,
+        "synopsis": "L'histoire d'un jeune couple qui mise sur la nature pour assurer l'avenir de son domaine agricole défaillant, vieux de quatre cents ans. Le jeune couple lutte contre des traditions bien ancrées et ose remettre le destin de sa ferme entre les mains de la nature. Ils arrachent les clôtures, rendent la terre à l'état sauvage et confient son rétablissement à un mélange hétéroclite d'animaux apprivoisés et sauvages. C'est le début d'une grande expérience qui deviendra l'une des plus importantes expériences de ré-ensauvagement en Europe.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-06-14",
+        "production_countries": [
+          "United Kingdom"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/fiVjT0iojVNBL5wj1Peo9ivh7q1.jpg",
+        "include": true
+      },
+      {
+        "title": "Une place pour Pierrot",
+        "tmdb_id": 1151269,
+        "director": "Hélène Médigue",
+        "actors": "Marie Gillain, Grégory Gadebois, Mathilde Labarthe, Patrick Mille",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "Pierrot, 50 ans, est autiste et vit dans un foyer. Sa soeur Camille, 45 ans, découvre qu'il subit une surmédication qui le fait régresser. Révoltée, elle décide de le prendre chez elle en attendant de trouver un lieu adapté à sa différence. Une longue quête commence.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "Belgium",
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Conjuring : L'Heure du jugement",
+        "tmdb_id": 1038392,
+        "director": "Michael Chaves",
+        "actors": "Vera Farmiga, Patrick Wilson, Mia Tomlinson, Ben Hardy",
+        "genre": "Horreur",
+        "duration": null,
+        "synopsis": "Ed et Lorraine Warren sortent de leur retraite en 1986 pour enquêter sur l'effroyable affaire Smurl. Confrontés à une entité démoniaque d'une noirceur inédite, ils sont rejoints par leur fille Judy, désormais adulte et dotée de dons médiumniques, et son compagnon Tony. Une ultime enquête où la foi, la famille et le surnaturel s'entrelacent dans une lutte désespérée contre le mal.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-04",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/29ES27icY5CzTcMhlz1H4SdQRod.jpg",
+        "include": true
+      },
+      {
+        "title": "Connemara",
+        "tmdb_id": 979976,
+        "director": "Alex Lutz",
+        "actors": "Mélanie Thierry, Bastien Bouillon, Jacques Gamblin, Bruno Sanches",
+        "genre": "Drame",
+        "duration": 112,
+        "synopsis": "Issue d'un milieu modeste, Hélène a quitté depuis longtemps les Vosges. Aujourd'hui, elle a la quarantaine. Un burn-out brutal l’oblige à quitter Paris, revenir là où elle a grandi, entre Nancy et Epinal. Elle s'installe avec sa famille, retrouve un bon travail, la qualité de vie en somme… Un soir, sur le parking d’un restaurant franchisé, elle aperçoit un visage connu, Christophe Marchal, le beau Hockeyeur des années lycées. Christophe, ce lointain objet de désir, une liaison qu'Hélène n'avait pas vu venir... Dans leurs étreintes, ce sont deux France, deux mondes désormais étrangers qui rêvent de s’aimer. Cette idylle, cette ile leur sera-t-elle possible ?",
+        "category": "Art et Essai",
+        "budget": 5250375,
+        "keywords": [],
+        "release_date": "2025-09-10",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/zSQU3Tn0Wfs5FfONnf1Xj6CP2gw.jpg",
+        "include": true
+      },
+      {
+        "title": "Nénuphar",
+        "tmdb_id": 1485163,
+        "director": "Julien Botzanowski",
+        "actors": "Thomas Lesserteur, Julien Thibaut, Guerric Nivelon, Florence Bonanno",
+        "genre": "Thriller",
+        "duration": 105,
+        "synopsis": "Maude invite son amoureux Jérémy dans la villa maternelle. Des vacances de rêve ! Et puis, la sensation qu’un intrus surveille. Maude suspecte son ex... En effet, Félix est jaloux. Félix est instable. Félix est complètement dingue.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-03",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/74VJj0YbVObvopHeOM6SUbRmkSY.jpg",
+        "include": true
+      },
+      {
+        "title": "Exit 8",
+        "tmdb_id": 1408208,
+        "director": "Genki Kawamura",
+        "actors": "Kazunari Ninomiya, Yamato Kochi, Naru Asanuma, Kotone Hanase",
+        "genre": "Horreur",
+        "duration": 100,
+        "synopsis": "Un homme piégé dans un couloir de métro cherche la sortie numéro 8. Pour la trouver, il faut traquer les anomalies. S’il en voit une, il fait demi-tour. S’il n’en voit aucune, il continue. Mais s’il se trompe, il est renvoyé à son point de départ. Parviendra-t-il à sortir de ce couloir sans fin ?",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-29",
+        "production_countries": [
+          "Japan"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/y7koUEFq3fLFPm4tJzjk77JhIcE.jpg",
+        "include": true
+      },
+      {
+        "title": "Ciudad sin sueño",
+        "tmdb_id": 1313032,
+        "director": "Guillermo Galoe",
+        "actors": "Antonio Fernández, Fernández Gabarre, Bilal Sedraoui, Fernández Silva",
+        "genre": "Drame",
+        "duration": 97,
+        "synopsis": "Toni, un garçon Rom de 15 ans, vit dans le plus grand bidonville illégal d'Europe, en périphérie de Madrid. Fier d'appartenir à sa famille de ferrailleurs, il suit son grand-père partout. Mais à mesure que leur terrain devient la proie des démolisseurs, la famille se divise : lorsque certains choisissent de partir en ville, son grand-père, lui, refuse de quitter leurs terres. Au fil des nuits, Toni doit faire un choix : s’élancer vers un avenir incertain ou s'accrocher au monde de son enfance.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-03",
+        "production_countries": [
+          "Spain",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/iG75zRkQwoxk8db6OrF5XX40YoM.jpg",
+        "include": true
+      },
+      {
+        "title": "Adieu, Jean-Pat",
+        "tmdb_id": 1266813,
+        "director": "Cécilia Rouaud",
+        "actors": "Alice David, Hakim Jemili, Laurence Arné, Constance Labbé",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "Au moment de s’engager vraiment avec Alice, Etienne, 35 ans, a un doute : et s’il était passé à côté de sa vie ? Pour en avoir le coeur net, il entreprend de retrouver Magali, son grand amour d’enfance, en appelant Jean-Pat, son ancien rival… mais celui-ci meurt pendant le coup de fil. Et voilà Etienne embarqué dans l’organisation des obsèques de son pire ennemi.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-03",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Fils de",
+        "tmdb_id": 1197122,
+        "director": "Carlos Abascal Peiró",
+        "actors": "Jean Chevalier, François Cluzet, Karin Viard, Alex Lutz",
+        "genre": "Comédie",
+        "duration": 90,
+        "synopsis": "Une semaine après la présidentielle, la France cherche toujours son Premier Ministre. Nino, jeune attaché parlementaire ambitieux, est missionné pour convaincre son père, Lionel Perrin d’accepter le poste. Mais cet éternel perdant a coupé les ponts avec la politique…et son fils. Nino se retrouve embarqué dans une course effrénée où tous les coups sont permis. Il a 24h pour sauver sa carrière, son couple et si possible l’avenir de la France !",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-03",
+        "production_countries": [
+          "Belgium",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/fR5zaahIku6Z2UMlJ9qvHaLgOtA.jpg",
+        "include": true
+      },
+      {
+        "title": "Sirāt",
+        "tmdb_id": 1151272,
+        "director": "Oliver Laxe",
+        "actors": "Sergi López, Bruno Núñez, Richard Bellamy, Stefania Gadda",
+        "genre": "Drame",
+        "duration": 120,
+        "synopsis": "Un père et son fils parviennent à une rave perdue au cœur des montagnes du sud du Maroc. Ils cherchent Mar — fille et sœur — disparue depuis plusieurs mois lors de l’une de ces fêtes sans fin. Plongés dans la musique électronique et une liberté brute qui leur est étrangère, ils distribuent inlassablement sa photo. L’espoir s’amenuise, mais ils s’obstinent et suivent un groupe de ravers vers une dernière fête dans le désert. À mesure qu’ils s’enfoncent dans l’immensité brûlante, le voyage les confronte à leurs propres limites.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-06",
+        "production_countries": [
+          "Spain",
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/ic7yV6RwONpEf0Krkx004vKwrwU.jpg",
+        "include": true
+      },
+      {
+        "title": "Honey Don't!",
+        "tmdb_id": 1149504,
+        "director": "Ethan Coen",
+        "actors": "Margaret Qualley, Aubrey Plaza, Charlie Day, Billy Eichner",
+        "genre": "Crime",
+        "duration": 90,
+        "synopsis": "Honey O'Donahue, une détective privée d'une petite ville enquête sur une série de morts étranges liées à une église mystérieuse.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-21",
+        "production_countries": [
+          "United Kingdom",
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/sKbKMOTvWHIrzVxMTyiNeNWNjTc.jpg",
+        "include": true
+      },
+      {
+        "title": "Nos jours sauvages",
+        "tmdb_id": 1103747,
+        "director": "Vasilis Kekatos",
+        "actors": "Daphné Patakia, Nikos Zeginoglou, Eva Samioti, Stavros Tsoumanis",
+        "genre": "Drame",
+        "duration": 104,
+        "synopsis": "En rupture avec sa famille, Chloé, 20 ans, est recueillie par un groupe de jeunes marginaux. A bord de leur van, ils sillonnent la Grèce post-crise, venant en aide aux plus démunis, moyennant des combines pas toujours légales. A leur contact, Chloé expérimente une nouvelle vie, plus libre, plus intense, où tout peut s'arrêter demain.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-09-03",
+        "production_countries": [
+          "Belgium",
+          "France",
+          "Greece",
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/zuFaImlIVbkakV5UGLUC3nkuIel.jpg",
+        "include": true
+      },
+      {
+        "title": "A Useful Ghost",
+        "tmdb_id": 1364904,
+        "director": "Ratchapoom Boonbunchachoke",
+        "actors": "Davika Hoorne, Witsarut Himmarat, Apasiri Nitibhon, Wanlop Rungkumjad",
+        "genre": "Comédie",
+        "duration": 130,
+        "synopsis": "March fait le deuil de sa femme Nat, récemment décédée, victime de la pollution due à la poussière. Il découvre que son esprit est revenu en prenant possession de leur aspirateur. Dérangé par un fantôme, apparu suite à la mort d’un ouvrier qui a causé la fermeture de l’usine, sa famille rejette l’étrange relation entre un homme et un fantôme. Tentant de les convaincre de leur amour, Nat se propose de faire le ménage dans l’usine. Pour devenir un fantôme utile, elle doit d’abord éliminer ceux qui ne servent à rien.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-27",
+        "production_countries": [
+          "Thailand",
+          "France",
+          "Singapore",
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/8xbfTDgOtiFXDjTttbORoT93nIT.jpg",
+        "include": true
+      },
+      {
+        "title": "En première ligne",
+        "tmdb_id": 1356670,
+        "director": "Petra Biondina Volpe",
+        "actors": "Leonie Benesch, Alireza Bayram, Jürg Plüss, Jasmin Mattei",
+        "genre": "Drame",
+        "duration": 92,
+        "synopsis": "Floria est une infirmière dévouée qui fait face au rythme implacable d’un service hospitalier en sous-effectif. En dépit du manque de moyens, elle tente d’apporter humanité et chaleur à chacun de ses patients. Mais au fil des heures, les demandes se font de plus en plus pressantes, et malgré son professionnalisme, la situation commence dangereusement à lui échapper…",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-02-27",
+        "production_countries": [
+          "Switzerland",
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/xaVtmZBH8sSt3q0a5GuYSeyVnww.jpg",
+        "include": true
+      },
+      {
+        "title": "La Femme qui en savait trop",
+        "tmdb_id": 1320414,
+        "director": "Nader Saeivar",
+        "actors": "Maryam Boubani, Nader Naderpour, Abbas Imani, Ghazal Shojaei",
+        "genre": "Drame",
+        "duration": 100,
+        "synopsis": "En Iran, Tarlan, professeure de danse à la retraite, est témoin d’un meurtre commis par une personnalité influente du gouvernement. Elle le signale à la police qui refuse d’enquêter. Elle doit alors choisir entre céder aux pressions politiques ou risquer sa réputation et ses ressources pour obtenir justice.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-04-25",
+        "production_countries": [
+          "Austria",
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7B3IVw7ClkebiDRo7Q4sE3iSdVQ.jpg",
+        "include": true
+      },
+      {
+        "title": "La Guerre des Rose",
+        "tmdb_id": 1267905,
+        "director": "Jay Roach",
+        "actors": "Benedict Cumberbatch, Olivia Colman, Allison Janney, Andy Samberg",
+        "genre": "Comédie",
+        "duration": null,
+        "synopsis": "Theo et Ivy forment un couple parfait à qui la vie semble sourire : des carrières professionnelles épanouissantes, des enfants formidables, une vie sexuelle enviable... Mais sous cette façade de famille parfaite se cache en fait une véritable poudrière - fondée sur la compétition et le ressentiment – prête à s'enflammer dès lors que les rêves professionnels de Theo s'effondrent...",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-27",
+        "production_countries": [
+          "United Kingdom",
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/jiEWDHYejnQlpGaDNI6YsAi7q9H.jpg",
+        "include": true
+      },
+      {
+        "title": "Pris Au Piège",
+        "tmdb_id": 1245993,
+        "director": "Darren Aronofsky",
+        "actors": "Austin Butler, Zoë Kravitz, Regina King, Matt Smith",
+        "genre": "Crime",
+        "duration": null,
+        "synopsis": "Un ancien joueur de baseball Hank Thompson, plonge dans le milieu criminel du New York des années 1990.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-27",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/eoMmnFNqOYGdgCX7J6w4HzyOWQz.jpg",
+        "include": true
+      },
+      {
+        "title": "Escape from the 21st Century",
+        "tmdb_id": 1242372,
+        "director": "Li Yang",
+        "actors": "Zhang Ruoyun, Zhong Chuxi, Song Yang, Wu Xiaoliang",
+        "genre": "Science-Fiction",
+        "duration": 98,
+        "synopsis": "En 1999, trois adolescents tombés dans une eau quelque peu toxique contractent le pouvoir du voyage spatio-temporel. Ils se retrouvent vingt ans après sur la planète K, qui ressemble étrangement à la Terre, en gardant leur âme d’adolescent dans leur corps d’adulte. En ce va-et-vient permanent, sauver le monde est à la portée de leurs mains...",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-07-18",
+        "production_countries": [
+          "China"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/tzVakGUagwlH3gmyhvTbKFjeu0Z.jpg",
+        "include": true
+      },
+      {
+        "title": "Family Therapy",
+        "tmdb_id": 1208795,
+        "director": "Sonja Prosenc",
+        "actors": "Marko Mandić, Katarina Stegnar, Aliocha Schneider, Mila Bezjak",
+        "genre": "Drame",
+        "duration": 122,
+        "synopsis": "Une famille apparemment parfaite composée d'Olivija, d'Aleksander et de leur fille Agata, voit leur vie est bouleversée avec l'arrivée de Julian, dévoilant les relations dysfonctionnelles qui se cachent sous la façade du bonheur.  ⎯⎯  Une réimagination humoristique de la prémisse du film TEOREMA de Pier Paolo Pasolini",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-06-08",
+        "production_countries": [
+          "Croatia",
+          "France",
+          "Italy",
+          "Norway",
+          "Serbia",
+          "Slovenia"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/eT4zVXTvMr730miZJlSuBBv1XyB.jpg",
+        "include": true
+      },
+      {
+        "title": "Le Roi Soleil",
+        "tmdb_id": 1205648,
+        "director": "Vincent Maël Cardona",
+        "actors": "Pio Marmaï, Sofiane Zermani, Panayotis Pascot, Lucie Zhang",
+        "genre": "Drame",
+        "duration": 115,
+        "synopsis": "Un homme est mort au Roi Soleil, un bar-pmu à Versailles. Il laisse un ticket de loto gagnant de plusieurs millions d’euros. En s’arrangeant un peu avec la réalité et leur conscience, les témoins du drame pourraient repartir avec l’argent... Et si la vérité n'était qu'un scénario bien ficelé ?",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-27",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/98JGVilmoOdXHM6q76BebrmuBKf.jpg",
+        "include": true
+      },
+      {
+        "title": "Miroirs No. 3",
+        "tmdb_id": 1178602,
+        "director": "Christian Petzold",
+        "actors": "Paula Beer, Barbara Auer, Matthias Brandt, Enno Trebs",
+        "genre": "Drame",
+        "duration": 86,
+        "synopsis": "Lors d'un week-end à la campagne, Laura, étudiante à Berlin, survit miraculeusement à un accident de voiture. Physiquement épargnée mais profondément secouée, elle est recueillie chez Betty, qui a été témoin de l'accident et s’occupe d’elle avec affection. Peu à peu, le mari et le fils de Betty surmontent leur réticence, et une quiétude quasi familiale s’installe. Mais bientôt, ils ne peuvent plus ignorer leur passé, et Laura doit affronter sa propre vie.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-27",
+        "production_countries": [
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/A434PrBdY5l1ZhMydqXouJCnaq9.jpg",
+        "include": true
+      },
+      {
+        "title": "Sarı Harfler",
+        "tmdb_id": 1315657,
+        "director": "İlker Çatak",
+        "actors": "Özgü Namal, Tansu Biçer, Şiir Eloğlu, Eray Egilmez",
+        "genre": "Drame",
+        "duration": null,
+        "synopsis": "Le récit d'un couple d’artistes turcs forcés à l’exil.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-20",
+        "production_countries": [
+          "France",
+          "Germany",
+          "Turkey"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Alpha",
+        "tmdb_id": 1284460,
+        "director": "Julia Ducournau",
+        "actors": "Mélissa Boros, Golshifteh Farahani, Tahar Rahim, Emma Mackey",
+        "genre": "Drame",
+        "duration": 128,
+        "synopsis": "Alpha, 13 ans, est une adolescente agitée qui vit seule avec sa mère. Leur monde s’écroule le jour où elle rentre de l'école avec un tatouage sur le bras.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-20",
+        "production_countries": [
+          "France",
+          "Belgium"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/89rX9774vG6GzE128Varjy6rKOl.jpg",
+        "include": true
+      },
+      {
+        "title": "Les Orphelins",
+        "tmdb_id": 1244975,
+        "director": "Olivier Schneider",
+        "actors": "Alban Lenoir, Dali Benssalah, Sonia Faïdi, Anouk Grinberg",
+        "genre": "Action",
+        "duration": null,
+        "synopsis": "Gab et Driss, amis d’enfance brouillés depuis leur départ de l’orphelinat, mènent des vies opposées : l’un est flic à l’IGPN, l’autre fixeur pour des voyous. Lorsque leur premier amour meurt dans un accident suspect, sa fille Leïla, 17 ans, s’empare de l’arme de Gab et se lance sur la piste d’une puissante entreprise prête à tout pour étouffer l’affaire. Forcés de faire équipe, les orphelins vont devoir la stopper avant qu’elle ne commette l’irréparable…",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-20",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Valeur sentimentale",
+        "tmdb_id": 1124566,
+        "director": "Joachim Trier",
+        "actors": "Renate Reinsve, Inga Ibsdotter Lilleaas, Stellan Skarsgård, Elle Fanning",
+        "genre": "Drame",
+        "duration": 132,
+        "synopsis": "A la mort de leur mère, Nora et Agnès voient leur père Gustav réapparaître dans leur vie. Réalisateur de films autrefois reconnu, il a écrit un scénario dont il voudrait que Nora, devenue comédienne, joue le rôle principal, mais cette dernière refuse catégoriquement. Lors d'une rétrospective qui lui est consacrée dans un festival français, Gustav rencontre une jeune star hollywoodienne qui, bouleversée par l’un de ses films, manifeste son désir de travailler avec lui. Il lui offre le rôle initialement écrit pour Nora, voyant là l’opportunité inespérée de relancer sa carrière. Le tournage en Norvège devient l’occasion pour Gustav d'affronter ses démons et lui donne une dernière chance de renouer avec ses filles.",
+        "category": "Art et Essai",
+        "budget": 7800000,
+        "keywords": [],
+        "release_date": "2025-08-20",
+        "production_countries": [
+          "Norway",
+          "France",
+          "Denmark",
+          "Germany",
+          "Sweden",
+          "Turkey",
+          "United Kingdom"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/8fCqMWoJeW1pFVHx5LnE25iv0K2.jpg",
+        "include": true
+      },
+      {
+        "title": "Coeur Glacé Battant",
+        "tmdb_id": 1461491,
+        "director": "Sarah Leonor",
+        "actors": "Dinara Drukarova",
+        "genre": "Documentaire",
+        "duration": 36,
+        "synopsis": "Des loups, les Vosges, la nuit",
+        "category": "Documentaire",
+        "budget": 10,
+        "keywords": [],
+        "release_date": "2025-08-15",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/lFX0DOyPBQGVaW6eoiJcK7RsRWp.jpg",
+        "include": true
+      },
+      {
+        "title": "L'épreuve du feu",
+        "tmdb_id": 1303356,
+        "director": "Aurélien Peyre",
+        "actors": "Suzanne Jouannet, Félix Lefebvre, Anja Verderosa, Victor Bonnel",
+        "genre": "Drame",
+        "duration": 105,
+        "synopsis": "Hugo a 19 ans. Comme chaque été, il passe ses vacances sur une île atlantique, dans la petite maison familiale. Mais cette année est différente, Hugo s’est transformé physiquement et arrive accompagné de sa petite amie, Queen, une esthéticienne dont la verve et les longs ongles strassés détonnent avec la sobriété et la timidité du jeune homme. Rapidement, le couple devient l’objet de tous les regards.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-13",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "À feu doux",
+        "tmdb_id": 1265717,
+        "director": "Sarah Friedland",
+        "actors": "Kathleen Chalfant, Carolyn Michelle, Andy McQueen, H. Jon Benjamin",
+        "genre": "Drame",
+        "duration": 90,
+        "synopsis": "Élégante octogénaire, Ruth Goldman reçoit un homme à déjeuner. Alors qu’elle pense poursuivre le rendez-vous galant vers une destination surprise, elle est menée à une résidence médicalisée.  Portée par un appétit de vivre insatiable et malgré sa mémoire capricieuse, Ruth s’y réapproprie son âge et ses désirs.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-20",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/zUKpIGBCiUTyFTEPJxc7nJtLU3P.jpg",
+        "include": true
+      },
+      {
+        "title": "Together",
+        "tmdb_id": 1242011,
+        "director": "Michael Shanks",
+        "actors": "Dave Franco, Alison Brie, Damon Herriman, Mia Morrissey",
+        "genre": "Horreur",
+        "duration": 102,
+        "synopsis": "Tim et Millie sont ensemble depuis des années quand ils décident de tout abandonner pour s’installer à la campagne. Alors que les tensions sont déjà vives, une force surnaturelle transforme leur rêve en cauchemar, menaçant leur relation, leur amour... et jusqu’à leur intégrité physique.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-30",
+        "production_countries": [
+          "United States of America",
+          "Australia"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/inliWt3ukcpKDGPpEe2lRDLwK2r.jpg",
+        "include": true
+      },
+      {
+        "title": "Brief History of a Family",
+        "tmdb_id": 1135176,
+        "director": "Lin Jianjie",
+        "actors": "Zu Feng, Guo Keyu, Sun Xilun, Lin Muran",
+        "genre": "Drame",
+        "duration": 99,
+        "synopsis": "Wei est le fils unique d’une famille aisée, dans la Chine moderne et urbaine. Alors qu’il se rapproche de Shuo, un camarade d’école plutôt mystérieux, celui-ci commence à s’immiscer dans leur quotidien. Peu à peu, sa présence semble perturber l’équilibre familial.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-10-15",
+        "production_countries": [
+          "China",
+          "France",
+          "Denmark",
+          "Qatar"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/7MjB0A7ciykouc2s5iHejUyz48D.jpg",
+        "include": true
+      },
+      {
+        "title": "La voie du serpent",
+        "tmdb_id": 1115780,
+        "director": "Kiyoshi Kurosawa",
+        "actors": "Damien Bonnard, Ko Shibasaki, Mathieu Amalric, Grégoire Colin",
+        "genre": "Crime",
+        "duration": 112,
+        "synopsis": "Albert Bacheret est un père dévasté par la disparition inexplicable de sa fille de huit ans. Alors que la police semble incapable de résoudre l'affaire, il décide de mener sa propre enquête et reçoit l'aide inattendue de Sayoko, une énigmatique psychiatre japonaise. Ensemble, ils kidnappent des responsables du \"Cercle\", une société secrète. Mais chaque nouvel indice mène à un nouveau suspect qui présente toujours une version différente des faits... Obsédé par la vérité, Albert va devoir naviguer entre sa soif aveugle de vengeance et une infinie spirale de mensonges.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-06-14",
+        "production_countries": [
+          "Belgium",
+          "France",
+          "Japan",
+          "Luxembourg"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/nR3cdtTqFhPfMeMSUVxUBY8gjRK.jpg",
+        "include": true
+      },
+      {
+        "title": "Sally Bauer, à contre-courant",
+        "tmdb_id": 1035657,
+        "director": "Frida Kempff",
+        "actors": "Josefin Neldén, Mikkel Boe Følsgaard, Lisa Carlehed, Ivar Forsling",
+        "genre": "Drame",
+        "duration": 120,
+        "synopsis": "Inspiré d’une histoire vraie. Sud de la Suède, été 1939. La Seconde Guerre mondiale est imminente. Sally Bauer, mère célibataire de 30 ans est déterminée à battre le record de la traversée de la Manche à la nage. Face à la pression sociale et sanctionnée par sa famille qui menace de lui retirer son fils, elle affronte les conventions pour tenter d’accomplir son rêve.",
+        "category": "Art et Essai",
+        "budget": 4300000,
+        "keywords": [],
+        "release_date": "2024-11-15",
+        "production_countries": [
+          "Denmark",
+          "Estonia",
+          "Finland",
+          "Sweden"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/nhuPYq6jWlSvbaOLls0RFmXxKw4.jpg",
+        "include": true
+      },
+      {
+        "title": "Karate Kid: Legends",
+        "tmdb_id": 1011477,
+        "director": "Jonathan Entwistle",
+        "actors": "Ben Wang, Jackie Chan, Ralph Macchio, Joshua Jackson",
+        "genre": "Action",
+        "duration": 94,
+        "synopsis": "Li Fong, un adolescent qui fréquente l'école de kung-fu de M. Han en Chine, doit déménager à New York avec sa mère. Celle-ci souhaite que son fils intègre une école prestigieuse et qu'il mette de côté son sport de combat. À son arrivée dans sa nouvelle ville, Li rencontre Mia, une camarade de classe, ainsi que le père de celle-ci avec lesquels il se lie d'amitié. Li se retrouve ensuite entraîné dans une compétition d'arts martiaux où il doit affronter un redoutable champion de karaté.",
+        "category": "Grand Public",
+        "budget": 45000000,
+        "keywords": [],
+        "release_date": "2025-05-08",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/vMCniu5I2obuyl1uNoUAz72UG6q.jpg",
+        "include": true
+      },
+      {
+        "title": "Nobody 2",
+        "tmdb_id": 1007734,
+        "director": "Timo Tjahjanto",
+        "actors": "Bob Odenkirk, Connie Nielsen, Christopher Lloyd, RZA",
+        "genre": "Action",
+        "duration": null,
+        "synopsis": "Le deuxième volet de Nobody.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-08-13",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/ir7mqodq6bamW2XHKbaNb2Zvf6u.jpg",
+        "include": true
+      },
+      {
+        "title": "Fleak",
+        "tmdb_id": 680770,
+        "director": "Jens Møller",
+        "actors": "",
+        "genre": "Aventure",
+        "duration": 83,
+        "synopsis": "Lorsque Thomas rencontre Fleak, une créature poilue venue d’une autre dimension, il se retrouve embarqué dans une aventure fantastique au cours de laquelle il découvre un moyen de remarcher. Mais en échange, il doit affronter un monstre dévoreur de tout, né de sa propre ombre.",
+        "category": "Grand Public",
+        "budget": 4500000,
+        "keywords": [],
+        "release_date": "2025-06-06",
+        "production_countries": [
+          "Finland",
+          "France",
+          "Malaysia",
+          "Poland"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/xfTB0HLxD1mwoFTHWhQrxJI1Q5n.jpg",
+        "include": true
+      }
+    ]
+  },
+  {
+    "id": 1748954818390,
+    "name": "juin 2025",
+    "date_created": "2025-06-03T12:46:58.390Z",
+    "films": [
+      {
+        "title": "Toutes Portes Ouvertes",
+        "tmdb_id": 1452364,
+        "director": "Alicia Lévy",
+        "actors": "",
+        "genre": "Animation",
+        "duration": 3,
+        "synopsis": "La confusion s'installe dans l'appartement, comment réussir à habiter à nouveau?",
+        "category": "Jeunesse",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-04-23",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/jO64FKYgXJLdBgJjz64mOZrJzE3.jpg",
+        "include": true
+      },
+      {
+        "title": "Deux Abeilles",
+        "tmdb_id": 1473759,
+        "director": "Lenny Maréchal",
+        "actors": "Andrea Gomis, Elisabeth Pioc, Didier Gaudé, Maxime Combes",
+        "genre": "Romance",
+        "duration": 5,
+        "synopsis": "Deux êtres se sont croisés comme deux abeilles dans le tumulte du monde. Un regard a suffi. Puis l’une est partie. L’autre est restée. Mais le souvenir a continué de bourdonner.",
+        "category": "Grand Public",
+        "budget": 100,
+        "keywords": [],
+        "release_date": "2025-06-07",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/c9BCsmoT2uJldkSZ248tPmb5DiQ.jpg",
+        "include": true
+      },
+      {
+        "title": "Thug Life",
+        "tmdb_id": 1045021,
+        "director": "Mani Ratnam",
+        "actors": "Kamal Haasan, Silambarasan, Trisha Krishnan, Ashok Selvan",
+        "genre": "Action",
+        "duration": 150,
+        "synopsis": "Le film se déroule dans un monde façonné par les criminels.",
+        "category": "Grand Public",
+        "budget": 35000000,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "India"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/DmBbUtbA3T9sdVXDgIJ8bsIDw0.jpg",
+        "include": true
+      },
+      {
+        "title": "3ème Œil",
+        "tmdb_id": 1396565,
+        "director": "Tatiana Becquet Genel",
+        "actors": "Tatiana Becquet Genel, Valérie Moinet, Zoé Bensimon, Julia Vidal",
+        "genre": "Drame",
+        "duration": 116,
+        "synopsis": "Fanny, journaliste, découvre un mystérieux album photo dans une brocante, révélant la vie d'une photographe inconnue disparue dans des circonstances obscures à New York. À la recherche de la vérité, Fanny retrouve la galerie à Paris exposant ses œuvres. Des autoportraits, des installations et des mises en scènes avec une Love Doll. De ces photographies exposées et de cet album photo émane le quotidien du travail de Christina et l'expérience d'une vie dédiée à la photographie. Ouvrant les portes à un monde photographique étrange ainsi qu'à la réalité d'une œuvre d'art. Chaque image semble dissimuler un secret.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/37d8dDeF6KzEyGvjSreqXDrkNch.jpg",
+        "include": true
+      },
+      {
+        "title": "La Terre des Vertus",
+        "tmdb_id": 1390530,
+        "director": "Vincent Lapize",
+        "actors": "",
+        "genre": "Documentaire",
+        "duration": 92,
+        "synopsis": "Les Jardins ouvriers des Vertus à Aubervilliers sont une parenthèse de nature au milieu de la concentration urbaine. Depuis des années, des habitant.e.s y cultivent leurs potagers, tissent des liens, gardent contact avec le vivant. Cet îlot collectif est menacé par la construction d’un solarium et d’une piscine d’entraînement pour les JO 2024 et par le développement du Grand Paris. Face à la violence des tractopelles, les jardinièr.e.s en lutte inventent un laboratoire du commun, un havre de pensée, un territoire libéré.  Entre conte impressionniste et récit de lutte, La Terre des Vertus pose un regard sur ce jardin-monde qui s’épanouit au cœur de la vie urbaine.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [],
+        "poster_url": "",
+        "include": true
+      },
+      {
+        "title": "Dans la peau",
+        "tmdb_id": 1311186,
+        "director": "Pascal Tessaud",
+        "actors": "Wilfried Blé, Almaz Papatakis, Daniel Saïd, Amélie Hassani",
+        "genre": "Documentaire",
+        "duration": 100,
+        "synopsis": "À sa sortie de prison, Kaleem revient vivre à Marseille, à la Cité de la Savine. Il travaille sur les chantiers tout en rêvant de vivre de sa passion pour la danse. Marie, jeune architecte d’origine grecque, découvre la ville et ses cultures. Leur rencontre inattendue devient vite une histoire d’amour tumultueuse dans cette ville multiculturelle mais socialement divisée.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/jXFuWvuLf4bVTg2zzkICavNLZxY.jpg",
+        "include": true
+      },
+      {
+        "title": "Horizonte",
+        "tmdb_id": 1265716,
+        "director": "César Augusto Acevedo",
+        "actors": "Claudio Cataño, Paulina García, Carlos Mario Echeverry, Victoria Hernández",
+        "genre": "Drame",
+        "duration": 125,
+        "synopsis": "Séparés pendant des années en raison d’un conflit armé, Basilio et sa mère se retrouvent enfin et se mettent en quête du père disparu. Mais tous deux sont désormais morts. Cherchant à expier ses crimes passés, commis à l’époque où il était un criminel de guerre, Basilio va tenter d’obtenir le difficile pardon de ses victimes. Mais aussi celui de sa propre mère…",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "Chile",
+          "Colombia",
+          "France",
+          "Germany",
+          "Luxembourg"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/rsR4y3MjcuRTx8OY5hfGCWzMRka.jpg",
+        "include": true
+      },
+      {
+        "title": "Cloud",
+        "tmdb_id": 1244244,
+        "director": "Kiyoshi Kurosawa",
+        "actors": "Masaki Suda, Kotone Furukawa, Daiken Okudaira, Amane Okayama",
+        "genre": "Drame",
+        "duration": 123,
+        "synopsis": "Ryosuke plaque tout pour vivre de la revente en ligne. Mais bientôt, certains clients menaçants resserrent l’étau autour de lui sans qu’il en comprenne les raisons. Son rêve d’indépendance vole en éclats. Dans un Japon hyperconnecté, fuir est impossible. Surtout quand on ignore les règles du jeu.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-09-27",
+        "production_countries": [
+          "Japan"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/kznamwpZYXUGQGqdFW2N5jhJPc5.jpg",
+        "include": true
+      },
+      {
+        "title": "Sauve qui peut",
+        "tmdb_id": 1241435,
+        "director": "Alexe Poukine",
+        "actors": "",
+        "genre": "Documentaire",
+        "duration": 98,
+        "synopsis": "À l’hôpital, soignants et soignantes interrogent leur pratique lors d’ateliers de simulation avec des comédiens. Pour annoncer un cancer ou accompagner ses proches, l’empathie avec le patient se travaille. Mais l’idéal relationnel prôné en formation est-il applicable dans un système hospitalier de plus en plus à bout de force ? Peu à peu, la simulation devient un exutoire aux malaises qui rongent l’institution…",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "Belgium",
+          "France",
+          "Switzerland"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/rH90v61jqcP8CBZ2Mm6pfWvijAa.jpg",
+        "include": true
+      },
+      {
+        "title": "Le Répondeur",
+        "tmdb_id": 1158616,
+        "director": "Fabienne Godet",
+        "actors": "Salif Cissé, Denis Podalydès, Aure Atika, Clara Bretheau",
+        "genre": "Comédie",
+        "duration": 102,
+        "synopsis": "Baptiste, un imitateur de talent, ne parvient pas à vivre de son art. Un jour, il est approché par Pierre Chozène, un romancier célèbre mais discret, dérangé par les importuns, les solliciteurs, les mondains, les fâcheux. Pierre a besoin de calme pour terminer son texte le plus ambitieux, le plus intime. Il propose alors à Baptiste de devenir sa voix au téléphone, et c'est ainsi que Baptiste devient son répondeur, à leurs risques et périls.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-04",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/yhHSimGdCXjAQFvpILvYdgOAh7K.jpg",
+        "include": true
+      },
+      {
+        "title": "Fragments d'un parcours amoureux",
+        "tmdb_id": 1157128,
+        "director": "Chloé Barreau",
+        "actors": "Jeanne Rosa, Rebecca Zlotowski, Anne Berest, Jean-Philippe Raiche Ludger Beaulieu",
+        "genre": "Documentaire",
+        "duration": 95,
+        "synopsis": "Depuis ses 16 ans, entre Paris et Rome, Chloé a filmé ses amours. Coup de cœur adolescent, relation à distance, passion charnelle... alors qu’elle vivait une histoire, elle en fabriquait déjà le souvenir. Mais de quoi se souviennent ces ex ? Quelle est leur version des faits ? Douze d’entre eux se livrent pour reconstituer un parcours sentimental aussi singulier qu’universel.",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2023-09-13",
+        "production_countries": [
+          "Italy"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/4N4TUARGeNaAchOy7AXHadluOge.jpg",
+        "include": true
+      },
+      {
+        "title": "Freud, la dernière confession",
+        "tmdb_id": 1025491,
+        "director": "Matt Brown",
+        "actors": "Anthony Hopkins, Matthew Goode, Liv Lisa Fries, Jodi Balfour",
+        "genre": "Drame",
+        "duration": 110,
+        "synopsis": "A la veille de la Seconde Guerre mondiale, Sigmund Freud s'est réfugié à Londres, en compagnie de sa fille Anna. Sous l'effet de l'âge et de la maladie, la star mondiale de la psychanalyse s'est changée en un vieillard aigri et capricieux. Mais la curiosité du professeur est piquée au vif lorsqu'un certain C.S Lewis, auteur de romans pour la jeunesse, demande à le rencontrer pour débattre de l'existence de Dieu.",
+        "category": "Art et Essai",
+        "budget": 10000000,
+        "keywords": [],
+        "release_date": "2023-12-22",
+        "production_countries": [
+          "Ireland",
+          "United Kingdom",
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/uxh8U2n23QsEpgtwluJb3jHAu1o.jpg",
+        "include": true
+      },
+      {
+        "title": "Stock-car family",
+        "tmdb_id": 1474499,
+        "director": "Olivier Schwob",
+        "actors": "",
+        "genre": "Documentaire",
+        "duration": 55,
+        "synopsis": "Tous les ans, à Brissac, au pied des Cévennes, un drôle de manège se met en place. Autour d’un ovale de terre se regroupe toute une bande de passionnés, avec une seule idée en tête : se frayer un chemin coûte que coûte. À travers une course de Stock-Cars dans l’arrière-pays de Montpellier se raconte un village, des valeurs, des métiers, et des passions, tout cela se transmettant de génération en génération dans deux familles très proches du réalisateur. Ces passions pourront elles survivre à l’heure du bouleversement climatique ?",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-06-03",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/lFdG7MjNF7BGZ848W6g2uh6GXBj.jpg",
+        "include": true
+      },
+      {
+        "title": "The Toughest Footrace on Earth",
+        "tmdb_id": 1480549,
+        "director": "",
+        "actors": "Average Rob, Arno Van Impe, Milan Cools, Karel Sabbe",
+        "genre": "Documentaire",
+        "duration": 90,
+        "synopsis": "",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-05-30",
+        "production_countries": [],
+        "poster_url": "https://image.tmdb.org/t/p/w500/qSvZVJy50QmvJuJqPUklgDrrDFr.jpg",
+        "include": true
       }
     ]
   }

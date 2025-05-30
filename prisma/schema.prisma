@@ -1,0 +1,130 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["extendedWhereUnique", "orderByRelation", "orderByAggregateGroup"]
+}
+
+datasource db {
+  provider = "sqlite" // Tu peux changer vers "postgresql" plus tard
+  url      = "file:./cineplages.db"
+}
+
+
+model Film {
+  id           Int        @id @default(autoincrement())
+  tmdbId       Int        @unique
+  title        String
+  genre        String
+  category    String?
+  synopsis     String?
+  releaseDate  DateTime?
+  duration     Int?
+  budget       Int?
+  origin       String?
+  posterUrl    String?
+  commentaire  String?
+  rating       Float?
+  actors       String?
+  keywords     String?
+  filmTags  FilmFilmTag[]
+  seances    Int    @default(1) // nombre de projections prévues (0 à 10)
+
+  // Relations
+  productionCountries FilmCountry[]
+  director            Director?  @relation(fields: [directorId], references: [id])
+  directorId          Int?
+
+  selections SelectionFilm[]
+
+  programmations Programmation[]
+  awards         Award[]          // ← relation 1-n
+  externalLinks  ExternalLink[]   // ← relation 1-n
+}
+
+model Selection {
+  id       Int      @id @default(autoincrement())
+  name     String
+  date     DateTime @default(now())
+  films    SelectionFilm[]
+}
+
+model SelectionFilm {
+  id           Int      @id @default(autoincrement())
+  film         Film     @relation(fields: [filmId], references: [id])
+  filmId       Int
+  selection    Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
+  selectionId  Int
+  commentaire  String?
+  note         Int?
+  category     String?
+
+  @@unique([filmId, selectionId])
+}
+
+model Director {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  films Film[]
+}
+
+model Country {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  films FilmCountry[]
+}
+
+model FilmCountry {
+  film     Film   @relation(fields: [filmId], references: [id])
+  filmId   Int
+  country  Country @relation(fields: [countryId], references: [id])
+  countryId Int
+
+  @@id([filmId, countryId]) // composite primary key
+}
+
+model Programmation {
+  id        Int     @id @default(autoincrement())
+  jour      String
+  heure     String
+  salle     String
+  film      Film    @relation(fields: [filmId], references: [id])
+  filmId    Int
+  createdAt DateTime @default(now())
+}
+
+model FilmTag {
+  id         Int            @id @default(autoincrement())
+  label      String         @unique
+  category   String         // 'genres' | 'thematics' | 'styles'
+  validated  Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  films      FilmFilmTag[]
+}
+
+model FilmFilmTag {
+  id       Int      @id @default(autoincrement())
+  filmId   Int
+  tagId    Int
+  film     Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  tag      FilmTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([filmId, tagId], name: "filmId_tagId")
+
+}
+
+model Award {
+  id        Int     @id @default(autoincrement())
+  prize     String  // ex: "Palme d'or"
+  festival  String  // ex: "Cannes"
+  year      Int?
+  film      Film    @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  filmId    Int
+}
+
+model ExternalLink {
+  id       Int    @id @default(autoincrement())
+  url      String
+  label    String     // ex: "Allociné", "Wikipedia", "Critique Télérama"
+  film     Film       @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  filmId   Int
+}
