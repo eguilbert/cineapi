@@ -1,0 +1,191 @@
+[
+  {
+    "id": 1748589010307,
+    "name": "juillet",
+    "date_created": "2025-05-30T07:10:10.307Z",
+    "films": [
+      {
+        "title": "Jurassic World : Renaissance",
+        "tmdb_id": 1234821,
+        "director": "Gareth Edwards",
+        "actors": "Scarlett Johansson, Jonathan Bailey, Mahershala Ali, Rupert Friend",
+        "genre": "Science-Fiction",
+        "duration": 133,
+        "synopsis": "7 ans après la destruction d'Isla Nublar, les dinosaures commencent à disparaître de la surface de la Terre, à cause d'une flore et d'une faune inadaptées. Une experte nommée Zora Bennett est engagée pour mener une mission secrète. Son équipe doit récupérer l'ADN de 3 dinosaures dans une zone où ils ont trouvé refuge loin des climats changeants et des humains. Zora et son équipe vont croiser Reuben Delgado, un père accompagné de ses enfants et dont le bateau a chaviré. Tous vont se retrouver sur une des 5 îles renfermant un secret non divulgué à l’humanité jusqu’à aujourd’hui.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-01",
+        "production_countries": [
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/yq9PfUpsBEUZXPvRiubiBiWkOYn.jpg",
+        "exclude": false
+      },
+      {
+        "title": "I huvudet på Bo",
+        "tmdb_id": 1477121,
+        "director": "Jon Asp",
+        "actors": "Bo Widerberg, Roy Andersson, Thommy Berggren, Kalle Boman",
+        "genre": "Documentaire",
+        "duration": 105,
+        "synopsis": "",
+        "category": "Documentaire",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-02",
+        "production_countries": [
+          "Sweden"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/6zf7dx5xgS332o3HPH9ub6a86ps.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Le bonheur est une bête sauvage",
+        "tmdb_id": 1438405,
+        "director": "Bertrand Guerry",
+        "actors": "Sacha Guerry, Sophie Davout, Chris Walder, Cédric Marchal",
+        "genre": "Comédie",
+        "duration": 95,
+        "synopsis": "Jeanne, la cinquantaine, est brisée. Elle a perdu son mari lors d’un naufrage survenu 10 ans plus tôt au large de l’île d’Yeu. Tom, son neveu de 19 ans, lui annonce qu’il va quitter l’île. Jeanne est sous le choc. Le soir-même, un ours est aperçu sur l’île. Sous l'œil de la lune, les islais partent à sa recherche. Durant une semaine, une quête collective du bonheur revêt des atours magiques et cocasses sur le manque et l’absence grâce à l’éloge des forces de la nature et des humains.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-02",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/wTYRvWraF78rWHu11ZWo8qdhykr.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Kjærlighet",
+        "tmdb_id": 1228685,
+        "director": "Dag Johan Haugerud",
+        "actors": "Andrea Bræin Hovig, Tayo Cittadella Jacobsen, Thomas Gullestad, Lars Jacob Holm",
+        "genre": "Drame",
+        "duration": 119,
+        "synopsis": "Sur un ferry qui les ramène à Oslo, Marianne, médecin, retrouve Tor, infirmier dans l’hôpital où elle exerce. Il lui raconte qu’il passe souvent ses nuits à bord, à la recherche d’aventures sans lendemain avec des hommes croisés sur des sites de rencontre. Ces propos résonnent en Marianne, qui revient d’un blind date organisé par sa meilleure amie et s’interroge sur le sens d’une vie amoureuse sans engagement. Ce soir-là, Tor succombe au charme de Bjorn, qui lui résiste et lui échappe...",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-12-25",
+        "production_countries": [
+          "Norway"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/3doqUbqb4Kv0hZ2NPVinqMDLB67.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Drømmer",
+        "tmdb_id": 1228682,
+        "director": "Dag Johan Haugerud",
+        "actors": "Ella Øverbye, Selome Emnetu, Anne Marit Jacobsen, Ane Dahl Torp",
+        "genre": "Drame",
+        "duration": 110,
+        "synopsis": "",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-10-04",
+        "production_countries": [
+          "Norway"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/jB077kwValRa5rjsKVBITZ0tGmP.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Islands",
+        "tmdb_id": 1128547,
+        "director": "Jan Ole Gerster",
+        "actors": "Sam Riley, Stacy Martin, Jack Farthing, Dylan Torrell",
+        "genre": "Drame",
+        "duration": 123,
+        "synopsis": "Coach de tennis dans un complexe hôtelier, Tom mène une vie sans attaches au rythme de virées nocturnes alcoolisées et de cours monotones sous le soleil de Fuerteventura. Un jour, parmi le flot incessant des vacanciers, débarque sur l’île Anne, accompagnée de son fils et de son mari. Tom accepte de jouer le guide touristique pour la famille et très vite d’étranges liens commencent à se nouer entre eux.",
+        "category": "Art et Essai",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-05-08",
+        "production_countries": [
+          "Germany"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/y9W0KytjdHdpV3OGrSgFwl79TsL.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Falcon Express",
+        "tmdb_id": 1107216,
+        "director": "Benoît Daffis",
+        "actors": "",
+        "genre": "Animation",
+        "duration": 99,
+        "synopsis": "Des animaux de compagnie, piégés dans un train lancé à toute allure, vont devoir déjouer les plans de Hans, un blaireau rancunier en quête de vengeance. Alors que le crash semble inévitable, les animaux peuvent compter sur Falcon, un raton-laveur filou et débrouillard, prêt à tout pour les sauver !",
+        "category": "Jeunesse",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-02",
+        "production_countries": [
+          "France",
+          "United States of America"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/jf2wB6idJ8N4gMC9OqNxDD51Ayp.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Mamie-sitting",
+        "tmdb_id": 1081196,
+        "director": "Darren Thornton",
+        "actors": "James McArdle, Fionnula Flanagan, Dearbhla Molloy, Paddy Glynn",
+        "genre": "Comédie",
+        "duration": 89,
+        "synopsis": "À Dublin, Edward, un romancier introverti au grand cœur, touche enfin du doigt le succès. Mais alors qu’une prestigieuse tournée promotionnelle se profile, il doit s’occuper, le temps d’un week-end, de quatre femmes âgées hautes en couleur – dont sa propre mère. Entre situations improbables et révélations émouvantes, cette cohabitation imprévue pourrait bien changer leur vie.",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-04-04",
+        "production_countries": [
+          "Ireland"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/bvpXFlOuSYN0AOo9KAd0XOEs8mX.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Les amants astronautes",
+        "tmdb_id": 1058128,
+        "director": "Marco Berger",
+        "actors": "Javier Orán, Lautaro Bettoni, Mora Arenillas, Agustín Frías",
+        "genre": "Comédie",
+        "duration": 116,
+        "synopsis": "Pedro rentre d’Espagne dans son pays natal l’Argentine pour revoir ses proches. Mais les retrouvailles avec un ami d’enfance, le séduisant Maxi, prennent une tournure inattendue à mesure que leur relation devient de plus en plus ambigüe. Bien que Maxi soit hétérosexuel, la montée du désir entre eux ne cesse de croître tandis qu’ils cherchent à le cacher, et peut-être à l’accepter ?",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2024-06-20",
+        "production_countries": [
+          "Argentina",
+          "Spain"
+        ],
+        "poster_url": "https://image.tmdb.org/t/p/w500/yQ5iYpYjVNZXgslPTgIbrb62c5.jpg",
+        "exclude": false
+      },
+      {
+        "title": "Rapaces",
+        "tmdb_id": 1002158,
+        "director": "Peter Dourountzis",
+        "actors": "Sami Bouajila, Mallory Wanecque, Jean-Pierre Darroussin, Valérie Donzelli",
+        "genre": "Thriller",
+        "duration": 104,
+        "synopsis": "Un père et sa fille : Samuel, journaliste, et Ava, sa stagiaire, couvrent le meurtre d’une jeune fille attaquée à l’acide, pour leur magazine. Frappé par la brutalité de ce meurtre, ainsi que par l’intérêt de sa fille pour l’affaire, Samuel décide de mener une enquête indépendante, à l’insu de sa rédaction, et découvre des similitudes troublantes avec le meurtre d’une autre femme…",
+        "category": "Grand Public",
+        "budget": 0,
+        "keywords": [],
+        "release_date": "2025-07-02",
+        "production_countries": [
+          "France"
+        ],
+        "poster_url": "",
+        "exclude": false
+      }
+    ]
+  }
+]

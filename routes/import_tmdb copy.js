@@ -9,47 +9,45 @@ router.get("/import/tmdb", async (req, res) => {
   const { start, end } = req.query;
 
   const today = new Date();
+
+  const lastThursday = new Date(today);
   const oneWeekLater = new Date();
-  oneWeekLater.setDate(today.getDate() + 6);
+  // lastThursday.setDate(today.getDate() - ((today.getDay() + 3) % 7));
+  oneWeekLater.setDate(today.getDay() + 6);
 
   const formatDate = (date) => date.toISOString().split("T")[0];
 
   const startDate = start || formatDate(today);
   const endDate = end || formatDate(oneWeekLater);
 
-  let allResults = [];
+  const allResults = [];
   let page = 1;
   let totalPages = 1;
 
   try {
-    do {
-      const discoverUrl = `https://api.themoviedb.org/3/discover/movie`;
+    const discoverUrl = `https://api.themoviedb.org/3/discover/movie`;
 
-      const discoverRes = await axios.get(discoverUrl, {
-        params: {
-          api_key: TMDB_KEY,
-          region: "FR",
-          sort_by: "release_date.desc",
-          "release_date.gte": startDate,
-          "release_date.lte": endDate,
-          with_release_type: 2 | 3, // theatrical
-          language: "fr-FR",
-          include_video: false,
-          include_adult: false,
-          page,
-        },
-      });
+    const discoverRes = await axios.get(discoverUrl, {
+      params: {
+        api_key: TMDB_KEY,
+        region: "FR",
+        sort_by: "release_date.desc",
+        "release_date.gte": startDate,
+        "release_date.lte": endDate,
+        with_release_type: 2 | 3, // theatrical
+        language: "fr-FR",
+        include_video: false,
+        include_adult: false,
+        page,
+      },
+    });
 
-      const results = discoverRes.data.results;
-      totalPages = discoverRes.data.total_pages;
-      allResults.push(...results);
-
-      page++;
-    } while (page <= totalPages);
+    const results = discoverRes.data.results; // .slice(0, 20)limiter pour tests
+    console.log("import TMDB params imported", start, end);
 
     const films = [];
 
-    for (const film of allResults) {
+    for (const film of results) {
       try {
         const detail = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}`,
@@ -60,6 +58,17 @@ router.get("/import/tmdb", async (req, res) => {
             },
           }
         );
+
+        /*         const keywordsRes = await axios.get(
+          `https://api.themoviedb.org/3/movie/${film.id}/keywords`,
+          {
+            params: { api_key: TMDB_KEY },
+          }
+        );
+        const keywords = keywordsRes.data.keywords
+          ?.map((k) => k.name)
+          .slice(0, 5)
+          .join(", "); */
 
         const credits = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/credits`,
@@ -87,7 +96,7 @@ router.get("/import/tmdb", async (req, res) => {
           origin: detail.origin_country,
           category: "",
           budget: detail.data.budget,
-          keywords: [],
+          keywords: keywords,
           release_date: detail.data.release_date || "",
           production_countries:
             detail.data.production_countries?.map((c) => c.name) || [],

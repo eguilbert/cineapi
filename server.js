@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const importPremiere = require("./routes/import_premiere"); // chemin correct !
 const importTmdb = require("./routes/import_tmdb");
+const selectionsRouter = require("./routes/selections");
+
 const db = require("./db"); // chemin vers db.js
 
 const app = express();
@@ -13,6 +15,8 @@ app.use("/api", importTmdb);
 
 // 🚨 ici on monte bien le routeur
 app.use("/api", importPremiere);
+
+app.use("/api/selections", selectionsRouter);
 
 app.get("/api/films", (req, res) => {
   const rows = db.prepare("SELECT * FROM films").all();
