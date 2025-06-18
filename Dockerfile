@@ -15,10 +15,8 @@ RUN npm install
 # Génére le client Prisma
 RUN npx prisma generate
 
-RUN npx prisma migrate deploy
-
 # Port par défaut utilisé par l'app
 EXPOSE 4000
 
-# Commande de lancement
-CMD ["npm", "run", "start"]
+# Commande de lancement : déploie les migrations puis lance l'app
+CMD npx prisma migrate deploy && npm run start
