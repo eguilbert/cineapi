@@ -4,8 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite" // Tu peux changer vers "postgresql" plus tard
-  url      = "file:./cineplages.db"
+  provider = "postgresql" // "sqlite" Tu peux changer vers "postgresql" plus tard
+  url      = env("DATABASE_URL") // "file:./cineplages.db"
 }
 
 
