@@ -167,12 +167,30 @@ router.post("/", async (req, res) => {
 // PUT update selection
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const data = req.body;
+  const { films = [] } = req.body; // tableau de films à ajouter
 
-  const updated = await prisma.selection.update({
-    where: { id: Number(id) },
-    data,
-  });
+  for (const f of films) {
+    const exists = await prisma.selectionFilm.findUnique({
+      where: {
+        filmId_selectionId: {
+          filmId: f.filmId,
+          selectionId: Number(id),
+        },
+      },
+    });
+
+    if (!exists) {
+      await prisma.selectionFilm.create({
+        data: {
+          filmId: f.filmId,
+          selectionId: Number(id),
+          note: f.note || null,
+          commentaire: f.commentaire || null,
+          category: f.category || null,
+        },
+      });
+    }
+  }
 
   res.json(updated);
 });
