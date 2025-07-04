@@ -2,7 +2,9 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
+
 const TMDB_KEY = process.env.TMDB_API_KEY;
+
 // POST /api/films
 router.post("/", async (req, res) => {
   const film = await prisma.film.create({ data: req.body });
@@ -250,7 +252,21 @@ router.post("/:tmdbId/refresh", async (req, res) => {
 
     res.json({ updated });
   } catch (e) {
-    console.error("Erreur TMDB refresh:", e.message, e.response?.data || e);
+    console.error(
+      "❌ Erreur TMDB refresh :",
+      JSON.stringify(
+        {
+          message: e.message,
+          code: e.code,
+          response: e.response?.data,
+          stack: e.stack,
+        },
+        null,
+        2
+      )
+    );
+    process.stdout.write(""); // force la sortie à s'écrire dans les logs Docker
+
     res.status(500).json({ error: "Erreur TMDB" });
   }
 });
