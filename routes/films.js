@@ -87,6 +87,7 @@ router.get("/", async (req, res) => {
             {
               title: {
                 contains: query,
+                mode: "insensitive",
               },
             },
             {
@@ -97,6 +98,7 @@ router.get("/", async (req, res) => {
                     is: {
                       name: {
                         contains: query,
+                        mode: "insensitive",
                       },
                     },
                   },
