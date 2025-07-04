@@ -223,5 +223,35 @@ router.put("/:id/meta", async (req, res) => {
     res.status(500).json({ error: "Erreur sauvegarde métadonnées" });
   }
 });
+router.post("/api/films/:tmdbId/refresh", async (req, res) => {
+  const tmdbId = Number(req.params.tmdbId);
+
+  try {
+    const detail = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}`,
+      {
+        params: {
+          api_key: process.env.TMDB_KEY,
+          language: "fr-FR",
+        },
+      }
+    );
+
+    const updated = await prisma.film.update({
+      where: { tmdbId },
+      data: {
+        title: detail.data.title || detail.data.original_title,
+        releaseDate: detail.data.release_date
+          ? new Date(detail.data.release_date)
+          : null,
+      },
+    });
+
+    res.json({ updated });
+  } catch (e) {
+    console.error("Erreur TMDB refresh", e.message);
+    res.status(500).json({ error: "Erreur TMDB" });
+  }
+});
 
 module.exports = router;
