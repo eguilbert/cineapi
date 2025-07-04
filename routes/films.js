@@ -2,7 +2,7 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
-
+const TMDB_KEY = process.env.TMDB_API_KEY;
 // POST /api/films
 router.post("/", async (req, res) => {
   const film = await prisma.film.create({ data: req.body });
@@ -223,7 +223,8 @@ router.put("/:id/meta", async (req, res) => {
     res.status(500).json({ error: "Erreur sauvegarde métadonnées" });
   }
 });
-router.post("/api/films/:tmdbId/refresh", async (req, res) => {
+
+router.post("/:tmdbId/refresh", async (req, res) => {
   const tmdbId = Number(req.params.tmdbId);
 
   try {
@@ -231,7 +232,7 @@ router.post("/api/films/:tmdbId/refresh", async (req, res) => {
       `https://api.themoviedb.org/3/movie/${tmdbId}`,
       {
         params: {
-          api_key: process.env.TMDB_KEY,
+          api_key: TMDB_KEY,
           language: "fr-FR",
         },
       }
