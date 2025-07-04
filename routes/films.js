@@ -250,7 +250,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
 
     res.json({ updated });
   } catch (e) {
-    console.error("Erreur TMDB refresh", e.message);
+    console.error("Erreur TMDB refresh:", e.message, e.response?.data || e);
     res.status(500).json({ error: "Erreur TMDB" });
   }
 });
