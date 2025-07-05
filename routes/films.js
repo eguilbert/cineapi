@@ -228,7 +228,7 @@ router.put("/:id/meta", async (req, res) => {
 
 router.post("/:tmdbId/refresh", async (req, res) => {
   const tmdbId = Number(req.params.tmdbId);
-
+  console.log(`🔄 Appel TMDB : https://api.themoviedb.org/3/movie/${tmdbId}`);
   try {
     const detail = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}`,
@@ -239,6 +239,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
         },
       }
     );
+    console.log("✅ TMDB reçu:", detail.data.title);
 
     const updated = await prisma.film.update({
       where: { tmdbId },
