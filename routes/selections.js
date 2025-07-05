@@ -173,7 +173,7 @@ router.put("/:id", async (req, res) => {
     const exists = await prisma.selectionFilm.findUnique({
       where: {
         filmId_selectionId: {
-          filmId: f.filmId,
+          filmId: f.id,
           selectionId: Number(id),
         },
       },
@@ -182,7 +182,7 @@ router.put("/:id", async (req, res) => {
     if (!exists) {
       await prisma.selectionFilm.create({
         data: {
-          filmId: f.filmId,
+          filmId: f.id,
           selectionId: Number(id),
           note: f.note || null,
           commentaire: f.commentaire || null,
