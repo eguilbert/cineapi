@@ -247,9 +247,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
         params: { api_key: TMDB_KEY },
       }
     );
-    const frReleases = releases.data.results.find(
-      (r) => r.iso_3166_1 === "FR"
-    );
+    const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
     const validRelease = frReleases?.release_dates.find((rd) => {
       const date = new Date(rd.release_date);
       return (
@@ -258,8 +256,6 @@ router.post("/:tmdbId/refresh", async (req, res) => {
         date <= new Date(endDate)
       );
     });
-
-    if (!validRelease) continue;
 
     const releaseDate = new Date(validRelease.release_date);
 
