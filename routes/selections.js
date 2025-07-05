@@ -192,7 +192,19 @@ router.put("/:id", async (req, res) => {
     }
   }
 
-  res.json(updated);
+  // Facultatif : retourner la sélection mise à jour
+  const refreshed = await prisma.selection.findUnique({
+    where: { id: Number(id) },
+    include: {
+      films: {
+        include: {
+          film: true,
+        },
+      },
+    },
+  });
+
+  res.json(refreshed);
 });
 
 // DELETE /api/selections/:id
