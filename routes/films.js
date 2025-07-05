@@ -2,7 +2,7 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const router = express.Router();
 const prisma = new PrismaClient();
-
+const axios = require("axios");
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
 // POST /api/films
