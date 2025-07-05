@@ -250,11 +250,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
     const validRelease = frReleases?.release_dates.find((rd) => {
       const date = new Date(rd.release_date);
-      return (
-        (rd.type === 2 || rd.type === 3) &&
-        date >= new Date(startDate) &&
-        date <= new Date(endDate)
-      );
+      return rd.type === 2 || rd.type === 3;
     });
 
     const releaseDate = new Date(validRelease.release_date);
