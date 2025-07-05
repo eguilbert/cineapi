@@ -241,13 +241,33 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     );
     console.log("✅ TMDB reçu:", detail.data.title);
 
+    const releases = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
+      {
+        params: { api_key: TMDB_KEY },
+      }
+    );
+    const frReleases = releases.data.results.find(
+      (r) => r.iso_3166_1 === "FR"
+    );
+    const validRelease = frReleases?.release_dates.find((rd) => {
+      const date = new Date(rd.release_date);
+      return (
+        (rd.type === 2 || rd.type === 3) &&
+        date >= new Date(startDate) &&
+        date <= new Date(endDate)
+      );
+    });
+
+    if (!validRelease) continue;
+
+    const releaseDate = new Date(validRelease.release_date);
+
     const updated = await prisma.film.update({
       where: { tmdbId },
       data: {
         title: detail.data.title || detail.data.original_title,
-        releaseDate: detail.data.release_date
-          ? new Date(detail.data.release_date)
-          : null,
+        releaseDate: releaseDate,
       },
     });
 
