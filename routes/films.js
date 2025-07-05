@@ -255,10 +255,18 @@ router.post("/:tmdbId/refresh", async (req, res) => {
 
     const releaseDate = new Date(validRelease.release_date);
 
+    const translations = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/translations`,
+      { params: { api_key: TMDB_KEY } }
+    );
+    const fr = translations.data.translations.find((t) => t.iso_639_1 === "fr");
+    const translatedTitle =
+      fr?.data?.title || detail.data.title || detail.data.original_title;
+
     const updated = await prisma.film.update({
       where: { tmdbId },
       data: {
-        title: detail.data.title || detail.data.original_title,
+        title: translatedTitle,
         releaseDate: releaseDate,
       },
     });
