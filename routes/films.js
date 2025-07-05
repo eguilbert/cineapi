@@ -241,7 +241,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
         },
       }
     );
-
+    console.log("✅ TMDB reçu:", detail.data.title);
     // 2. Dates de sortie pour la France
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
@@ -269,7 +269,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
       fr?.data?.title && fr.data.title !== detail.data.original_title
         ? fr.data.title
         : detail.data.title || detail.data.original_title;
-
+    console.log("✅ titres possibles fr:", fr.data.title, detail.data.title);
     // 5. Mise à jour
     const updated = await prisma.film.update({
       where: { tmdbId },
