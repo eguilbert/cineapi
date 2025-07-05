@@ -246,7 +246,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
       {
-        params: { api_key: process.env.TMDB_KEY },
+        params: { api_key: TMDB_KEY },
       }
     );
     const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
@@ -260,7 +260,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     // 3. Traductions
     const translations = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/translations`,
-      { params: { api_key: process.env.TMDB_KEY } }
+      { params: { api_key: TMDB_KEY } }
     );
     const fr = translations.data.translations.find((t) => t.iso_639_1 === "fr");
 
@@ -298,5 +298,71 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     res.status(500).json({ error: "Erreur TMDB" });
   }
 });
+
+/* router.post("/:tmdbId/refresh", async (req, res) => {
+  const tmdbId = Number(req.params.tmdbId);
+  console.log(`🔄 Appel TMDB : https://api.themoviedb.org/3/movie/${tmdbId}`);
+  try {
+    const detail = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}?language=fr-FR`,
+      {
+        params: {
+          api_key: TMDB_KEY,
+          language: "fr-FR",
+        },
+      }
+    );
+    console.log("✅ TMDB reçu:", detail.data.title);
+
+    const releases = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
+      {
+        params: { api_key: TMDB_KEY, language: "fr-FR" },
+      }
+    );
+    const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
+    const validRelease = frReleases?.release_dates.find((rd) => {
+      const date = new Date(rd.release_date);
+      return rd.type === 2 || rd.type === 3;
+    });
+
+    const releaseDate = new Date(validRelease.release_date);
+
+    const translations = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/translations`,
+      { params: { api_key: TMDB_KEY } }
+    );
+    const fr = translations.data.translations.find((t) => t.iso_639_1 === "fr");
+    const translatedTitle =
+      fr?.data?.title || detail.data.title || detail.data.original_title;
+
+    const updated = await prisma.film.update({
+      where: { tmdbId },
+      data: {
+        title: translatedTitle,
+        releaseDate: releaseDate,
+      },
+    });
+
+    res.json({ updated });
+  } catch (e) {
+    console.error(
+      "❌ Erreur TMDB refresh :",
+      JSON.stringify(
+        {
+          message: e.message,
+          code: e.code,
+          response: e.response?.data,
+          stack: e.stack,
+        },
+        null,
+        2
+      )
+    );
+    process.stdout.write(""); // force la sortie à s'écrire dans les logs Docker
+
+    res.status(500).json({ error: "Erreur TMDB" });
+  }
+}); */
 
 module.exports = router;
