@@ -236,7 +236,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
       `https://api.themoviedb.org/3/movie/${tmdbId}`,
       {
         params: {
-          api_key: process.env.TMDB_KEY,
+          api_key: TMDB_KEY,
           language: "fr-FR",
         },
       }
