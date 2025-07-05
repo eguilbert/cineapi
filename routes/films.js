@@ -229,45 +229,53 @@ router.put("/:id/meta", async (req, res) => {
 router.post("/:tmdbId/refresh", async (req, res) => {
   const tmdbId = Number(req.params.tmdbId);
   console.log(`🔄 Appel TMDB : https://api.themoviedb.org/3/movie/${tmdbId}`);
+
   try {
+    // 1. Détails du film en français
     const detail = await axios.get(
-      `https://api.themoviedb.org/3/movie/${tmdbId}?language=fr-FR`,
+      `https://api.themoviedb.org/3/movie/${tmdbId}`,
       {
         params: {
-          api_key: TMDB_KEY,
+          api_key: process.env.TMDB_KEY,
           language: "fr-FR",
         },
       }
     );
-    console.log("✅ TMDB reçu:", detail.data.title);
 
+    // 2. Dates de sortie pour la France
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
       {
-        params: { api_key: TMDB_KEY, language: "fr-FR" },
+        params: { api_key: process.env.TMDB_KEY },
       }
     );
     const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
     const validRelease = frReleases?.release_dates.find((rd) => {
-      const date = new Date(rd.release_date);
       return rd.type === 2 || rd.type === 3;
     });
+    const releaseDate = validRelease?.release_date
+      ? new Date(validRelease.release_date)
+      : null;
 
-    const releaseDate = new Date(validRelease.release_date);
-
+    // 3. Traductions
     const translations = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/translations`,
-      { params: { api_key: TMDB_KEY } }
+      { params: { api_key: process.env.TMDB_KEY } }
     );
     const fr = translations.data.translations.find((t) => t.iso_639_1 === "fr");
-    const translatedTitle =
-      fr?.data?.title || detail.data.title || detail.data.original_title;
 
+    // 4. Choix final du titre
+    const translatedTitle =
+      fr?.data?.title && fr.data.title !== detail.data.original_title
+        ? fr.data.title
+        : detail.data.title || detail.data.original_title;
+
+    // 5. Mise à jour
     const updated = await prisma.film.update({
       where: { tmdbId },
       data: {
         title: translatedTitle,
-        releaseDate: releaseDate,
+        releaseDate,
       },
     });
 
@@ -286,8 +294,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
         2
       )
     );
-    process.stdout.write(""); // force la sortie à s'écrire dans les logs Docker
-
+    process.stdout.write(""); // flush Docker logs
     res.status(500).json({ error: "Erreur TMDB" });
   }
 });
