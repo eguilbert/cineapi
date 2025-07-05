@@ -244,7 +244,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
       {
-        params: { api_key: TMDB_KEY },
+        params: { api_key: TMDB_KEY, language: "fr-FR" },
       }
     );
     const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
