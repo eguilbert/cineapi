@@ -231,7 +231,7 @@ router.post("/:tmdbId/refresh", async (req, res) => {
   console.log(`🔄 Appel TMDB : https://api.themoviedb.org/3/movie/${tmdbId}`);
   try {
     const detail = await axios.get(
-      `https://api.themoviedb.org/3/movie/${tmdbId}`,
+      `https://api.themoviedb.org/3/movie/${tmdbId}?language=fr-FR`,
       {
         params: {
           api_key: TMDB_KEY,
