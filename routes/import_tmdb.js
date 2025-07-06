@@ -123,6 +123,17 @@ router.get("/import/tmdb", async (req, res) => {
           continue;
         }
 
+        const videos = await axios.get(
+          `https://api.themoviedb.org/3/movie/${tmdbId}/videos`,
+          { params: { api_key: TMDB_KEY } }
+        );
+        const trailer = videos.data.results.find(
+          (v) => v.type === "Trailer" && v.site === "YouTube"
+        );
+        const trailerUrl = trailer
+          ? `https://www.youtube.com/watch?v=${trailer.key}`
+          : null;
+
         const releases = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/release_dates`,
           {
@@ -219,6 +230,7 @@ router.get("/import/tmdb", async (req, res) => {
               ? `https://image.tmdb.org/t/p/w500${detail.data.poster_path}`
               : "",
             actors: cast,
+            trailerUrl: trailerUrl,
             director: director ? { connect: { id: director.id } } : undefined,
             productionCountries: {
               create: countryRecords.map((c) => ({
