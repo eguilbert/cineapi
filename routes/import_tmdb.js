@@ -151,6 +151,7 @@ router.get("/import/tmdb", async (req, res) => {
         const trailerUrl = trailer
           ? `https://www.youtube.com/watch?v=${trailer.key}`
           : null;
+        console.log("🎯 trailerUrl :", trailerUrl);
 
         const releases = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/release_dates`,
