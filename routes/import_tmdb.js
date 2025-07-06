@@ -124,7 +124,7 @@ router.get("/import/tmdb", async (req, res) => {
         }
 
         const videos = await axios.get(
-          `https://api.themoviedb.org/3/movie/${tmdbId}/videos`,
+          `https://api.themoviedb.org/3/movie/${film.id}/videos`,
           { params: { api_key: TMDB_KEY } }
         );
         const trailer = videos.data.results.find(
