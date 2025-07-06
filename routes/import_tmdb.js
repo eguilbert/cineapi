@@ -127,9 +127,16 @@ router.get("/import/tmdb", async (req, res) => {
           `https://api.themoviedb.org/3/movie/${film.id}/videos`,
           { params: { api_key: TMDB_KEY } }
         );
-        const trailer = videos.data.results.filter(
-          (v) => v.site === "YouTube" && v.key
-        )[0];
+        const trailer = videos.data.results
+          .filter(
+            (v) =>
+              v.site === "YouTube" &&
+              v.key &&
+              (v.type === "Trailer" || v.type === "Teaser" || v.type === "Clip")
+          )
+          .sort(
+            (a, b) => new Date(b.published_at) - new Date(a.published_at)
+          )[0];
 
         console.log(
           "🎬 Vidéos TMDB:",
@@ -222,6 +229,7 @@ router.get("/import/tmdb", async (req, res) => {
           where: { tmdbId: film.id },
           update: {
             category,
+            trailerUrl,
           },
           create: {
             tmdbId: film.id,
