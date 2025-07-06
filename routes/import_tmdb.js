@@ -132,7 +132,7 @@ router.get("/import/tmdb", async (req, res) => {
             (v) =>
               v.site === "YouTube" &&
               v.key &&
-              (v.type === "Trailer" || v.type === "Teaser")
+              (v.type === "Trailer" || v.type === "Teaser" || v.type === "Clip")
           )
           .sort(
             (a, b) => new Date(b.published_at) - new Date(a.published_at)
