@@ -137,11 +137,15 @@ router.get("/import/tmdb", async (req, res) => {
           .sort(
             (a, b) => new Date(b.published_at) - new Date(a.published_at)
           )[0];
+        const trailertest = videos.data.results.filter(
+          (v) => v.site === "YouTube" && v.key
+        )[0];
 
         console.log(
           "🎬 Vidéos TMDB:",
           JSON.stringify(videos.data.results, null, 2)
         );
+        console.log("🎯 Trailertest trouvé :", trailertest);
         console.log("🎯 Trailer trouvé :", trailer);
 
         const trailerUrl = trailer
