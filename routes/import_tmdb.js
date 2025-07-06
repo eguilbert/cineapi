@@ -236,7 +236,6 @@ router.get("/import/tmdb", async (req, res) => {
             category,
             synopsis: detail.data.overview,
             releaseDate: safeDate(releaseDate),
-            // releaseDate: safeDate(detail.data.releaseDate),
             duration: detail.data.runtime,
             budget: detail.data.budget,
             origin: detail.data.origin_country?.[0] || "",
@@ -253,6 +252,7 @@ router.get("/import/tmdb", async (req, res) => {
             },
           },
         });
+        console.log("🎥 Trailer enregistré :", savedFilm.trailerUrl);
 
         films.push({
           ...savedFilm,
