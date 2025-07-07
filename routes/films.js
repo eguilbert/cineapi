@@ -132,7 +132,7 @@ router.get("/", async (req, res) => {
 
 router.put("/:id/tags", async (req, res) => {
   const filmId = Number(req.params.id);
-  const { commentaire, tags = [], category = "thematics" } = req.body;
+  const { commentaire, rating, tags = [], category = "thematics" } = req.body;
 
   try {
     // 1. Mise à jour du commentaire
