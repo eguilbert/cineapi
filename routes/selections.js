@@ -34,6 +34,7 @@ router.get("/", async (req, res) => {
     name: selection.name,
     films: selection.films.map((f) => ({
       title: f.film.title,
+      id: f.film.id,
       category: f.film.category,
       poster: f.film.posterUrl,
       tmdbId: f.film.tmdbId,
