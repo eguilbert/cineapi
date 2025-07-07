@@ -14,6 +14,7 @@ router.post("/", async (req, res) => {
 // PUT /api/films/:id
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
+  console.log();
   const updated = await prisma.film.update({
     where: { id: Number(id) },
     data: req.body,
@@ -137,7 +138,7 @@ router.put("/:id/tags", async (req, res) => {
     // 1. Mise à jour du commentaire
     await prisma.film.update({
       where: { id: filmId },
-      data: { commentaire },
+      data: { commentaire, rating },
     });
 
     // 2. Créer ou retrouver les tags
