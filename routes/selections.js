@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
 
 // GET /api/selections/:id
 router.get("/:id", async (req, res) => {
-  const selections = await prisma.selection.findUnique({
+  const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
       films: {
@@ -98,7 +98,7 @@ router.get("/:id", async (req, res) => {
       },
     },
   });
-  const result = selections.map((selection) => ({
+  const result = {
     id: selection.id,
     name: selection.name,
     films: selection.films.map((f) => ({
@@ -132,8 +132,7 @@ router.get("/:id", async (req, res) => {
       firstProductionCountryName:
         f.film.productionCountries?.[0]?.country?.name || null,
     })),
-  }));
-
+  };
   res.json(result);
 });
 
