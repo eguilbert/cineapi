@@ -45,6 +45,8 @@ router.get("/", async (req, res) => {
       duration: f.film.duration,
       releaseDate: f.film.releaseDate,
       trailerUrl: f.film.trailerUrl,
+      commentaire: f.film.commentaire,
+      rating: f.film.rating,
       directorName: f.film.director?.name || null,
       tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
       firstProductionCountryName:
