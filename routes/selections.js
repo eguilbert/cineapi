@@ -22,6 +22,8 @@ router.get("/", async (req, res) => {
                   tag: true,
                 },
               },
+              awards: true, // 👈 Ajouté
+              externalLinks: true, // 👈 Ajouté
             },
           },
         },
@@ -45,6 +47,17 @@ router.get("/", async (req, res) => {
       duration: f.film.duration,
       releaseDate: f.film.releaseDate,
       trailerUrl: f.film.trailerUrl,
+      awards:
+        f.film.awards?.map((a) => ({
+          prize: a.prize,
+          festival: a.festival,
+          year: a.year,
+        })) || [],
+      externalLinks:
+        f.film.externalLinks?.map((l) => ({
+          url: l.url,
+          label: l.label,
+        })) || [],
       commentaire: f.film.commentaire,
       rating: f.film.rating,
       directorName: f.film.director?.name || null,
