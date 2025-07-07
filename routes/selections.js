@@ -90,17 +90,20 @@ router.get("/:id", async (req, res) => {
                   tag: true,
                 },
               },
+              awards: true, // 👈 Ajouté
+              externalLinks: true, // 👈 Ajouté,
             },
           },
         },
       },
     },
   });
-  const result = {
+  const result = selections.map((selection) => ({
     id: selection.id,
     name: selection.name,
     films: selection.films.map((f) => ({
       title: f.film.title,
+      id: f.film.id,
       category: f.film.category,
       poster: f.film.posterUrl,
       tmdbId: f.film.tmdbId,
@@ -110,13 +113,27 @@ router.get("/:id", async (req, res) => {
       genre: f.film.genre,
       duration: f.film.duration,
       releaseDate: f.film.releaseDate,
-      seances: f.film.seances,
+      trailerUrl: f.film.trailerUrl,
+      awards:
+        f.film.awards?.map((a) => ({
+          prize: a.prize,
+          festival: a.festival,
+          year: a.year,
+        })) || [],
+      externalLinks:
+        f.film.externalLinks?.map((l) => ({
+          url: l.url,
+          label: l.label,
+        })) || [],
+      commentaire: f.film.commentaire,
+      rating: f.film.rating,
       directorName: f.film.director?.name || null,
       tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
       firstProductionCountryName:
         f.film.productionCountries?.[0]?.country?.name || null,
     })),
-  };
+  }));
+
   res.json(result);
 });
 

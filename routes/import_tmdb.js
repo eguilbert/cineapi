@@ -230,6 +230,7 @@ router.get("/import/tmdb", async (req, res) => {
           update: {
             category,
             trailerUrl,
+            posterUrl,
             title: detail.data.title,
             releaseDate: safeDate(releaseDate),
           },
