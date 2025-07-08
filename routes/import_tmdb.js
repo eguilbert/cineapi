@@ -224,6 +224,10 @@ router.get("/import/tmdb", async (req, res) => {
           genres: detail.data.genres || [],
         });
 
+        const posterUrl = detail.data.poster_path
+          ? `https://image.tmdb.org/t/p/w500${detail.data.poster_path}`
+          : "";
+
         // Save film in DB
         const savedFilm = await prisma.film.upsert({
           where: { tmdbId: film.id },
@@ -244,9 +248,7 @@ router.get("/import/tmdb", async (req, res) => {
             duration: detail.data.runtime,
             budget: detail.data.budget,
             origin: detail.data.origin_country?.[0] || "",
-            posterUrl: detail.data.poster_path
-              ? `https://image.tmdb.org/t/p/w500${detail.data.poster_path}`
-              : "",
+            posterUrl: posterUrl,
             actors: cast,
             trailerUrl: trailerUrl,
             director: director ? { connect: { id: director.id } } : undefined,
