@@ -142,38 +142,40 @@ router.put("/:id/details", async (req, res) => {
 
   try {
     // 1. Mettre à jour les champs simples
+    // 1. Mettre à jour les champs simples
     await prisma.film.update({
       where: { id: filmId },
       data: { commentaire, rating },
     });
 
-    // 2. Créer ou retrouver les tags
-    const tagRecords = await Promise.all(
-      tags.map(async (label) => {
-        const existing = await prisma.filmTag.findUnique({
-          where: { label },
-        });
+    // 2. Supprimer tous les awards existants
+    await prisma.award.deleteMany({ where: { filmId } });
 
-        return existing
-          ? existing
-          : await prisma.filmTag.create({
-              data: { label, category, validated: false },
-            });
-      })
-    );
+    // 3. Insérer les nouveaux awards
+    if (awards.length > 0) {
+      await prisma.award.createMany({
+        data: awards.map((a) => ({
+          filmId,
+          prize: a.prize,
+          festival: a.festival,
+          year: a.year ?? null,
+        })),
+      });
+    }
 
-    // 3. Supprimer tous les liens existants
-    await prisma.filmFilmTag.deleteMany({
-      where: { filmId },
-    });
+    // 4. Supprimer tous les externalLinks existants
+    await prisma.externalLink.deleteMany({ where: { filmId } });
 
-    // 4. Créer les nouveaux liens
-    await prisma.filmFilmTag.createMany({
-      data: tagRecords.map((tag) => ({
-        filmId,
-        tagId: tag.id,
-      })),
-    });
+    // 5. Insérer les nouveaux externalLinks
+    if (externalLinks.length > 0) {
+      await prisma.externalLink.createMany({
+        data: externalLinks.map((link) => ({
+          filmId,
+          label: link.label,
+          url: link.url,
+        })),
+      });
+    }
 
     // 2. Supprimer tous les awards existants
     await prisma.award.deleteMany({ where: { filmId } });
@@ -210,33 +212,6 @@ router.put("/:id/details", async (req, res) => {
     res.status(500).json({ error: "Échec mise à jour film" });
   }
 });
-
-/* 
-await prisma.award.create({
-  data: {
-    prize: "Palme d'or",
-    festival: "Cannes",
-    year: 2024,
-    film: { connect: { id: filmId } },
-  },
-});
-
-await prisma.externalLink.createMany({
-  data: [
-    {
-      url: "https://www.allocine.fr/film/fichefilm_gen_cfilm=123.html",
-      label: "Allociné",
-      filmId,
-    },
-    {
-      url: "https://fr.wikipedia.org/wiki/Film_xyz",
-      label: "Wikipedia",
-      filmId,
-    },
-  ],
-});
-
- */
 
 router.put("/:id/meta", async (req, res) => {
   const filmId = Number(req.params.id);
