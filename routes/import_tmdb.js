@@ -123,31 +123,53 @@ router.get("/import/tmdb", async (req, res) => {
           continue;
         }
 
-        const videos = await axios.get(
-          `https://api.themoviedb.org/3/movie/${film.id}/videos`,
-          { params: { api_key: TMDB_KEY } }
-        );
-        const trailer = videos.data.results
-          .filter(
-            (v) =>
-              v.site === "YouTube" &&
-              v.key &&
-              (v.type === "Trailer" || v.type === "Teaser" || v.type === "Clip")
-          )
-          .sort(
-            (a, b) => new Date(b.published_at) - new Date(a.published_at)
-          )[0];
+        const getTrailer = async (filmId) => {
+          const fetchVideos = async (language) => {
+            const response = await axios.get(
+              `https://api.themoviedb.org/3/movie/${filmId}/videos`,
+              {
+                params: {
+                  api_key: TMDB_KEY,
+                  language,
+                },
+              }
+            );
+            return response.data.results;
+          };
 
-        console.log(
-          "🎬 Vidéos TMDB:",
-          JSON.stringify(videos.data.results, null, 2)
-        );
-        console.log("🎯 Trailer trouvé :", trailer);
+          // Essayer d’abord en fr-FR
+          let results = await fetchVideos("fr-FR");
 
-        const trailerUrl = trailer
-          ? `https://www.youtube.com/watch?v=${trailer.key}`
-          : null;
-        console.log("🎯 trailerUrl :", trailerUrl);
+          // Fallback en en-US si aucun résultat
+          if (!results || results.length === 0) {
+            results = await fetchVideos("en-US");
+          }
+
+          // Log des vidéos brutes
+          console.log("🎬 Vidéos TMDB:", JSON.stringify(results, null, 2));
+
+          const trailer = results
+            .filter(
+              (v) =>
+                v.site === "YouTube" &&
+                v.key &&
+                ["Trailer", "Teaser", "Clip"].includes(v.type)
+            )
+            .sort(
+              (a, b) => new Date(b.published_at) - new Date(a.published_at)
+            )[0];
+
+          console.log("🎯 Trailer trouvé :", trailer);
+
+          const trailerUrl = trailer
+            ? `https://www.youtube.com/watch?v=${trailer.key}`
+            : null;
+
+          console.log("🎯 trailerUrl :", trailerUrl);
+
+          return trailerUrl;
+        };
+        const trailerUrl = await getTrailer(film.id);
 
         const releases = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/release_dates`,
