@@ -130,46 +130,47 @@ router.get("/", async (req, res) => {
   res.json(formatted);
 });
 
-router.put("/:id/tags", async (req, res) => {
+router.put("/:id/details", async (req, res) => {
   const filmId = Number(req.params.id);
-  const { commentaire, rating, tags = [], category = "thematics" } = req.body;
+  const { commentaire, rating, awards = [], externalLinks = [] } = req.body;
 
   try {
-    // 1. Mise à jour du commentaire
+    // 1. Mettre à jour les champs simples
     await prisma.film.update({
       where: { id: filmId },
       data: { commentaire, rating },
     });
 
-    // 2. Créer ou retrouver les tags
-    const tagRecords = await Promise.all(
-      tags.map(async (label) => {
-        const existing = await prisma.filmTag.findUnique({
-          where: { label },
-        });
+    // 2. Supprimer tous les awards existants
+    await prisma.award.deleteMany({ where: { filmId } });
 
-        return existing
-          ? existing
-          : await prisma.filmTag.create({
-              data: { label, category, validated: false },
-            });
-      })
-    );
+    // 3. Insérer les nouveaux awards
+    if (awards.length > 0) {
+      await prisma.award.createMany({
+        data: awards.map((a) => ({
+          filmId,
+          prize: a.prize,
+          festival: a.festival,
+          year: a.year ?? null,
+        })),
+      });
+    }
 
-    // 3. Supprimer tous les liens existants
-    await prisma.filmFilmTag.deleteMany({
-      where: { filmId },
-    });
+    // 4. Supprimer tous les externalLinks existants
+    await prisma.externalLink.deleteMany({ where: { filmId } });
 
-    // 4. Créer les nouveaux liens
-    await prisma.filmFilmTag.createMany({
-      data: tagRecords.map((tag) => ({
-        filmId,
-        tagId: tag.id,
-      })),
-    });
+    // 5. Insérer les nouveaux externalLinks
+    if (externalLinks.length > 0) {
+      await prisma.externalLink.createMany({
+        data: externalLinks.map((link) => ({
+          filmId,
+          label: link.label,
+          url: link.url,
+        })),
+      });
+    }
 
-    res.json({ message: "Film mis à jour avec succès" });
+    res.json({ message: "Film mis à jour avec succès (awards & links)" });
   } catch (error) {
     console.error("Erreur mise à jour film:", error);
     res.status(500).json({ error: "Échec mise à jour film" });
