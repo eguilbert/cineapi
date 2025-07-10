@@ -36,6 +36,7 @@ model Film {
   directorId          Int?
 
   selections SelectionFilm[]
+  votes        Vote[]    @relation("FilmVotes")
 
   programmations Programmation[]
   awards         Award[]          // ← relation 1-n
@@ -143,15 +144,16 @@ model UserProfile {
   user_id    String   @id            // Supabase user UUID
   cinema     Cinema   @relation(fields: [cinemaId], references: [id])
   cinemaId   Int
-  role       String?  // optionnel : 'INVITE', 'PROGRAMMEUR', etc.
-
+  role String? @default("INVITE")
   user_votes Vote[]   @relation("UserVotes")
+  @@index([cinemaId])
+
 }
 
 model Vote {
   id          Int      @id @default(autoincrement())
   user_id     String
-  film        Film     @relation(fields: [filmId], references: [id])
+  film        Film     @relation("FilmVotes", fields: [filmId], references: [id])
   filmId      Int
   note        Int
   commentaire String?
@@ -164,3 +166,4 @@ model Vote {
 
   @@unique([user_id, filmId])
 }
+
