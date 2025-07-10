@@ -130,3 +130,37 @@ model ExternalLink {
   film     Film       @relation(fields: [filmId], references: [id], onDelete: Cascade)
   filmId   Int
 }
+
+model Cinema {
+  id     Int    @id @default(autoincrement())
+  name   String
+  slug   String  @unique
+  users  UserProfile[]
+  votes  Vote[]
+}
+
+model UserProfile {
+  user_id    String   @id            // Supabase user UUID
+  cinema     Cinema   @relation(fields: [cinemaId], references: [id])
+  cinemaId   Int
+  role       String?  // optionnel : 'INVITE', 'PROGRAMMEUR', etc.
+
+  user_votes Vote[]   @relation("UserVotes")
+}
+
+model Vote {
+  id          Int      @id @default(autoincrement())
+  user_id     String
+  film        Film     @relation(fields: [filmId], references: [id])
+  filmId      Int
+  note        Int
+  commentaire String?
+  cinema      Cinema   @relation(fields: [cinemaId], references: [id])
+  cinemaId    Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user_profile UserProfile? @relation("UserVotes", fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@unique([user_id, filmId])
+}
