@@ -1,6 +1,8 @@
-const express = require("express");
-const axios = require("axios");
+import express from "express";
+import axios from "axios";
+
 const router = express.Router();
+const express = require("express");
 
 // GET /api/import/premiere => films OMDb simulés depuis une liste de titres
 router.get("/import/premiere", async (req, res) => {
@@ -48,4 +50,4 @@ router.get("/import/premiere", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

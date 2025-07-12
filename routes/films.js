@@ -1,8 +1,9 @@
-const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+import express from "express";
+import axios from "axios";
+import { PrismaClient } from "@prisma/client";
+
 const router = express.Router();
 const prisma = new PrismaClient();
-const axios = require("axios");
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
 // POST /api/films
@@ -376,4 +377,4 @@ router.post("/:tmdbId/refresh", async (req, res) => {
   }
 }); */
 
-module.exports = router;
+export default router;

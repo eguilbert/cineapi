@@ -1,9 +1,10 @@
 // routes/import_tmdb.js
 
-const express = require("express");
-const axios = require("axios");
+import express from "express";
+import axios from "axios";
+
+import { PrismaClient } from "@prisma/client";
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const TMDB_KEY = process.env.TMDB_API_KEY;
@@ -299,4 +300,4 @@ router.get("/import/tmdb", async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
