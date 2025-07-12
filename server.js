@@ -15,6 +15,9 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.get("/api/test", (req, res) => {
+  res.send("Test OK");
+});
 // Routes
 app.use("/api", importTmdbRoutes);
 app.use("/api/films", filmsRoutes);
