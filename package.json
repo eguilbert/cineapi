@@ -2,7 +2,7 @@
   "name": "cinema-api",
   "version": "1.0.0",
   "type": "module",
-"main": "server.js",  // ou dist/server.js si tu compiles TS
+"main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy:supabase": "dotenv -e .env.supabase -- prisma generate && dotenv -e .env.supabase -- prisma migrate deploy"
