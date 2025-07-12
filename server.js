@@ -24,23 +24,23 @@ app.use("/api/programmation", programmationRoutes);
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
 });
-
-async function testDbConnection() {
-  try {
-    await prisma.$executeRawUnsafe("SELECT 1");
-    console.log("✅ Connexion à la base réussie");
-  } catch (err) {
-    console.error("❌ Échec de la connexion à la base :", err);
-    process.exit(1); // Stop tout démarrage si DB KO
-  }
+function testDbConnection() {
+  return prisma.$executeRawUnsafe("SELECT 1");
 }
 
-async function startServer() {
-  await testDbConnection();
+function startServer() {
+  testDbConnection()
+    .then(() => {
+      console.log("✅ Connexion à la base réussie");
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  });
+      app.listen(PORT, () => {
+        console.log(`🚀 Serveur démarré sur le port ${PORT}`);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Échec de la connexion à la base :", err);
+      process.exit(1);
+    });
 }
 
 startServer();
