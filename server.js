@@ -29,6 +29,7 @@ app.use("/api", systemRoutes);
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
 });
+
 function testDbConnection() {
   return prisma.$executeRawUnsafe("SELECT 1");
 }
