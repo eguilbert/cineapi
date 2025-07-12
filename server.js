@@ -6,6 +6,7 @@ import filmsRoutes from "./routes/films.js";
 import tagsRoutes from "./routes/tags.js";
 import selectionsRoutes from "./routes/selections.js";
 import programmationRoutes from "./routes/programmation.js";
+import systemRoutes from "./routes/system.js";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -20,6 +21,7 @@ app.use("/api/films", filmsRoutes);
 app.use("/api/tags", tagsRoutes);
 app.use("/api/selections", selectionsRoutes);
 app.use("/api/programmation", programmationRoutes);
+app.use("/api", systemRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
