@@ -13,7 +13,7 @@ COPY . .
 RUN npm install
 
 # Génére le client Prisma
-RUN npx prisma generate
+# RUN npx prisma generate
 
 # Port par défaut utilisé par l'app
 EXPOSE 4000

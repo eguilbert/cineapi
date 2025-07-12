@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["extendedWhereUnique", "orderByRelation", "orderByAggregateGroup", "multiSchema"]
+  previewFeatures = ["extendedWhereUnique", "multiSchema", "orderByAggregateGroup", "orderByRelation"]
 }
 
 datasource db {
@@ -9,58 +9,55 @@ datasource db {
   schemas  = ["public"]
 }
 
-// Schéma de l'app (public)
 model Film {
-  id           Int        @id @default(autoincrement())
-  tmdbId       Int        @unique
-  title        String
-  genre        String
-  category     String?
-  synopsis     String?
-  releaseDate  DateTime?
-  duration     Int?
-  budget       Int?
-  origin       String?
-  posterUrl    String?
-  commentaire  String?
-  rating       Float?
-  actors       String?
-  keywords     String?
-  trailerUrl   String?
-  filmTags     FilmFilmTag[]
-  seances      Int    @default(1)
-
-  productionCountries FilmCountry[]
-  director            Director?  @relation(fields: [directorId], references: [id])
+  id                  Int             @id @default(autoincrement())
+  tmdbId              Int             @unique
+  title               String
+  genre               String
+  category            String?
+  synopsis            String?
+  releaseDate         DateTime?
+  duration            Int?
+  budget              Int?
+  origin              String?
+  posterUrl           String?
+  commentaire         String?
+  rating              Float?
+  actors              String?
+  keywords            String?
+  trailerUrl          String?
+  seances             Int             @default(1)
   directorId          Int?
-
-  selections     SelectionFilm[]
-  votes          Vote[]    @relation("FilmVotes")
-  programmations Programmation[]
-  awards         Award[]
-  externalLinks  ExternalLink[]
+  awards              Award[]
+  externalLinks       ExternalLink[]
+  director            Director?       @relation(fields: [directorId], references: [id])
+  productionCountries FilmCountry[]
+  filmTags            FilmFilmTag[]
+  programmations      Programmation[]
+  selections          SelectionFilm[]
+  votes               Vote[]          @relation("FilmVotes")
 
   @@schema("public")
 }
 
 model Selection {
-  id       Int      @id @default(autoincrement())
-  name     String
-  date     DateTime @default(now())
-  films    SelectionFilm[]
+  id    Int             @id @default(autoincrement())
+  name  String
+  date  DateTime        @default(now())
+  films SelectionFilm[]
 
   @@schema("public")
 }
 
 model SelectionFilm {
-  id           Int      @id @default(autoincrement())
-  film         Film     @relation(fields: [filmId], references: [id])
-  filmId       Int
-  selection    Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
-  selectionId  Int
-  commentaire  String?
-  note         Int?
-  category     String?
+  id          Int       @id @default(autoincrement())
+  filmId      Int
+  selectionId Int
+  commentaire String?
+  note        Int?
+  category    String?
+  film        Film      @relation(fields: [filmId], references: [id])
+  selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
   @@unique([filmId, selectionId])
   @@schema("public")
@@ -75,18 +72,18 @@ model Director {
 }
 
 model Country {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
+  id    Int           @id @default(autoincrement())
+  name  String        @unique
   films FilmCountry[]
 
   @@schema("public")
 }
 
 model FilmCountry {
-  film      Film    @relation(fields: [filmId], references: [id])
   filmId    Int
-  country   Country @relation(fields: [countryId], references: [id])
   countryId Int
+  country   Country @relation(fields: [countryId], references: [id])
+  film      Film    @relation(fields: [filmId], references: [id])
 
   @@id([filmId, countryId])
   @@schema("public")
@@ -97,31 +94,31 @@ model Programmation {
   jour      String
   heure     String
   salle     String
-  film      Film     @relation(fields: [filmId], references: [id])
   filmId    Int
   createdAt DateTime @default(now())
+  film      Film     @relation(fields: [filmId], references: [id])
 
   @@schema("public")
 }
 
 model FilmTag {
-  id         Int      @id @default(autoincrement())
-  label      String   @unique
-  category   String
-  validated  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  films      FilmFilmTag[]
+  id        Int           @id @default(autoincrement())
+  label     String        @unique
+  category  String
+  validated Boolean       @default(false)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  films     FilmFilmTag[]
 
   @@schema("public")
 }
 
 model FilmFilmTag {
-  id       Int      @id @default(autoincrement())
-  filmId   Int
-  tagId    Int
-  film     Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
-  tag      FilmTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  id     Int     @id @default(autoincrement())
+  filmId Int
+  tagId  Int
+  film   Film    @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  tag    FilmTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([filmId, tagId], name: "filmId_tagId")
   @@schema("public")
@@ -132,8 +129,8 @@ model Award {
   prize    String
   festival String
   year     Int?
-  film     Film   @relation(fields: [filmId], references: [id], onDelete: Cascade)
   filmId   Int
+  film     Film   @relation(fields: [filmId], references: [id], onDelete: Cascade)
 
   @@schema("public")
 }
@@ -142,48 +139,45 @@ model ExternalLink {
   id     Int    @id @default(autoincrement())
   url    String
   label  String
-  film   Film   @relation(fields: [filmId], references: [id], onDelete: Cascade)
   filmId Int
+  film   Film   @relation(fields: [filmId], references: [id], onDelete: Cascade)
 
   @@schema("public")
 }
 
 model Cinema {
-  id     Int           @id @default(autoincrement())
-  name   String
-  slug   String        @unique
-  users  UserProfile[]
-  votes  Vote[]
+  id    Int           @id @default(autoincrement())
+  name  String
+  slug  String        @unique
+  users UserProfile[]
+  votes Vote[]
 
   @@schema("public")
 }
 
 model UserProfile {
-  user_id    String   @id // UUID Supabase
-  cinema     Cinema   @relation(fields: [cinemaId], references: [id])
+  user_id    String  @id
   cinemaId   Int
-  role       String?  @default("INVITE")
-  user_votes Vote[]   @relation("UserVotes")
+  role       String? @default("INVITE")
+  cinema     Cinema  @relation(fields: [cinemaId], references: [id])
+  user_votes Vote[]  @relation("UserVotes")
 
   @@index([cinemaId])
   @@schema("public")
 }
 
 model Vote {
-  id          Int      @id @default(autoincrement())
-  user_id     String
-  film        Film     @relation("FilmVotes", fields: [filmId], references: [id])
-  filmId      Int
-  note        Int
-  commentaire String?
-  cinema      Cinema   @relation(fields: [cinemaId], references: [id])
-  cinemaId    Int
-  createdAt   DateTime @default(now())
-
-  user_profile UserProfile? @relation("UserVotes", fields: [user_id], references: [user_id], onDelete: Cascade)
+  id           Int         @id @default(autoincrement())
+  user_id      String
+  filmId       Int
+  note         Int
+  commentaire  String?
+  cinemaId     Int
+  createdAt    DateTime    @default(now())
+  cinema       Cinema      @relation(fields: [cinemaId], references: [id])
+  film         Film        @relation("FilmVotes", fields: [filmId], references: [id])
+  user_profile UserProfile @relation("UserVotes", fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([user_id, filmId])
   @@schema("public")
 }
-
-
