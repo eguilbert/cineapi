@@ -157,7 +157,7 @@ model Cinema {
 }
 
 model UserProfile {
-  user_id    String     @id
+  user_id   String   @unique
   cinemaId   Int?       // ✅ optionnel
   role       String?    @default("INVITE")
   cinema     Cinema?    @relation(fields: [cinemaId], references: [id]) // ✅ aussi optionnelle

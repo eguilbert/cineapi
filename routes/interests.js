@@ -9,8 +9,15 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
 const DEFAULT_CINEMA_ID = "2";
 
+router.use((req, res, next) => {
+  console.log("Incoming request:", req.method, req.originalUrl);
+  next();
+});
+
 // POST /api/interests
 router.post("/", async (req, res) => {
+  console.log("Début POST /api/interests, body:", req.body);
+
   const { filmId, value } = req.body;
   const token = req.headers.authorization?.split("Bearer ")[1];
   if (!token) return res.status(401).json({ error: "Token manquant" });
@@ -86,6 +93,8 @@ router.get("/film/:id", async (req, res) => {
 //🔐 Retourne tous les intérêts de l’utilisateur connecté
 // GET /api/interests/my
 router.get("/my", async (req, res) => {
+  console.log("Début Get /api/interests/my, body:", req.body);
+
   const userId = verifySupabaseToken(req);
   if (!userId) {
     console.error("❌ Token déchiffré, mais pas d'userId");
