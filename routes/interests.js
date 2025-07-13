@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
     await prisma.userProfile.upsert({
       where: { user_id: userId },
       update: {},
-      create: { user_id: userId, cinemaId: DEFAULT_CINEMA_ID },
+      create: { user_id: userId, cinemaId: parseInt(DEFAULT_CINEMA_ID, 10) },
     });
 
     // ✅ Upsert l'intérêt pour le film
