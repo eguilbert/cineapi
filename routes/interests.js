@@ -1,42 +1,30 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { createClient } from "@supabase/supabase-js";
+import jwt from "jsonwebtoken";
 
 const router = Router();
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
 
-// Supabase server-side client
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
+// POST /api/interests
 router.post("/", async (req, res) => {
   const { filmId, value } = req.body;
   const token = req.headers.authorization?.split("Bearer ")[1];
-
   if (!token) return res.status(401).json({ error: "Token manquant" });
 
   try {
-    // 1. Vérifie le token utilisateur
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      return res.status(401).json({ error: "Token invalide" });
-    }
+    // ✅ Vérifie le JWT reçu depuis Supabase Auth
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.sub; // ID Supabase de l'utilisateur connecté
 
-    const userId = user.id;
-
-    // 2. S’assure que le UserProfile existe
+    // ✅ Assure-toi que le user profile existe
     await prisma.userProfile.upsert({
       where: { user_id: userId },
       update: {},
       create: { user_id: userId },
     });
 
-    // 3. Upsert l'intérêt utilisateur pour ce film
+    // ✅ Upsert l'intérêt pour le film
     const interest = await prisma.interest.upsert({
       where: {
         user_id_film_id: {
@@ -56,8 +44,8 @@ router.post("/", async (req, res) => {
 
     res.json(interest);
   } catch (err) {
-    console.error("Erreur POST /api/interests :", err);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur JWT /api/interests :", err);
+    res.status(401).json({ error: "Token invalide ou expiré" });
   }
 });
 
@@ -98,12 +86,16 @@ router.get("/my", async (req, res) => {
   if (!token) return res.status(401).json({ error: "Token manquant" });
 
   try {
-    const {
+    // ✅ Vérifie le JWT reçu depuis Supabase Auth
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.sub; // ID Supabase de l'utilisateur connecté
+
+    /*     const {
       data: { user },
       error,
     } = await supabase.auth.getUser(token);
     if (error || !user)
-      return res.status(401).json({ error: "Token invalide" });
+      return res.status(401).json({ error: "Token invalide" }); */
 
     const interests = await prisma.interest.findMany({
       where: { user_id: user.id },
