@@ -36,6 +36,7 @@ model Film {
   programmations      Programmation[]
   selections          SelectionFilm[]
   votes               Vote[]          @relation("FilmVotes")
+  interests           Interest[]
 
   @@schema("public")
 }
@@ -156,11 +157,12 @@ model Cinema {
 }
 
 model UserProfile {
-  user_id    String  @id
+  user_id    String     @id
   cinemaId   Int
-  role       String? @default("INVITE")
-  cinema     Cinema  @relation(fields: [cinemaId], references: [id])
-  user_votes Vote[]  @relation("UserVotes")
+  role       String?    @default("INVITE")
+  cinema     Cinema     @relation(fields: [cinemaId], references: [id])
+  user_votes Vote[]     @relation("UserVotes")
+  interests  Interest[]
 
   @@index([cinemaId])
   @@schema("public")
@@ -179,5 +181,28 @@ model Vote {
   user_profile UserProfile @relation("UserVotes", fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([user_id, filmId])
+  @@schema("public")
+}
+
+model Interest {
+  id        String        @id @default(uuid())
+  user_id   String
+  film_id   Int
+  value     InterestLevel @default(SANS_OPINION)
+  createdAt DateTime      @default(now())
+
+  user UserProfile @relation(fields: [user_id], references: [user_id])
+  film Film        @relation(fields: [film_id], references: [id])
+
+  @@unique([user_id, film_id])
+  @@schema("public") // 👈 obligatoire avec multi-schema
+}
+
+enum InterestLevel {
+  SANS_OPINION
+  NOT_INTERESTED
+  CURIOUS
+  MUST_SEE
+
   @@schema("public")
 }
