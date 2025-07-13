@@ -86,8 +86,18 @@ router.get("/film/:id", async (req, res) => {
 //🔐 Retourne tous les intérêts de l’utilisateur connecté
 // GET /api/interests/my
 router.get("/my", async (req, res) => {
+  const userId = verifySupabaseToken(req);
+  const profile = await prisma.userProfile.findUnique({
+    where: { user_id: userId },
+  });
+  if (!profile) {
+    console.error("❌ Aucun UserProfile trouvé pour:", userId);
+    return res.status(404).json({ error: "Profil non trouvé" });
+  }
   try {
     const userId = verifySupabaseToken(req);
+
+    console.log("✅ userId extrait du token:", userId);
 
     const interests = await prisma.interest.findMany({
       where: { user_id: userId },
