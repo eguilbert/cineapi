@@ -87,6 +87,10 @@ router.get("/film/:id", async (req, res) => {
 // GET /api/interests/my
 router.get("/my", async (req, res) => {
   const userId = verifySupabaseToken(req);
+  if (!userId) {
+    console.error("❌ Token déchiffré, mais pas d'userId");
+    return res.status(401).json({ error: "Token invalide" });
+  }
   const profile = await prisma.userProfile.findUnique({
     where: { user_id: userId },
   });
