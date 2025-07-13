@@ -61,7 +61,7 @@ router.get("/film/:id", async (req, res) => {
     const results = await prisma.interest.groupBy({
       by: ["value"],
       where: { film_id: filmId },
-      _count: true,
+      _count: { _all: true },
     });
 
     // Format lisible
@@ -73,7 +73,7 @@ router.get("/film/:id", async (req, res) => {
     };
 
     results.forEach((r) => {
-      counts[r.value] = r._count;
+      counts[r.value] = r._count._all;
     });
 
     res.json({ filmId, interests: counts });
