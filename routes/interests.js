@@ -126,4 +126,51 @@ router.get("/my", async (req, res) => {
   }
 });
 
+// GET /api/interests/films?ids=12,45,78
+router.get("/films", async (req, res) => {
+  const idsParam = req.query.ids;
+
+  if (!idsParam) {
+    return res.status(400).json({ error: "Paramètre ids manquant" });
+  }
+
+  const filmIds = idsParam
+    .split(",")
+    .map((id) => parseInt(id, 10))
+    .filter((id) => !isNaN(id));
+
+  if (filmIds.length === 0) {
+    return res.status(400).json({ error: "Paramètres ids invalides" });
+  }
+
+  try {
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"],
+      where: {
+        film_id: { in: filmIds },
+      },
+      _count: { _all: true },
+    });
+
+    // Format : { [film_id]: { SANS_OPINION: x, NOT_INTERESTED: y, ... } }
+    const response = {};
+    for (const group of grouped) {
+      if (!response[group.film_id]) {
+        response[group.film_id] = {
+          SANS_OPINION: 0,
+          NOT_INTERESTED: 0,
+          CURIOUS: 0,
+          MUST_SEE: 0,
+        };
+      }
+      response[group.film_id][group.value] = group._count._all;
+    }
+
+    res.json(response);
+  } catch (err) {
+    console.error("Erreur GET /api/interests/films", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 export default router;
