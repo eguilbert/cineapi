@@ -1,11 +1,12 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
+import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 
 import { verifySupabaseToken } from "../lib/verifySupabaseToken.js";
 
 const router = Router();
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
 const DEFAULT_CINEMA_ID = "2";
 
@@ -170,6 +171,48 @@ router.get("/films", async (req, res) => {
   } catch (err) {
     console.error("Erreur GET /api/interests/films", err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+router.post("/films", async (req, res) => {
+  const { ids } = req.body;
+
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return res.status(400).json({ error: "Liste d’IDs manquante ou invalide" });
+  }
+
+  const filmIds = ids.filter((id) => Number.isInteger(id));
+
+  if (filmIds.length === 0) {
+    return res.status(400).json({ error: "Aucun ID de film valide" });
+  }
+
+  try {
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"],
+      where: {
+        film_id: { in: filmIds },
+      },
+      _count: { _all: true },
+    });
+
+    const response = {};
+    for (const group of grouped) {
+      if (!response[group.film_id]) {
+        response[group.film_id] = {
+          SANS_OPINION: 0,
+          NOT_INTERESTED: 0,
+          CURIOUS: 0,
+          MUST_SEE: 0,
+        };
+      }
+      response[group.film_id][group.value] = group._count._all;
+    }
+
+    res.json(response);
+  } catch (err) {
+    console.error("Erreur POST /api/interests/films", err);
+    res.status(500).json({ error: "Erreur serveur lors de l’agrégation" });
   }
 });
 

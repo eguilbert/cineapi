@@ -8,6 +8,8 @@ import selectionsRoutes from "./routes/selections.js";
 import programmationRoutes from "./routes/programmation.js";
 import systemRoutes from "./routes/system.js";
 import interestRoutes from "./routes/interests.js";
+import createUserRouter from "./routes/createUser.js";
+import usersRouter from "./routes/users.js";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -28,6 +30,8 @@ app.use("/api/selections", selectionsRoutes);
 app.use("/api/programmation", programmationRoutes);
 app.use("/api", systemRoutes);
 app.use("/api/interests", interestRoutes);
+app.use("/api/createUser", createUserRouter); // POST
+app.use("/api/users", usersRouter); // GET
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
