@@ -2,10 +2,11 @@
 
 import axios from "axios";
 
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma.js";
 import { Router } from "express";
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
@@ -23,6 +24,10 @@ router.get("/import/tmdb", async (req, res) => {
 
   let page = 1;
   const allResults = [];
+
+  function wait(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 
   function autocategorize(film) {
     const genre = film.genres.map((g) => g.name.toLowerCase());
@@ -101,11 +106,13 @@ router.get("/import/tmdb", async (req, res) => {
       allResults.push(...results);
       page++;
     } while (page <= totalPages && page <= 5); // limit to 5 pages for safety
+    console.log("🧾 Films récupérés de discover :", allResults.length);
 
     const films = [];
 
     for (const film of allResults) {
       try {
+        await wait(150);
         const detail = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}`,
           {
@@ -191,7 +198,12 @@ router.get("/import/tmdb", async (req, res) => {
           );
         });
 
-        if (!validRelease) continue;
+        if (!validRelease) {
+          console.log(
+            `⛔ Pas de sortie FR valable pour "${detail.data.title}"`
+          );
+          continue;
+        }
 
         const releaseDate = new Date(validRelease.release_date);
 
@@ -292,6 +304,7 @@ router.get("/import/tmdb", async (req, res) => {
         console.warn("Erreur enrichissement TMDb pour", film.title, e.message);
       }
     }
+    console.log("✅ Films enrichis et enregistrés :", films.length);
 
     res.json(films);
   } catch (error) {

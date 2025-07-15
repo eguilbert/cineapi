@@ -1,9 +1,9 @@
 import express from "express";
-
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma.js";
+//import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 // POST /api/programmation
 router.post("/", async (req, res) => {

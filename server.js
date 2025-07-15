@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma.js";
 import importTmdbRoutes from "./routes/import_tmdb.js";
 import filmsRoutes from "./routes/films.js";
 import tagsRoutes from "./routes/tags.js";
@@ -12,7 +13,7 @@ import createUserRouter from "./routes/createUser.js";
 import usersRouter from "./routes/users.js";
 
 const app = express();
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());

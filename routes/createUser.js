@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
+import { prisma } from "./lib/prisma.js";
 
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;

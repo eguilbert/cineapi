@@ -1,7 +1,8 @@
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma.js";
 import { Router } from "express";
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 
 // GET all selections with full film detail
 router.get("/", async (req, res) => {

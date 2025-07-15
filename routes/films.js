@@ -1,10 +1,11 @@
 import express from "express";
 import axios from "axios";
-import { PrismaClient } from "@prisma/client";
+//import { PrismaClient } from "@prisma/client";
+import { prisma } from "./lib/prisma.js";
 
 import { Router } from "express";
 const router = Router();
-const prisma = new PrismaClient();
+//const prisma = new PrismaClient();
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
 // POST /api/films
