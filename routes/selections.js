@@ -6,69 +6,22 @@ const router = Router();
 
 // GET all selections with full film detail
 router.get("/", async (req, res) => {
-  const selections = await prisma.selection.findMany({
-    include: {
-      films: {
-        include: {
-          film: {
-            include: {
-              director: true,
-              productionCountries: {
-                include: {
-                  country: true,
-                },
-              },
-              filmTags: {
-                include: {
-                  tag: true,
-                },
-              },
-              awards: true, // 👈 Ajouté
-              externalLinks: true, // 👈 Ajouté
-            },
-          },
-        },
+  try {
+    const selections = await prisma.selection.findMany({
+      select: {
+        id: true,
+        name: true,
       },
-    },
-  });
-  // Post-traitement : ne garder que ce qui t'intéresse
-  const result = selections.map((selection) => ({
-    id: selection.id,
-    name: selection.name,
-    films: selection.films.map((f) => ({
-      title: f.film.title,
-      id: f.film.id,
-      category: f.film.category,
-      poster: f.film.posterUrl,
-      tmdbId: f.film.tmdbId,
-      actors: f.film.actors,
-      origin: f.film.origin,
-      synopsis: f.film.synopsis,
-      genre: f.film.genre,
-      duration: f.film.duration,
-      releaseDate: f.film.releaseDate,
-      trailerUrl: f.film.trailerUrl,
-      awards:
-        f.film.awards?.map((a) => ({
-          prize: a.prize,
-          festival: a.festival,
-          year: a.year,
-        })) || [],
-      externalLinks:
-        f.film.externalLinks?.map((l) => ({
-          url: l.url,
-          label: l.label,
-        })) || [],
-      commentaire: f.film.commentaire,
-      rating: f.film.rating,
-      directorName: f.film.director?.name || null,
-      tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
-      firstProductionCountryName:
-        f.film.productionCountries?.[0]?.country?.name || null,
-    })),
-  }));
+      orderBy: {
+        date: "desc", // facultatif : pour afficher les plus récentes d'abord
+      },
+    });
 
-  res.json(result);
+    res.json(selections);
+  } catch (err) {
+    console.error("Erreur GET /api/selections :", err.message);
+    res.status(500).json({ error: "Impossible de charger les sélections" });
+  }
 });
 
 // GET /api/selections/:id
