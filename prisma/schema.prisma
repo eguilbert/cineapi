@@ -17,6 +17,7 @@ model Film {
   category            String?
   synopsis            String?
   releaseDate         DateTime?
+releaseCanDate        DateTime? 
   duration            Int?
   budget              Int?
   origin              String?
@@ -160,6 +161,7 @@ model UserProfile {
   user_id   String   @unique
   cinemaId   Int?       // ✅ optionnel
   role       String?    @default("INVITE")
+  username   String
   cinema     Cinema?    @relation(fields: [cinemaId], references: [id]) // ✅ aussi optionnelle
   user_votes Vote[]     @relation("UserVotes")
   interests  Interest[]

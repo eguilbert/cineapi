@@ -189,6 +189,24 @@ router.get("/import/tmdb", async (req, res) => {
         const frReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "FR"
         );
+        const caReleases = releases.data.results.find(
+          (r) => r.iso_3166_1 === "CA"
+        );
+        const canRelease = caReleases?.release_dates.find((rd) => {
+          const date = new Date(rd.release_date);
+          return (
+            (rd.type === 2 || rd.type === 3) &&
+            date >= new Date(startDate) &&
+            date <= new Date(endDate)
+          );
+        });
+        if (!canRelease) {
+          console.log(
+            `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
+          );
+          continue;
+        }
+
         const validRelease = frReleases?.release_dates.find((rd) => {
           const date = new Date(rd.release_date);
           return (
@@ -197,6 +215,12 @@ router.get("/import/tmdb", async (req, res) => {
             date <= new Date(endDate)
           );
         });
+        if (!canRelease) {
+          console.log(
+            `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
+          );
+          continue;
+        }
 
         if (!validRelease) {
           console.log(
@@ -206,6 +230,7 @@ router.get("/import/tmdb", async (req, res) => {
         }
 
         const releaseDate = new Date(validRelease.release_date);
+        const releaseCanDate = new Date(canRelease.release_date);
 
         // → tu peux ensuite l’utiliser dans ta sauvegarde
 
@@ -280,6 +305,7 @@ router.get("/import/tmdb", async (req, res) => {
             category,
             synopsis: detail.data.overview,
             releaseDate: safeDate(releaseDate),
+            releaseCanDate: safeDate(releaseCanDate),
             duration: detail.data.runtime,
             budget: detail.data.budget,
             origin: detail.data.origin_country?.[0] || "",
