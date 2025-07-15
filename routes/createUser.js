@@ -1,7 +1,7 @@
 import { Router } from "express";
 //import { PrismaClient } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
-import { prisma } from "./lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 
 const router = Router();
 //const prisma = new PrismaClient();
