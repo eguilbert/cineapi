@@ -205,6 +205,11 @@ router.get("/import/tmdb", async (req, res) => {
           continue;
         }
 
+        const safeDate = (d) => {
+          if (!d) return null;
+          const dateObj = new Date(d);
+          return isNaN(dateObj.getTime()) ? null : dateObj;
+        };
         const releaseDate = new Date(validRelease.release_date);
 
         //Canadian release
@@ -285,12 +290,6 @@ router.get("/import/tmdb", async (req, res) => {
             })
           )
         );
-
-        const safeDate = (d) => {
-          if (!d) return null;
-          const dateObj = new Date(d);
-          return isNaN(dateObj.getTime()) ? null : dateObj;
-        };
 
         const category = autocategorize({
           title: detail.data.title,
