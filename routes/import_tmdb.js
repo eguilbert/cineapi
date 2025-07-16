@@ -230,10 +230,9 @@ router.get("/import/tmdb", async (req, res) => {
         let releaseCanDate = null;
 
         if (caReleases?.release_dates?.length) {
-          const canRelease = caReleases.release_dates.find(
-              console.log("🧪 test type CA:", rd.type)
-            (rd) => rd.type === 2 || rd.type === 3
-          );
+          const canRelease = caReleases.release_dates.find((rd) => {
+            return rd.type === 2 || rd.type === 3;
+          });
 
           if (canRelease?.release_date) {
             releaseCanDate = new Date(canRelease.release_date);
