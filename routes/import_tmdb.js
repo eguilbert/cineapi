@@ -189,6 +189,25 @@ router.get("/import/tmdb", async (req, res) => {
         const frReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "FR"
         );
+
+        const validRelease = frReleases?.release_dates.find((rd) => {
+          const date = new Date(rd.release_date);
+          return (
+            (rd.type === 2 || rd.type === 3) &&
+            date >= new Date(startDate) &&
+            date <= new Date(endDate)
+          );
+        });
+        if (!validRelease) {
+          console.log(
+            `⛔ Pas de sortie FR valable pour "${detail.data.title}"`
+          );
+          continue;
+        }
+
+        const releaseDate = new Date(validRelease.release_date);
+
+        //Canadian release
         const caReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "CA"
         );
@@ -203,36 +222,32 @@ router.get("/import/tmdb", async (req, res) => {
             `⛔ Pas de Releases CA pour "${detail.data.title}" (${film.id})`
           );
         }
-        console.log("📆 CA release_dates:", caReleases?.release_dates);
-        const canRelease = caReleases?.release_dates.find((rd) => {
-          return rd.type === 2 || rd.type === 3;
-        });
+        console.log(
+          "📆 CA release_dates:",
+          JSON.stringify(caReleases?.release_dates, null, 2)
+        );
 
-        const validRelease = frReleases?.release_dates.find((rd) => {
-          const date = new Date(rd.release_date);
-          return (
-            (rd.type === 2 || rd.type === 3) &&
-            date >= new Date(startDate) &&
-            date <= new Date(endDate)
-          );
-        });
         let releaseCanDate = null;
-        if (!canRelease) {
-          console.log(
-            `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
+
+        if (caReleases?.release_dates?.length) {
+          const canRelease = caReleases.release_dates.find(
+              console.log("🧪 test type CA:", rd.type)
+            (rd) => rd.type === 2 || rd.type === 3
           );
+
+          if (canRelease?.release_date) {
+            releaseCanDate = new Date(canRelease.release_date);
+            console.log(
+              `✅ Sortie CAN trouvée : ${releaseCanDate.toISOString()}`
+            );
+          } else {
+            console.log(
+              `⛔ Aucune sortie type 2 ou 3 pour ${detail.data.title}`
+            );
+          }
         } else {
-          releaseCanDate = new Date(canRelease.release_date);
+          console.log(`⛔ Pas de release_dates CAN pour ${detail.data.title}`);
         }
-
-        if (!validRelease) {
-          console.log(
-            `⛔ Pas de sortie FR valable pour "${detail.data.title}"`
-          );
-          continue;
-        }
-
-        const releaseDate = new Date(validRelease.release_date);
 
         const credits = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/credits`,
