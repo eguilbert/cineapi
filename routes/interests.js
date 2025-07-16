@@ -35,6 +35,7 @@ router.post("/", async (req, res) => {
       create: {
         user_id: userId,
         cinemaId: parseInt(DEFAULT_CINEMA_ID, 10),
+        username: "Invité_" + userId.slice(0, 6),
       },
     });
 
