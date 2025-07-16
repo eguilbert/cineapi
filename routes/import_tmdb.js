@@ -189,13 +189,13 @@ router.get("/import/tmdb", async (req, res) => {
         const frReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "FR"
         );
-        (r) => r.iso_3166_1 === "CA"
-      );
-      const caReleases = releases.data.results.find(
+        const caReleases = releases.data.results.find(
+          (r) => r.iso_3166_1 === "CA"
+        );
         console.log("📆 CA release_dates:", caReleases?.release_dates);
         const canRelease = caReleases?.release_dates.find((rd) => {
           return rd.type === 2 || rd.type === 3;
-        }); 
+        });
 
         const validRelease = frReleases?.release_dates.find((rd) => {
           const date = new Date(rd.release_date);
@@ -205,12 +205,13 @@ router.get("/import/tmdb", async (req, res) => {
             date <= new Date(endDate)
           );
         });
+        let releaseCanDate = null;
         if (!canRelease) {
           console.log(
             `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
           );
         } else {
-          const releaseCanDate = new Date(canRelease.release_date);
+          releaseCanDate = new Date(canRelease.release_date);
         }
 
         if (!validRelease) {
@@ -293,7 +294,7 @@ router.get("/import/tmdb", async (req, res) => {
             category,
             synopsis: detail.data.overview,
             releaseDate: safeDate(releaseDate),
-            releaseCanDate: safeDate(releaseCanDate)|| null,
+            releaseCanDate: safeDate(releaseCanDate) || null,
             duration: detail.data.runtime,
             budget: detail.data.budget,
             origin: detail.data.origin_country?.[0] || "",
