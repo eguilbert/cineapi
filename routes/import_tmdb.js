@@ -154,7 +154,7 @@ router.get("/import/tmdb", async (req, res) => {
           }
 
           // Log des vidéos brutes
-          console.log("🎬 Vidéos TMDB:", JSON.stringify(results, null, 2));
+          // console.log("🎬 Vidéos TMDB:", JSON.stringify(results, null, 2));
 
           const trailer = results
             .filter(
@@ -192,6 +192,11 @@ router.get("/import/tmdb", async (req, res) => {
         const caReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "CA"
         );
+        if (!caReleases) {
+          console.log(
+            `⛔ Pas de Releases CA pour "${detail.data.title}" (${film.id})`
+          );
+        }
         console.log("📆 CA release_dates:", caReleases?.release_dates);
         const canRelease = caReleases?.release_dates.find((rd) => {
           return rd.type === 2 || rd.type === 3;
