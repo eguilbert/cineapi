@@ -209,7 +209,8 @@ router.get("/import/tmdb", async (req, res) => {
           console.log(
             `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
           );
-          continue;
+        } else {
+          const releaseCanDate = new Date(canRelease.release_date);
         }
 
         if (!validRelease) {
@@ -220,10 +221,6 @@ router.get("/import/tmdb", async (req, res) => {
         }
 
         const releaseDate = new Date(validRelease.release_date);
-
-        if (canRelease) {
-          const releaseCanDate = new Date(canRelease.release_date);
-        }
 
         const credits = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/credits`,
