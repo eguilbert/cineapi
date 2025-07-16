@@ -192,6 +192,12 @@ router.get("/import/tmdb", async (req, res) => {
         const caReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "CA"
         );
+        const usReleases = releases.data.results.find(
+          (r) => r.iso_3166_1 === "US"
+        );
+        console.log(
+          ` Releases US pour "${detail.data.title}" (${film.id}): ${usReleases}`
+        );
         if (!caReleases) {
           console.log(
             `⛔ Pas de Releases CA pour "${detail.data.title}" (${film.id})`
