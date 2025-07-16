@@ -27,7 +27,7 @@ router.post("/", async (req, res) => {
     // ✅ Vérifie le JWT reçu depuis Supabase Auth
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.sub; // ID Supabase de l'utilisateur connecté
-
+    console;
     // ✅ Assure-toi que le user profile existe
     await prisma.userProfile.upsert({
       where: { user_id: userId },
@@ -35,7 +35,6 @@ router.post("/", async (req, res) => {
       create: {
         user_id: userId,
         cinemaId: parseInt(DEFAULT_CINEMA_ID, 10),
-        username: "Anonyme",
       },
     });
 
@@ -53,7 +52,6 @@ router.post("/", async (req, res) => {
       create: {
         user_id: userId,
         film_id: filmId,
-        username: username,
         value,
       },
     });
