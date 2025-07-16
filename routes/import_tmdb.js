@@ -192,20 +192,10 @@ router.get("/import/tmdb", async (req, res) => {
         const caReleases = releases.data.results.find(
           (r) => r.iso_3166_1 === "CA"
         );
+        console.log("📆 CA release_dates:", caReleases?.release_dates);
         const canRelease = caReleases?.release_dates.find((rd) => {
-          const date = new Date(rd.release_date);
-          return (
-            (rd.type === 2 || rd.type === 3) &&
-            date >= new Date(startDate) &&
-            date <= new Date(endDate)
-          );
+          return rd.type === 2 || rd.type === 3;
         });
-        if (!canRelease) {
-          console.log(
-            `⛔ Pas de sortie CAN valable pour "${detail.data.title}"`
-          );
-          continue;
-        }
 
         const validRelease = frReleases?.release_dates.find((rd) => {
           const date = new Date(rd.release_date);
@@ -230,9 +220,10 @@ router.get("/import/tmdb", async (req, res) => {
         }
 
         const releaseDate = new Date(validRelease.release_date);
-        const releaseCanDate = new Date(canRelease.release_date);
 
-        // → tu peux ensuite l’utiliser dans ta sauvegarde
+        if (canRelease) {
+          const releaseCanDate = new Date(canRelease.release_date);
+        }
 
         const credits = await axios.get(
           `https://api.themoviedb.org/3/movie/${film.id}/credits`,
