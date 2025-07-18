@@ -1,12 +1,14 @@
 import * as dotenv from "dotenv";
+
 import { fileURLToPath } from "url";
 import path from "path";
 
 // Résoudre le chemin du fichier .env approprié
-const envFile =
-  process.env.NODE_ENV === "production" ? ".env.production" : ".env.local";
+const environment = process.env.NODE_ENV || "development";
+const envFile = environment === "production" ? ".env.production" : ".env.local";
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 console.log("🔍 DATABASE_URL =", process.env.DATABASE_URL);
+console.log("📦 SUPABASE_URL =", process.env.SUPABASE_URL);
 
 import express from "express";
 import cors from "cors";

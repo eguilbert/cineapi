@@ -1,3 +1,20 @@
+import * as dotenv from "dotenv";
+import path from "path";
+
+// Charge le bon .env en fonction de l’environnement
+const envFile =
+  process.env.NODE_ENV === "production" ? ".env.production" : ".env.local";
+dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+
+console.log(
+  "🧪 SUPABASE_URL (juste avant createClient):",
+  process.env.SUPABASE_URL
+);
+console.log(
+  "🧪 SUPABASE_ANON_KEY:",
+  process.env.SUPABASE_ANON_KEY ? "présente" : "absente"
+);
+
 import { Router } from "express";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "../lib/prisma.js";
