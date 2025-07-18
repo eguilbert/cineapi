@@ -2,11 +2,9 @@
 
 import axios from "axios";
 
-//import { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { Router } from "express";
 const router = Router();
-//const prisma = new PrismaClient();
 
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
@@ -352,6 +350,29 @@ router.get("/import/tmdb", async (req, res) => {
     console.error("Erreur accès TMDb:", error.message);
     res.status(500).json({ error: "Erreur récupération TMDb" });
   }
+});
+
+router.get("/tmdb/search", async (req, res) => {
+  const q = req.query.q;
+  if (!q) return res.json([]);
+
+  const tmdbRes = await axios.get(`https://api.themoviedb.org/3/search/movie`, {
+    params: {
+      api_key: process.env.TMDB_API_KEY,
+      query: q,
+      language: "fr-FR",
+    },
+  });
+
+  const simplified = tmdbRes.data.results.map((r) => ({
+    tmdbId: r.id,
+    title: r.title,
+    poster: r.poster_path
+      ? `https://image.tmdb.org/t/p/w300${r.poster_path}`
+      : null,
+  }));
+
+  res.json(simplified);
 });
 
 export default router;

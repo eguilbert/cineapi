@@ -1,11 +1,9 @@
 import express from "express";
 import axios from "axios";
-//import { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 
 import { Router } from "express";
 const router = Router();
-//const prisma = new PrismaClient();
 const TMDB_KEY = process.env.TMDB_API_KEY;
 
 // POST /api/films
@@ -285,6 +283,23 @@ router.post("/:tmdbId/refresh", async (req, res) => {
     process.stdout.write(""); // flush Docker logs
     res.status(500).json({ error: "Erreur TMDB" });
   }
+});
+
+router.get("/search", async (req, res) => {
+  const q = req.query.q;
+  if (!q) return res.json([]);
+
+  const results = await prisma.film.findMany({
+    where: {
+      title: {
+        contains: q,
+        mode: "insensitive",
+      },
+    },
+    take: 10,
+  });
+
+  res.json(results);
 });
 
 export default router;

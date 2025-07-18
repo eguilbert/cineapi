@@ -1,8 +1,6 @@
-//import { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import { Router } from "express";
 const router = Router();
-//const prisma = new PrismaClient();
 
 // GET all selections with full film detail
 router.get("/", async (req, res) => {
@@ -192,6 +190,41 @@ router.put("/:id", async (req, res) => {
   });
 
   res.json(refreshed);
+});
+
+///api/selections/:id/add-film
+router.post("/:id/add-film", async (req, res) => {
+  const selectionId = Number(req.params.id);
+  const { tmdbId, category } = req.body;
+
+  // Vérifier si le film est déjà en base
+  let film = await prisma.film.findUnique({ where: { tmdbId } });
+
+  if (!film) {
+    film = await importFilmFromTmdb(tmdbId); // ← tu utilises ton utilitaire d’import
+  }
+
+  // Vérifie s’il est déjà lié à la sélection
+  const exists = await prisma.selectionFilm.findUnique({
+    where: {
+      filmId_selectionId: {
+        filmId: film.id,
+        selectionId,
+      },
+    },
+  });
+
+  if (!exists) {
+    await prisma.selectionFilm.create({
+      data: {
+        filmId: film.id,
+        selectionId,
+        category,
+      },
+    });
+  }
+
+  res.json({ success: true, film });
 });
 
 // DELETE /api/selections/:id

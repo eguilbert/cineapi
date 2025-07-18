@@ -1,12 +1,10 @@
 import { Router } from "express";
-// import { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 
 import { verifySupabaseToken } from "../lib/verifySupabaseToken.js";
 
 const router = Router();
-// const prisma = new PrismaClient();
 const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
 const DEFAULT_CINEMA_ID = "2";
 

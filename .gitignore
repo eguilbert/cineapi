@@ -2,3 +2,4 @@
 
 /generated/prisma
 update.sh
+.env.local
