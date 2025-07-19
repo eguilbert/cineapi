@@ -45,8 +45,13 @@ model Film {
 model Selection {
   id    Int             @id @default(autoincrement())
   name  String
+  description  String?
   date  DateTime        @default(now())
+  voteDate DateTime?
+  voteClosed Boolean   @default(false)
   films SelectionFilm[]
+  status       String   @default("selection")
+  cinemas      SelectionCinema[]
 
   @@schema("public")
 }
@@ -58,6 +63,8 @@ model SelectionFilm {
   commentaire String?
   note        Int?
   category    String?
+  score      Float?   
+  selected   Boolean  @default(false)
   film        Film      @relation(fields: [filmId], references: [id])
   selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
@@ -153,15 +160,27 @@ model Cinema {
   slug  String        @unique
   users UserProfile[]
   votes Vote[]
+  selections   SelectionCinema[]
 
   @@schema("public")
 }
 
+model SelectionCinema {
+  selection    Selection @relation(fields: [selectionId], references: [id])
+  selectionId  Int
+
+  cinema       Cinema    @relation(fields: [cinemaId], references: [id])
+  cinemaId     Int
+
+  @@id([selectionId, cinemaId])
+  @@schema("public")
+}
+
 model UserProfile {
-  user_id   String      @unique
+  user_id    String     @id
   cinemaId   Int?       // ✅ optionnel
   role       String?    @default("INVITE")
-  username   String
+  username   String?
   cinema     Cinema?    @relation(fields: [cinemaId], references: [id]) // ✅ aussi optionnelle
   user_votes Vote[]     @relation("UserVotes")
   interests  Interest[]
@@ -204,6 +223,7 @@ enum InterestLevel {
   SANS_OPINION
   NOT_INTERESTED
   CURIOUS
+  VERY_INTERESTED
   MUST_SEE
 
   @@schema("public")

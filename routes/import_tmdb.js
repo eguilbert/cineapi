@@ -276,7 +276,7 @@ router.get("/import/tmdb", async (req, res) => {
             create: { name: directorName },
           });
         }
-
+        console.log("🎬 Réalisateur :", directorName || "Inconnu");
         // Upsert production countries
         const countries = detail.data.production_countries || [];
         const countryRecords = await Promise.all(

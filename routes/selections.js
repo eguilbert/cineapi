@@ -267,4 +267,61 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// routes/selection-close-vote.ts
+router.put("/selection/:id/close-vote", async (req, res) => {
+  const selectionId = req.params.id;
+
+  try {
+    // Récupère tous les films liés à cette sélection
+    const filmSelections = await prisma.filmSelection.findMany({
+      where: { selectionId },
+      include: {
+        film: {
+          include: {
+            interests: true,
+            votes: true,
+          },
+        },
+      },
+    });
+
+    // Calcul des scores (ici simple : moyenne des notes + poids des intérêts)
+    const updates = filmSelections.map(async (fs) => {
+      const votes = fs.film.votes ?? [];
+      const interests = fs.film.interests ?? [];
+
+      const voteScore = votes.length
+        ? votes.reduce((acc, v) => acc + (v.score ?? 0), 0) / votes.length
+        : 0;
+      const interestScore = interests.length / 5; // pondération arbitraire
+
+      const score = Math.min(10, voteScore + interestScore);
+
+      return prisma.filmSelection.update({
+        where: { id: fs.id },
+        data: {
+          score,
+          selected: score > 5,
+        },
+      });
+    });
+
+    await Promise.all(updates);
+
+    // Marque la sélection comme clôturée
+    await prisma.selection.update({
+      where: { id: selectionId },
+      data: {
+        voteClosed: true,
+        status: "programmation",
+      },
+    });
+
+    res.status(200).json({ message: "Votes clôturés et scores calculés." });
+  } catch (error) {
+    console.error("❌ Erreur clôture vote :", error);
+    res.status(500).json({ error: "Erreur lors de la clôture du vote." });
+  }
+});
+
 export default router;

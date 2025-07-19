@@ -2,7 +2,13 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:push": "dotenv -e .env.local -- prisma db push",
+    "prisma:studio": "dotenv -e .env.local -- prisma studio",
+    "prisma:migrate:dev": "dotenv -e .env.local -- prisma migrate dev --name update",
+    "prisma:migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
+    "prisma:sync": "npm run prisma:generate && npm run prisma:push"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
@@ -14,6 +20,7 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "dotenv-cli": "^8.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
