@@ -27,7 +27,7 @@ model Film {
   actors              String?
   keywords            String?
   trailerUrl          String?
-  seances             Int             @default(1)
+  seances             Int?             @default(1)
   directorId          Int?
   awards              Award[]
   externalLinks       ExternalLink[]

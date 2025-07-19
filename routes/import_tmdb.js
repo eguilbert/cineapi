@@ -324,6 +324,7 @@ router.get("/import/tmdb", async (req, res) => {
             origin: detail.data.origin_country?.[0] || "",
             posterUrl: posterUrl,
             actors: cast,
+            seances: 0,
             trailerUrl: trailerUrl,
             director: director ? { connect: { id: director.id } } : undefined,
             productionCountries: {
