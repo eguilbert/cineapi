@@ -303,7 +303,7 @@ router.get("/search", async (req, res) => {
 });
 
 // POST /films/:id/comment
-app.post("/:id/comment", async (req, res) => {
+router.post("/:id/comment", async (req, res) => {
   const filmId = parseInt(req.params.id, 10);
   const { user_id, commentaire } = req.body;
 
