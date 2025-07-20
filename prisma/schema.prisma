@@ -4,9 +4,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  schemas  = ["public"]
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  schemas           = ["public"]
 }
 
 model Film {
@@ -17,7 +18,6 @@ model Film {
   category            String?
   synopsis            String?
   releaseDate         DateTime?
-  releaseCanDate      DateTime? 
   duration            Int?
   budget              Int?
   origin              String?
@@ -27,45 +27,49 @@ model Film {
   actors              String?
   keywords            String?
   trailerUrl          String?
-  seances             Int?             @default(1)
+  seances             Int             @default(1)
   directorId          Int?
+  releaseCanDate      DateTime?
   awards              Award[]
   externalLinks       ExternalLink[]
   director            Director?       @relation(fields: [directorId], references: [id])
+  comments         FilmComment[]
   productionCountries FilmCountry[]
   filmTags            FilmFilmTag[]
+  interests           Interest[]
   programmations      Programmation[]
   selections          SelectionFilm[]
-  comments            FilmComment[]  // ✅ relation inverse
   votes               Vote[]          @relation("FilmVotes")
-  interests           Interest[]
 
   @@schema("public")
 }
 
 model FilmComment {
-  id         Int      @id @default(autoincrement())
-  film       Film     @relation(fields: [filmId], references: [id])
-  filmId     Int
-  user_id     String
-  user        UserProfile  @relation(fields: [user_id], references: [user_id])
+  id          Int          @id @default(autoincrement())
+  film_id     Int          @map("film_id")
+  user_id     String       @map("user_id")
   commentaire String
-  createdAt  DateTime @default(now())
+  created_at  DateTime     @default(now()) @map("created_at")
 
-  @@unique([filmId, user_id]) // un seul commentaire par film et utilisateur
+  film        Film         @relation(fields: [film_id], references: [id])
+  user        UserProfile  @relation(fields: [user_id], references: [user_id])
+
+  @@unique([film_id, user_id])
+  @@map("FilmComment")
   @@schema("public")
 }
 
+
 model Selection {
-  id    Int             @id @default(autoincrement())
-  name  String
-  description  String?
-  date  DateTime        @default(now())
-  voteDate DateTime?
-  voteClosed Boolean   @default(false)
-  films SelectionFilm[]
-  status       String   @default("selection")
-  cinemas      SelectionCinema[]
+  id          Int               @id @default(autoincrement())
+  name        String
+  date        DateTime          @default(now())
+  description String?
+  status      String            @default("selection")
+  voteClosed  Boolean           @default(false)
+  voteDate    DateTime?
+  cinemas     SelectionCinema[]
+  films       SelectionFilm[]
 
   @@schema("public")
 }
@@ -77,8 +81,8 @@ model SelectionFilm {
   commentaire String?
   note        Int?
   category    String?
-  score      Float?   
-  selected   Boolean  @default(false)
+  score       Float?
+  selected    Boolean   @default(false)
   film        Film      @relation(fields: [filmId], references: [id])
   selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
@@ -169,36 +173,35 @@ model ExternalLink {
 }
 
 model Cinema {
-  id    Int           @id @default(autoincrement())
-  name  String
-  slug  String        @unique
-  users UserProfile[]
-  votes Vote[]
-  selections   SelectionCinema[]
+  id         Int               @id @default(autoincrement())
+  name       String
+  slug       String            @unique
+  selections SelectionCinema[]
+  users      UserProfile[]
+  votes      Vote[]
 
   @@schema("public")
 }
 
 model SelectionCinema {
-  selection    Selection @relation(fields: [selectionId], references: [id])
-  selectionId  Int
-
-  cinema       Cinema    @relation(fields: [cinemaId], references: [id])
-  cinemaId     Int
+  selectionId Int
+  cinemaId    Int
+  cinema      Cinema    @relation(fields: [cinemaId], references: [id])
+  selection   Selection @relation(fields: [selectionId], references: [id])
 
   @@id([selectionId, cinemaId])
   @@schema("public")
 }
 
 model UserProfile {
-  user_id    String     @id
-  cinemaId   Int?       // ✅ optionnel
-  role       String?    @default("INVITE")
+  user_id    String        @id
+  cinemaId   Int?
+  role       String?       @default("INVITE")
   username   String?
-  cinema     Cinema?    @relation(fields: [cinemaId], references: [id]) // ✅ aussi optionnelle
-  user_votes Vote[]     @relation("UserVotes")
-  comments   FilmComment[] // 👈 relation inverse ajoutée ici
+  comments   FilmComment[]
   interests  Interest[]
+  cinema     Cinema?       @relation(fields: [cinemaId], references: [id])
+  user_votes Vote[]        @relation("UserVotes")
 
   @@index([cinemaId])
   @@schema("public")
@@ -226,20 +229,19 @@ model Interest {
   film_id   Int
   value     InterestLevel @default(SANS_OPINION)
   createdAt DateTime      @default(now())
-
-  user UserProfile @relation(fields: [user_id], references: [user_id])
-  film Film        @relation(fields: [film_id], references: [id])
+  film      Film          @relation(fields: [film_id], references: [id])
+  user      UserProfile   @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, film_id])
-  @@schema("public") // 👈 obligatoire avec multi-schema
+  @@schema("public")
 }
 
 enum InterestLevel {
   SANS_OPINION
   NOT_INTERESTED
   CURIOUS
-  VERY_INTERESTED
   MUST_SEE
+  VERY_INTERESTED
 
   @@schema("public")
 }
