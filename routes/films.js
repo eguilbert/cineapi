@@ -336,4 +336,28 @@ router.post("/:id/comment", async (req, res) => {
   }
 });
 
+router.delete("/:id/comment", async (req, res) => {
+  const film_id = parseInt(req.params.id, 10);
+  const { user_id } = req.body;
+
+  if (!user_id) {
+    return res.status(400).json({ error: "User ID manquant" });
+  }
+
+  try {
+    await prisma.filmComment.delete({
+      where: {
+        film_id_user_id: {
+          film_id: film_id,
+          user_id,
+        },
+      },
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Erreur suppression commentaire", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 export default router;
