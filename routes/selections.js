@@ -343,7 +343,7 @@ router.put("/selection/:id/close-vote", async (req, res) => {
 });
 
 // Exemple Express
-app.post("/selections/:id/approve", async (req, res) => {
+router.post("/:id/approve", async (req, res) => {
   const selectionId = parseInt(req.params.id, 10);
   const { filmIds } = req.body;
 

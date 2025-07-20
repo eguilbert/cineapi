@@ -302,4 +302,38 @@ router.get("/search", async (req, res) => {
   res.json(results);
 });
 
+// POST /films/:id/comment
+app.post("/:id/comment", async (req, res) => {
+  const filmId = parseInt(req.params.id, 10);
+  const { user_id, commentaire } = req.body;
+
+  if (!user_id || !commentaire) {
+    return res.status(400).json({ error: "Champs requis manquants" });
+  }
+
+  try {
+    const comment = await prisma.filmComment.upsert({
+      where: {
+        filmId_user_id: {
+          filmId,
+          user_id,
+        },
+      },
+      update: {
+        commentaire,
+      },
+      create: {
+        filmId,
+        user_id,
+        commentaire,
+      },
+    });
+
+    res.json(comment);
+  } catch (err) {
+    console.error("Erreur création/màj commentaire", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 export default router;
