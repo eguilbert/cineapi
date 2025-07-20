@@ -304,7 +304,7 @@ router.get("/search", async (req, res) => {
 
 // POST /films/:id/comment
 router.post("/:id/comment", async (req, res) => {
-  const filmId = parseInt(req.params.id, 10);
+  const film_id = parseInt(req.params.id, 10);
   const { user_id, commentaire } = req.body;
 
   if (!user_id || !commentaire) {
