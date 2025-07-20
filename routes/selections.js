@@ -44,6 +44,16 @@ router.get("/:id", async (req, res) => {
               },
               awards: true, // 👈 Ajouté
               externalLinks: true, // 👈 Ajouté,
+              comments: {
+                include: {
+                  user: {
+                    select: {
+                      username: true,
+                      user_id: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -83,6 +93,14 @@ router.get("/:id", async (req, res) => {
       tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
       firstProductionCountryName:
         f.film.productionCountries?.[0]?.country?.name || null,
+      // ✅ Nouveau champ : commentaires par utilisateur
+      comments:
+        f.film.comments?.map((c) => ({
+          user_id: c.user.user_id,
+          username: c.user.username,
+          commentaire: c.commentaire,
+          createdAt: c.createdAt,
+        })) || [],
     })),
   };
   res.json(result);
@@ -321,6 +339,34 @@ router.put("/selection/:id/close-vote", async (req, res) => {
   } catch (error) {
     console.error("❌ Erreur clôture vote :", error);
     res.status(500).json({ error: "Erreur lors de la clôture du vote." });
+  }
+});
+
+// Exemple Express
+app.post("/selections/:id/approve", async (req, res) => {
+  const selectionId = parseInt(req.params.id, 10);
+  const { filmIds } = req.body;
+
+  try {
+    // 1. Mettre à jour la sélection
+    await prisma.selection.update({
+      where: { id: selectionId },
+      data: { status: "programmation" },
+    });
+
+    // 2. Marquer les films comme sélectionnés dans la jointure
+    await prisma.selectionFilm.updateMany({
+      where: {
+        selectionId,
+        filmId: { in: filmIds },
+      },
+      data: { selected: true },
+    });
+
+    res.status(200).json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 

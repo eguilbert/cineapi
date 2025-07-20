@@ -36,9 +36,23 @@ model Film {
   filmTags            FilmFilmTag[]
   programmations      Programmation[]
   selections          SelectionFilm[]
+  comments            FilmComment[]  // ✅ relation inverse
   votes               Vote[]          @relation("FilmVotes")
   interests           Interest[]
 
+  @@schema("public")
+}
+
+model FilmComment {
+  id         Int      @id @default(autoincrement())
+  film       Film     @relation(fields: [filmId], references: [id])
+  filmId     Int
+  user_id     String
+  user        UserProfile  @relation(fields: [user_id], references: [user_id])
+  commentaire String
+  createdAt  DateTime @default(now())
+
+  @@unique([filmId, user_id]) // un seul commentaire par film et utilisateur
   @@schema("public")
 }
 
@@ -183,6 +197,7 @@ model UserProfile {
   username   String?
   cinema     Cinema?    @relation(fields: [cinemaId], references: [id]) // ✅ aussi optionnelle
   user_votes Vote[]     @relation("UserVotes")
+  comments   FilmComment[] // 👈 relation inverse ajoutée ici
   interests  Interest[]
 
   @@index([cinemaId])
