@@ -315,7 +315,7 @@ router.post("/:id/comment", async (req, res) => {
     const comment = await prisma.filmComment.upsert({
       where: {
         film_id_user_id: {
-          filmId,
+          film_id,
           user_id,
         },
       },
@@ -323,7 +323,7 @@ router.post("/:id/comment", async (req, res) => {
         commentaire,
       },
       create: {
-        filmId,
+        film_id,
         user_id,
         commentaire,
       },
