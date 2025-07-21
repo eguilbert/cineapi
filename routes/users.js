@@ -6,7 +6,7 @@ const envFile =
   process.env.NODE_ENV === "production" ? ".env.production" : ".env.local";
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 
-console.log(
+/* console.log(
   "🧪 SUPABASE_URL (juste avant createClient):",
   process.env.SUPABASE_URL
 );
@@ -14,7 +14,7 @@ console.log(
   "🧪 SUPABASE_ANON_KEY:",
   process.env.SUPABASE_ANON_KEY ? "présente" : "absente"
 );
-
+ */
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 
@@ -76,6 +76,31 @@ router.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error("Erreur suppression utilisateur:", err);
     res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+router.post("/invite", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "Email requis" });
+  }
+
+  try {
+    const { data, error } = await supabase.auth.admin.inviteUserByEmail(email);
+
+    if (error) {
+      console.error("Erreur d'invitation :", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.json({
+      message: `Invitation envoyée à ${email}`,
+      userId: data?.user?.id,
+    });
+  } catch (err) {
+    console.error("Erreur serveur :", err);
+    res.status(500).json({ error: "Erreur interne" });
   }
 });
 

@@ -336,11 +336,11 @@ router.post("/:id/comment", async (req, res) => {
   }
 });
 
-router.delete("/:id/comment", async (req, res) => {
+router.delete("/:id/comment/:userId", async (req, res) => {
   const film_id = parseInt(req.params.id, 10);
-  const { user_id } = req.body;
+  const { userId } = req.params;
 
-  if (!user_id) {
+  if (!userId) {
     return res.status(400).json({ error: "User ID manquant" });
   }
 
@@ -349,11 +349,11 @@ router.delete("/:id/comment", async (req, res) => {
       where: {
         film_id_user_id: {
           film_id: film_id,
-          user_id,
+          user_id: userId,
         },
       },
     });
-    res.json({ success: true });
+    res.status(200).json({ success: true });
   } catch (err) {
     console.error("Erreur suppression commentaire", err);
     res.status(500).json({ error: "Erreur serveur" });
