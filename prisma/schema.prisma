@@ -200,6 +200,8 @@ model UserProfile {
   interests  Interest[]
   cinema     Cinema?       @relation(fields: [cinemaId], references: [id])
   user_votes Vote[]        @relation("UserVotes")
+    activityLogs ActivityLog[] // <== important pour la relation inverse
+
 
   @@index([cinemaId])
   @@schema("public")
@@ -231,6 +233,19 @@ model Interest {
   user      UserProfile   @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, film_id])
+  @@schema("public")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    String  
+  action    String   // ex: "comment.create", "interest.update"
+  targetId  Int?     // ID du film, commentaire, etc.
+  context   String?  // message, résumé ou info utile
+  createdAt DateTime @default(now())
+
+  user      UserProfile @relation(fields: [userId], references: [user_id], onDelete: Cascade)
+
   @@schema("public")
 }
 
