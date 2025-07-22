@@ -328,6 +328,14 @@ router.post("/:id/comment", async (req, res) => {
         commentaire,
       },
     });
+    await prisma.activityLog.create({
+      data: {
+        userId: user_id,
+        action: "comment.create",
+        targetId: parseInt(film_id),
+        context: commentaire.slice(0, 100),
+      },
+    });
 
     res.json(comment);
   } catch (err) {

@@ -54,6 +54,14 @@ router.post("/", async (req, res) => {
         value,
       },
     });
+    await prisma.activityLog.create({
+      data: {
+        userId: userId,
+        action: "interest.post",
+        targetId: filmId,
+        context: value,
+      },
+    });
 
     res.json(interest);
   } catch (err) {

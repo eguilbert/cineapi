@@ -33,7 +33,7 @@ model Film {
   awards              Award[]
   externalLinks       ExternalLink[]
   director            Director?       @relation(fields: [directorId], references: [id])
-  comments         FilmComment[]
+  comments            FilmComment[]
   productionCountries FilmCountry[]
   filmTags            FilmFilmTag[]
   interests           Interest[]
@@ -45,20 +45,18 @@ model Film {
 }
 
 model FilmComment {
-  id          Int          @id @default(autoincrement())
-  film_id     Int          @map("film_id")
-  user_id     String       @map("user_id")
+  id          Int         @id @default(autoincrement())
+  film_id     Int         @map("film_id")
+  user_id     String      @map("user_id")
   commentaire String
-  created_at  DateTime     @default(now()) @map("created_at")
-
-  film        Film         @relation(fields: [film_id], references: [id])
-  user        UserProfile  @relation(fields: [user_id], references: [user_id])
+  created_at  DateTime    @default(now()) @map("created_at")
+  film        Film        @relation(fields: [film_id], references: [id])
+  user        UserProfile @relation(fields: [user_id], references: [user_id])
 
   @@unique([film_id, user_id])
   @@map("FilmComment")
   @@schema("public")
 }
-
 
 model Selection {
   id          Int               @id @default(autoincrement())

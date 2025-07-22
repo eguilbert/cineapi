@@ -2,7 +2,7 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- CreateEnum
-CREATE TYPE "public"."InterestLevel" AS ENUM ('SANS_OPINION', 'NOT_INTERESTED', 'CURIOUS', 'VERY_INTERESTED', 'MUST_SEE');
+CREATE TYPE "public"."InterestLevel" AS ENUM ('SANS_OPINION', 'NOT_INTERESTED', 'CURIOUS', 'MUST_SEE', 'VERY_INTERESTED');
 
 -- CreateTable
 CREATE TABLE "public"."Film" (
@@ -13,7 +13,6 @@ CREATE TABLE "public"."Film" (
     "category" TEXT,
     "synopsis" TEXT,
     "releaseDate" TIMESTAMP(3),
-    "releaseCanDate" TIMESTAMP(3),
     "duration" INTEGER,
     "budget" INTEGER,
     "origin" TEXT,
@@ -23,8 +22,9 @@ CREATE TABLE "public"."Film" (
     "actors" TEXT,
     "keywords" TEXT,
     "trailerUrl" TEXT,
-    "seances" INTEGER DEFAULT 1,
+    "seances" INTEGER NOT NULL DEFAULT 1,
     "directorId" INTEGER,
+    "releaseCanDate" TIMESTAMP(3),
 
     CONSTRAINT "Film_pkey" PRIMARY KEY ("id")
 );
@@ -32,10 +32,10 @@ CREATE TABLE "public"."Film" (
 -- CreateTable
 CREATE TABLE "public"."FilmComment" (
     "id" SERIAL NOT NULL,
-    "filmId" INTEGER NOT NULL,
+    "film_id" INTEGER NOT NULL,
     "user_id" TEXT NOT NULL,
     "commentaire" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "FilmComment_pkey" PRIMARY KEY ("id")
 );
@@ -44,11 +44,11 @@ CREATE TABLE "public"."FilmComment" (
 CREATE TABLE "public"."Selection" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
-    "description" TEXT,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "voteDate" TIMESTAMP(3),
-    "voteClosed" BOOLEAN NOT NULL DEFAULT false,
+    "description" TEXT,
     "status" TEXT NOT NULL DEFAULT 'selection',
+    "voteClosed" BOOLEAN NOT NULL DEFAULT false,
+    "voteDate" TIMESTAMP(3),
 
     CONSTRAINT "Selection_pkey" PRIMARY KEY ("id")
 );
@@ -200,7 +200,7 @@ CREATE TABLE "public"."Interest" (
 CREATE UNIQUE INDEX "Film_tmdbId_key" ON "public"."Film"("tmdbId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "FilmComment_filmId_user_id_key" ON "public"."FilmComment"("filmId", "user_id");
+CREATE UNIQUE INDEX "FilmComment_film_id_user_id_key" ON "public"."FilmComment"("film_id", "user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SelectionFilm_filmId_selectionId_key" ON "public"."SelectionFilm"("filmId", "selectionId");
@@ -233,7 +233,7 @@ CREATE UNIQUE INDEX "Interest_user_id_film_id_key" ON "public"."Interest"("user_
 ALTER TABLE "public"."Film" ADD CONSTRAINT "Film_directorId_fkey" FOREIGN KEY ("directorId") REFERENCES "public"."Director"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."FilmComment" ADD CONSTRAINT "FilmComment_filmId_fkey" FOREIGN KEY ("filmId") REFERENCES "public"."Film"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."FilmComment" ADD CONSTRAINT "FilmComment_film_id_fkey" FOREIGN KEY ("film_id") REFERENCES "public"."Film"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."FilmComment" ADD CONSTRAINT "FilmComment_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."UserProfile"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -266,10 +266,10 @@ ALTER TABLE "public"."Award" ADD CONSTRAINT "Award_filmId_fkey" FOREIGN KEY ("fi
 ALTER TABLE "public"."ExternalLink" ADD CONSTRAINT "ExternalLink_filmId_fkey" FOREIGN KEY ("filmId") REFERENCES "public"."Film"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."SelectionCinema" ADD CONSTRAINT "SelectionCinema_selectionId_fkey" FOREIGN KEY ("selectionId") REFERENCES "public"."Selection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."SelectionCinema" ADD CONSTRAINT "SelectionCinema_cinemaId_fkey" FOREIGN KEY ("cinemaId") REFERENCES "public"."Cinema"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."SelectionCinema" ADD CONSTRAINT "SelectionCinema_cinemaId_fkey" FOREIGN KEY ("cinemaId") REFERENCES "public"."Cinema"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."SelectionCinema" ADD CONSTRAINT "SelectionCinema_selectionId_fkey" FOREIGN KEY ("selectionId") REFERENCES "public"."Selection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."UserProfile" ADD CONSTRAINT "UserProfile_cinemaId_fkey" FOREIGN KEY ("cinemaId") REFERENCES "public"."Cinema"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -284,8 +284,8 @@ ALTER TABLE "public"."Vote" ADD CONSTRAINT "Vote_filmId_fkey" FOREIGN KEY ("film
 ALTER TABLE "public"."Vote" ADD CONSTRAINT "Vote_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."UserProfile"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Interest" ADD CONSTRAINT "Interest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."UserProfile"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Interest" ADD CONSTRAINT "Interest_film_id_fkey" FOREIGN KEY ("film_id") REFERENCES "public"."Film"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Interest" ADD CONSTRAINT "Interest_film_id_fkey" FOREIGN KEY ("film_id") REFERENCES "public"."Film"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."Interest" ADD CONSTRAINT "Interest_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."UserProfile"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
