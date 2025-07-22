@@ -16,6 +16,7 @@ import { prisma } from "./lib/prisma.js";
 import importTmdbRoutes from "./routes/import_tmdb.js";
 import filmsRoutes from "./routes/films.js";
 import tagsRoutes from "./routes/tags.js";
+import activityRoutes from "./routes/activity.js";
 import selectionsRoutes from "./routes/selections.js";
 import programmationRoutes from "./routes/programmation.js";
 import systemRoutes from "./routes/system.js";
@@ -44,7 +45,8 @@ app.use("/api/programmation", programmationRoutes);
 app.use("/api", systemRoutes);
 app.use("/api/interests", interestRoutes);
 app.use("/api/createUser", createUserRouter); // POST
-app.use("/api/users", usersRouter); // GET
+app.use("/api/users", usersRouter);
+app.use("/api/activity", activityRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
