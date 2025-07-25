@@ -361,11 +361,21 @@ router.delete("/:id/comment/:userId", async (req, res) => {
         },
       },
     });
+
     res.status(200).json({ success: true });
   } catch (err) {
     console.error("Erreur suppression commentaire", err);
     res.status(500).json({ error: "Erreur serveur" });
   }
+});
+
+router.get("/:id/score", async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const record = await prisma.selectionFilm.findFirst({
+    where: { filmId: id },
+    select: { score: true },
+  });
+  res.json({ score: record?.score ?? null });
 });
 
 export default router;

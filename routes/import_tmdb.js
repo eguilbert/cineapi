@@ -304,7 +304,6 @@ router.get("/import/tmdb", async (req, res) => {
         const savedFilm = await prisma.film.upsert({
           where: { tmdbId: film.id },
           update: {
-            category,
             trailerUrl,
             posterUrl,
             title: detail.data.title,

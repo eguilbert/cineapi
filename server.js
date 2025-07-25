@@ -23,6 +23,7 @@ import systemRoutes from "./routes/system.js";
 import interestRoutes from "./routes/interests.js";
 import createUserRouter from "./routes/createUser.js";
 import usersRouter from "./routes/users.js";
+import votesRouter from "./routes/votes.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -46,6 +47,7 @@ app.use("/api", systemRoutes);
 app.use("/api/interests", interestRoutes);
 app.use("/api/createUser", createUserRouter); // POST
 app.use("/api/users", usersRouter);
+app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
 
 app.get("/", (req, res) => {

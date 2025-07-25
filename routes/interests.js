@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
+import { updateScoresForFilm } from "../lib/updateScores.js";
 
 import { verifySupabaseToken } from "../lib/verifySupabaseToken.js";
 
@@ -224,6 +225,15 @@ router.post("/films", async (req, res) => {
     console.error("Erreur POST /api/interests/films", err);
     res.status(500).json({ error: "Erreur serveur lors de l’agrégation" });
   }
+});
+
+router.post("/interests", async (req, res) => {
+  const { film_id, value, user_id } = req.body;
+  // ... create or update interest ...
+
+  await updateScoresForFilm(film_id); // ✅ mise à jour automatique du score
+
+  res.json({ success: true });
 });
 
 export default router;

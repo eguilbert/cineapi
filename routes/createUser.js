@@ -23,7 +23,13 @@ const supabase = createClient(
 );
 
 router.post("/", async (req, res) => {
-  const { email, password, username, cinemaId } = req.body;
+  const adminToken = req.headers["x-admin-token"];
+
+  if (adminToken !== process.env.ADMIN_SECRET_TOKEN) {
+    return res.status(401).json({ error: "Accès non autorisé" });
+  }
+
+  const { email, password, username, cinemaId, role } = req.body;
 
   if (!email || !password || !username || !cinemaId) {
     return res.status(400).json({ error: "Champs requis manquants" });
@@ -34,7 +40,8 @@ router.post("/", async (req, res) => {
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: false,
+      email_confirm: false, // ← l’utilisateur devra confirmer via email
+      invite: true,
     });
 
     if (error) {
@@ -53,7 +60,7 @@ router.post("/", async (req, res) => {
         user_id: userId,
         username,
         cinemaId: parseInt(cinemaId, 10),
-        role: "INVITE", // par défaut
+        role: role || "INVITE",
       },
     });
 
