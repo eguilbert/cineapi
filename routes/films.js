@@ -370,12 +370,25 @@ router.delete("/:id/comment/:userId", async (req, res) => {
 });
 
 router.get("/:id/score", async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const record = await prisma.selectionFilm.findFirst({
-    where: { filmId: id },
-    select: { score: true },
-  });
-  res.json({ score: record?.score ?? null });
+  const filmId = parseInt(req.params.id, 10);
+  if (!filmId) return res.status(400).json({ error: "ID invalide" });
+
+  try {
+    const selectionFilm = await prisma.selectionFilm.findFirst({
+      where: { filmId },
+      select: { score: true },
+    });
+
+    if (!selectionFilm) {
+      return res.status(200).json({ score: 0 }); // 👈 retourne un score neutre si le film n’a pas encore été associé à une sélection
+    }
+
+    const score = selectionFilm.score ?? 0; // 👈 fallback si `score` est nul
+    res.json({ score });
+  } catch (err) {
+    console.error("Erreur score:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
 });
 
 export default router;
