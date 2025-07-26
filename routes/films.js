@@ -370,6 +370,7 @@ router.delete("/:id/comment/:userId", async (req, res) => {
 });
 
 router.get("/:id/score", async (req, res) => {
+  console.log("Lets score");
   const filmId = parseInt(req.params.id, 10);
   if (!filmId) return res.status(400).json({ error: "ID invalide" });
 
