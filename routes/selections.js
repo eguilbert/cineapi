@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import { Router } from "express";
 const router = Router();
 
-// GET all selections with full film detail
+// GET all selections
 router.get("/", async (req, res) => {
   try {
     const selections = await prisma.selection.findMany({
@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/selections/:id
+// GET /api/selections/:id with film details
 router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
@@ -101,6 +101,8 @@ router.get("/:id", async (req, res) => {
           commentaire: c.commentaire,
           createdAt: c.createdAt,
         })) || [],
+      // ✅ Ajout du score de la relation selectionFilm
+      score: f.score ?? 0,
     })),
   };
   res.json(result);

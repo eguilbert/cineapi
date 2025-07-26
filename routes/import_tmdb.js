@@ -309,6 +309,7 @@ router.get("/import/tmdb", async (req, res) => {
             title: detail.data.title,
             releaseDate: safeDate(releaseDate),
             releaseCanDate: safeDate(releaseCanDate),
+            director: director ? { connect: { id: director.id } } : undefined,
           },
           create: {
             tmdbId: film.id,
