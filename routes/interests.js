@@ -65,6 +65,7 @@ router.post("/", async (req, res) => {
     });
 
     res.json(interest);
+    await updateScoresForFilm(filmId); // ✅ mise à jour automatique du score
   } catch (err) {
     console.error("Erreur JWT /api/interests :", err);
     res.status(401).json({ error: "Token invalide ou expiré" });
@@ -225,15 +226,6 @@ router.post("/films", async (req, res) => {
     console.error("Erreur POST /api/interests/films", err);
     res.status(500).json({ error: "Erreur serveur lors de l’agrégation" });
   }
-});
-
-router.post("/interests", async (req, res) => {
-  const { film_id, value, user_id } = req.body;
-  // ... create or update interest ...
-
-  await updateScoresForFilm(film_id); // ✅ mise à jour automatique du score
-
-  res.json({ success: true });
 });
 
 export default router;
