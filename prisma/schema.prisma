@@ -192,16 +192,15 @@ model SelectionCinema {
 }
 
 model UserProfile {
-  user_id    String        @id
-  cinemaId   Int?
-  role       String?       @default("INVITE")
-  username   String?
-  comments   FilmComment[]
-  interests  Interest[]
-  cinema     Cinema?       @relation(fields: [cinemaId], references: [id])
-  user_votes Vote[]        @relation("UserVotes")
-    activityLogs ActivityLog[] // <== important pour la relation inverse
-
+  user_id      String        @id
+  cinemaId     Int?
+  role         String?       @default("INVITE")
+  username     String?
+  activityLogs ActivityLog[]
+  comments     FilmComment[]
+  interests    Interest[]
+  cinema       Cinema?       @relation(fields: [cinemaId], references: [id])
+  user_votes   Vote[]        @relation("UserVotes")
 
   @@index([cinemaId])
   @@schema("public")
@@ -237,13 +236,12 @@ model Interest {
 }
 
 model ActivityLog {
-  id        Int      @id @default(autoincrement())
-  userId    String  
-  action    String   // ex: "comment.create", "interest.update"
-  targetId  Int?     // ID du film, commentaire, etc.
-  context   String?  // message, résumé ou info utile
-  createdAt DateTime @default(now())
-
+  id        Int         @id @default(autoincrement())
+  userId    String
+  action    String
+  targetId  Int?
+  context   String?
+  createdAt DateTime    @default(now())
   user      UserProfile @relation(fields: [userId], references: [user_id], onDelete: Cascade)
 
   @@schema("public")

@@ -23,15 +23,17 @@ const supabase = createClient(
 );
 
 router.post("/", async (req, res) => {
-  const adminToken = req.headers["x-admin-token"];
+  const adminToken = req.get("x-admin-token");
+  console.log("✅ Token attendu:", process.env.ADMIN_SECRET_TOKEN);
+  console.log("🔐 Token reçu côté API:", adminToken); // ← 🧪 debug ici
 
   if (adminToken !== process.env.ADMIN_SECRET_TOKEN) {
     return res.status(401).json({ error: "Accès non autorisé" });
   }
 
-  const { email, password, username, cinemaId, role } = req.body;
+  const { email, username, cinemaId, role } = req.body;
 
-  if (!email || !password || !username || !cinemaId) {
+  if (!email || !username || !cinemaId) {
     return res.status(400).json({ error: "Champs requis manquants" });
   }
 
@@ -39,8 +41,6 @@ router.post("/", async (req, res) => {
     // 1. Créer l'utilisateur Supabase
     const { data, error } = await supabase.auth.admin.createUser({
       email,
-      password,
-      email_confirm: false, // ← l’utilisateur devra confirmer via email
       invite: true,
     });
 
