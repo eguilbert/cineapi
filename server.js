@@ -12,6 +12,7 @@ console.log("📦 SUPABASE_URL =", process.env.SUPABASE_URL);
 
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma.js";
 import importTmdbRoutes from "./routes/import_tmdb.js";
 import filmsRoutes from "./routes/films.js";
@@ -25,14 +26,21 @@ import createUserRouter from "./routes/createUser.js";
 import usersRouter from "./routes/users.js";
 import votesRouter from "./routes/votes.js";
 import profileRouter from "./routes/profile.js";
+import authRoutes from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log("🔍 PORT =", PORT);
+app.use(
+  cors({
+    origin: "https://cineplages.vercel.app",
+    credentials: true,
+  })
+);
 
-app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/api/test", (req, res) => {
   res.send("Test OK");
@@ -51,6 +59,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/votes", votesRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/activity", activityRoutes);
+app.use("/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
