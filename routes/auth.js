@@ -1,6 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
-import { lucia } from "lucia";
+import { lucia } from "../lib/lucialucia";
 import { prisma } from "../lib/prisma.js";
 
 const router = express.Router();
