@@ -32,9 +32,22 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 console.log("🔍 PORT =", PORT);
+
+const allowedOrigins = [
+  "https://cineplages.vercel.app",
+  "http://localhost:3000", // pour Nuxt en local
+  "http://localhost:3001", // si tu lances Nuxt sur ce port
+];
+
 app.use(
   cors({
-    origin: "https://cineplages.vercel.app",
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -59,7 +72,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/votes", votesRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/activity", activityRoutes);
-app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
