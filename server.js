@@ -3,6 +3,12 @@ import * as dotenv from "dotenv";
 import { fileURLToPath } from "url";
 import path from "path";
 
+// Shim crypto.getRandomValues pour Node.js
+import { webcrypto } from "node:crypto";
+if (!globalThis.crypto) {
+  globalThis.crypto = webcrypto;
+}
+
 // Résoudre le chemin du fichier .env approprié
 const environment = process.env.NODE_ENV || "development";
 const envFile = environment === "production" ? ".env.production" : ".env.local";
