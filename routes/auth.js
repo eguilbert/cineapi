@@ -7,24 +7,39 @@ const router = express.Router();
 
 // POST /auth/register
 router.post("/register", async (req, res) => {
-  const { email, password, username } = req.body;
+  try {
+    console.log("🔵 Reçu:", req.body);
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return res.status(400).json({ error: "Email déjà utilisé" });
+    const existing = await prisma.user.findUnique({
+      where: { email: req.body.email },
+    });
+    if (existing) {
+      console.log("⚠️ Email déjà utilisé");
+      return res.status(400).json({ error: "Email déjà utilisé" });
+    }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: {
-      email,
-      hashedPassword,
-      username,
-      role: "INVITE",
-    },
-  });
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    console.log("🔐 Password hashé");
 
-  const session = await lucia.createSession(user.id);
-  res.cookie("session", session.id, lucia.sessionCookie.attributes);
-  return res.json({ user });
+    const user = await prisma.user.create({
+      data: {
+        email: req.body.email,
+        hashedPassword,
+        username: req.body.username,
+        role: "INVITE",
+      },
+    });
+    console.log("✅ Utilisateur créé:", user);
+
+    const session = await lucia.createSession(user.id);
+    console.log("🔑 Session créée:", session.id);
+
+    res.cookie("session", session.id, lucia.sessionCookie.attributes);
+    return res.json({ user });
+  } catch (err) {
+    console.error("❌ Erreur dans /register:", err);
+    res.status(500).json({ error: "Erreur interne", details: err.message });
+  }
 });
 
 // POST /auth/login
