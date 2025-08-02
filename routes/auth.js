@@ -1,5 +1,6 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { lucia } from "../lib/lucia.js";
 import { prisma } from "../lib/prisma.js";
 
@@ -11,7 +12,7 @@ router.post("/register", async (req, res) => {
     console.log("🔵 Reçu:", req.body);
     if ("id" in req.body) {
       console.warn("🚨 id détecté dans req.body !!!", req.body.id);
-      //          throw new Error("Ne pas envoyer d'id !");
+      //throw new Error("Ne pas envoyer d'id !");
     }
     const existing = await prisma.user.findUnique({
       where: { email: req.body.email },
@@ -41,15 +42,16 @@ router.post("/register", async (req, res) => {
       data: {
         email,
         hashedPassword,
+        id: crypto.randomUUID(), // 👈 ID explicite
         username: cleanUsername,
         role: "INVITE",
       },
     });
-    /*     const session = await lucia.createSession(user.id);
-    console.log("🔑 Session créée:", session.id); */
+    const session = await lucia.createSession(user.id);
+    console.log("🔑 Session créée:", session.id);
 
-    /*     res.cookie("session", session.id, lucia.sessionCookie.attributes);
-     */
+    res.cookie("session", session.id, lucia.sessionCookie.attributes);
+
     console.log("✅ Utilisateur créé:", user);
     return res.json({ user }); // ✅ user est bien défini ici
   } catch (err) {
