@@ -38,7 +38,6 @@ router.post("/register", async (req, res) => {
     console.log("email:", typeof email, email);
     console.log("username:", typeof cleanUsername, cleanUsername);
     console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
-    console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
     const userId = crypto.randomUUID();
     const user = await prisma.user.create({
       data: {
@@ -51,7 +50,7 @@ router.post("/register", async (req, res) => {
     });
 
     const session = await lucia.createSession(user.id, {
-      sessionId: crypto.randomUUID(), // 👈 génère un vrai UUID
+      id: crypto.randomUUID(), // 👈 génère un vrai UUID
     });
 
     console.log("🔑 Session créée:", session.id);
