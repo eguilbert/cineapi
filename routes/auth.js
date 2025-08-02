@@ -49,7 +49,10 @@ router.post("/register", async (req, res) => {
         role: "INVITE",
       },
     });
-    const session = await lucia.createSession(userId, {});
+
+    const session = await lucia.createSession(user.id, {
+      sessionId: crypto.randomUUID(), // 👈 génère un vrai UUID
+    });
 
     console.log("🔑 Session créée:", session.id);
 
