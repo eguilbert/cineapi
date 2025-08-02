@@ -33,7 +33,10 @@ router.post("/register", async (req, res) => {
       cleanUsername,
       role: "INVITE",
     });
-
+    console.log("🔎 Types envoyés à Prisma:");
+    console.log("email:", typeof email, email);
+    console.log("username:", typeof cleanUsername, cleanUsername);
+    console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
     const user = await prisma.user.create({
       data: {
         email,
