@@ -38,16 +38,19 @@ router.post("/register", async (req, res) => {
     console.log("email:", typeof email, email);
     console.log("username:", typeof cleanUsername, cleanUsername);
     console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
+    console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
+    const userId = crypto.randomUUID();
     const user = await prisma.user.create({
       data: {
         email,
         hashedPassword,
-        id: crypto.randomUUID(), // 👈 ID explicite
+        id: userId, // 👈 ID explicite
         username: cleanUsername,
         role: "INVITE",
       },
     });
-    const session = await lucia.createSession(user.id);
+    const session = await lucia.createSession(userId, {});
+
     console.log("🔑 Session créée:", session.id);
 
     res.cookie("session", session.id, lucia.sessionCookie.attributes);
