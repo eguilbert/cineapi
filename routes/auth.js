@@ -9,36 +9,73 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   try {
     console.log("🔵 Reçu:", req.body);
-
+    if ("id" in req.body) {
+      console.warn("🚨 id détecté dans req.body !!!", req.body.id);
+      //          throw new Error("Ne pas envoyer d'id !");
+    }
     const existing = await prisma.user.findUnique({
       where: { email: req.body.email },
     });
+    console.log("🧬 EXISTING:", existing);
     if (existing) {
       console.log("⚠️ Email déjà utilisé");
       return res.status(400).json({ error: "Email déjà utilisé" });
     }
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    console.log("🔐 Password hashé");
+    const { email, password, username } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const cleanUsername = typeof username === "string" ? username : null;
 
-    const user = await prisma.user.create({
-      data: {
-        email: req.body.email,
-        hashedPassword,
-        username: req.body.username,
-        role: "INVITE",
-      },
+    console.log("🔐 Password hashish");
+    console.log("📦 Données envoyées à Prisma:", {
+      email,
+      hashedPassword,
+      cleanUsername,
+      role: "INVITE",
     });
+
+    try {
+      const result = await prisma.user.create({
+        data: {
+          email,
+          hashedPassword,
+          username: cleanUsername,
+          role: "INVITE",
+        },
+        select: {},
+      });
+      console.log("✅ Utilisateur créé:", result);
+    } catch (err) {
+      console.error("❌ ERREUR .create():", {
+        name: err.name,
+        message: err.message,
+        code: err.code,
+        meta: err.meta,
+        stack: err.stack,
+      });
+    }
     console.log("✅ Utilisateur créé:", user);
 
-    const session = await lucia.createSession(user.id);
-    console.log("🔑 Session créée:", session.id);
+    /*     const session = await lucia.createSession(user.id);
+    console.log("🔑 Session créée:", session.id); */
 
-    res.cookie("session", session.id, lucia.sessionCookie.attributes);
+    /*     res.cookie("session", session.id, lucia.sessionCookie.attributes);
+     */
     return res.json({ user });
   } catch (err) {
     console.error("❌ Erreur dans /register:", err);
-    res.status(500).json({ error: "Erreur interne", details: err.message });
+
+    const errorDetails = {
+      name: err.name,
+      message: err.message,
+      meta: err.meta,
+      stack: err.stack,
+    };
+
+    res.status(500).json({
+      error: "Erreur interne",
+      details: errorDetails,
+    });
   }
 });
 
