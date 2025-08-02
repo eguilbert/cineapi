@@ -53,7 +53,7 @@ router.post("/register", async (req, res) => {
         stack: err.stack,
       });
     }
-    console.log("✅ Utilisateur créé:", user);
+    console.log("✅ Utilisateur créé:", result);
 
     /*     const session = await lucia.createSession(user.id);
     console.log("🔑 Session créée:", session.id); */
