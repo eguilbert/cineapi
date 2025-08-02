@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const cleanUsername = typeof username === "string" ? username : null;
 
-    console.log("🔐 Password hashish");
+    console.log("🔐 Password hashashin");
     console.log("📦 Données envoyées à Prisma:", {
       email,
       hashedPassword,
@@ -34,31 +34,21 @@ router.post("/register", async (req, res) => {
       role: "INVITE",
     });
 
-    try {
-      const result = await prisma.user.create({
-        data: {
-          email,
-          hashedPassword,
-          username: cleanUsername,
-          role: "INVITE",
-        },
-      });
-      console.log("✅ Utilisateur créé:", result);
-    } catch (err) {
-      console.error("❌ ERREUR .create():", {
-        name: err.name,
-        message: err.message,
-        code: err.code,
-        meta: err.meta,
-        stack: err.stack,
-      });
-    }
+    const user = await prisma.user.create({
+      data: {
+        email,
+        hashedPassword,
+        username: cleanUsername,
+        role: "INVITE",
+      },
+    });
     /*     const session = await lucia.createSession(user.id);
     console.log("🔑 Session créée:", session.id); */
 
     /*     res.cookie("session", session.id, lucia.sessionCookie.attributes);
      */
-    return res.json({ user });
+    console.log("✅ Utilisateur créé:", user);
+    return res.json({ user }); // ✅ user est bien défini ici
   } catch (err) {
     console.error("❌ Erreur dans /register:", err);
 
