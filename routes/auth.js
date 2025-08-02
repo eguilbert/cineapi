@@ -55,8 +55,13 @@ router.post("/register", async (req, res) => {
 
     console.log("🔑 Session créée:", session.id);
 
-    res.cookie("session", session.id, lucia.sessionCookie.attributes);
-
+    res.cookie("session", session.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 jours
+    });
     console.log("✅ Utilisateur créé:", user);
     return res.json({ user }); // ✅ user est bien défini ici
   } catch (err) {
