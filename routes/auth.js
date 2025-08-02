@@ -42,7 +42,6 @@ router.post("/register", async (req, res) => {
           username: cleanUsername,
           role: "INVITE",
         },
-        select: {},
       });
       console.log("✅ Utilisateur créé:", result);
     } catch (err) {
