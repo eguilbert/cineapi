@@ -85,19 +85,35 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.hashedPassword) {
-    return res.status(400).json({ error: "Email ou mot de passe incorrect" });
-  }
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
 
-  const valid = await bcrypt.compare(password, user.hashedPassword);
-  if (!valid) {
-    return res.status(400).json({ error: "Email ou mot de passe incorrect" });
-  }
+    if (!user) {
+      return res.status(401).json({ error: "Email ou mot de passe invalide" });
+    }
 
-  const session = await lucia.createSession(user.id);
-  res.cookie("session", session.id, lucia.sessionCookie.attributes);
-  return res.json({ user });
+    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Email ou mot de passe invalide" });
+    }
+
+    const session = await lucia.createSession(user.id, {
+      id: crypto.randomUUID(),
+    });
+
+    res.cookie("session", session.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 jours
+    });
+
+    return res.status(200).json({ user: { id: user.id, email: user.email } });
+  } catch (err) {
+    console.error("❌ Erreur login:", err.message);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
 });
 
 // POST /auth/logout
