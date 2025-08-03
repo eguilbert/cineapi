@@ -95,8 +95,8 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ error: "Email ou mot de passe incorrect" });
   }
 
-  const session = await lucia.createSession(user.id);
-  res.cookie("session", session.id, lucia.sessionCookie.attributes);
+  /*   const session = await lucia.createSession(user.id);
+  res.cookie("session", session.id, lucia.sessionCookie.attributes); */
   return res.json({ user });
 });
 
