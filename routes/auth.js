@@ -49,7 +49,7 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    const session = await lucia.createSession(user.id, {
+    /*     const session = await lucia.createSession(user.id, {
       id: crypto.randomUUID(), // 👈 génère un vrai UUID
     });
 
@@ -61,7 +61,7 @@ router.post("/register", async (req, res) => {
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 jours
-    });
+    }); */
     console.log("✅ Utilisateur créé:", user);
     return res.json({ user }); // ✅ user est bien défini ici
   } catch (err) {
@@ -95,8 +95,8 @@ router.post("/login", async (req, res) => {
     return res.status(400).json({ error: "Email ou mot de passe incorrect" });
   }
 
-  /*   const session = await lucia.createSession(user.id);
-  res.cookie("session", session.id, lucia.sessionCookie.attributes); */
+  const session = await lucia.createSession(user.id);
+  res.cookie("session", session.id, lucia.sessionCookie.attributes);
   return res.json({ user });
 });
 
