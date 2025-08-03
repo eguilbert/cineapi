@@ -121,4 +121,11 @@ router.get("/me", async (req, res) => {
   res.json({ user: session.user });
 });
 
+router.get("/debug/users", async (req, res) => {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
+  res.json(users);
+});
 export default router;
