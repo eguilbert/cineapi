@@ -27,7 +27,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const cleanUsername = typeof username === "string" ? username : null;
 
-    console.log("🔐 Password hashashin");
+    console.log("🔐 Password haché");
     console.log("📦 Données envoyées à Prisma:", {
       email,
       hashedPassword,
