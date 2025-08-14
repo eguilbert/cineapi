@@ -97,7 +97,9 @@ app.use((req, res, next) => {
   }
   next();
 });
-
+app.get("/health", (req, res) =>
+  res.json({ status: "ok", timestamp: new Date().toISOString() })
+);
 function testDbConnection() {
   return prisma.$executeRawUnsafe("SELECT 1");
 }

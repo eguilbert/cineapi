@@ -1,17 +1,18 @@
+// routes/system.js
 import { Router } from "express";
-import { prisma } from "../lib/prisma.js";
-
 const router = Router();
 
-router.get("/health", async (req, res) => {
+const healthHandler = async (req, res) => {
   try {
-    console.log("Health check received"); // ajoute un log
+    console.log("Health check received");
     res.json({ status: "ok", timestamp: new Date().toISOString() });
-    /*     await prisma.$executeRawUnsafe("SELECT 1");
-    res.status(200).json({ status: "ok", db: true }); */
+    // ou test DB si tu veux :
+    // await prisma.$executeRawUnsafe("SELECT 1");
+    // res.status(200).json({ status: "ok", db: true });
   } catch (err) {
-    res.status(500).json({ status: "error", db: false, error: err.message });
+    res.status(500).json({ status: "error", error: err.message });
   }
-});
+};
 
+router.get("/health", healthHandler); // => /api/health via app.use('/api', router)
 export default router;
