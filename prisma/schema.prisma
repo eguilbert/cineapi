@@ -1,13 +1,13 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["extendedWhereUnique", "multiSchema", "orderByAggregateGroup", "orderByRelation","postgresqlExtensions"]
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  schemas           = ["public"]
-  extensions        = [pgcrypto]
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  schemas    = ["public"]
+  extensions = [pgcrypto]
 }
 
 model Film {
@@ -192,8 +192,8 @@ model SelectionCinema {
 }
 
 model UserProfile {
-  user_id      String        @id @db.Uuid   // <— important
-  user    User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id      String        @id @db.Uuid // <— important
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
   cinemaId     Int?
   role         String?       @default("INVITE")
   username     String?
@@ -249,17 +249,18 @@ model ActivityLog {
 }
 
 model User {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email          String    @unique
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String   @unique
   username       String?
   hashedPassword String?
-  role           String?   // 'ADMIN', 'INVITE', etc.
+  role           String? // 'ADMIN', 'INVITE', etc.
   cinemaId       Int?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now())
 
-  keys           Key[]
-  sessions       Session[]
+  keys        Key[]
+  sessions    Session[]
+  userProfile UserProfile? @relation() // 👈 important
 
   @@schema("public")
 }
@@ -269,7 +270,7 @@ model Session {
   userId    String   @db.Uuid
   expiresAt DateTime
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@schema("public")
 }
@@ -280,7 +281,7 @@ model Key {
   userId         String  @db.Uuid
   primary        Boolean @default(false)
 
-  user           User    @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@schema("public")
 }
