@@ -49,19 +49,6 @@ router.post("/register", async (req, res) => {
       },
     });
 
-    /*     const session = await lucia.createSession(user.id, {
-      id: crypto.randomUUID(), // 👈 génère un vrai UUID
-    });
-
-    console.log("🔑 Session créée:", session.id);
-
-    res.cookie("session", session.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30, // 30 jours
-    }); */
     console.log("✅ Utilisateur créé:", user);
     return res.json({ user }); // ✅ user est bien défini ici
   } catch (err) {
@@ -105,8 +92,9 @@ router.post("/login", async (req, res) => {
     });
     res.cookie("session", session.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "none", // ✅
+      secure: true, // ✅ requis avec None
+      httpOnly: true,
       path: "/",
       maxAge: 60 * 60 * 24 * 30, // 30 jours
     });
