@@ -1,0 +1,117 @@
+C’est **une excellente idée** 👌 — surtout dans ton cas où :
+
+- l’historique Prisma est **cassé** (problèmes de migrations passées),
+- tu souhaites migrer **vers Lucia** (hors Supabase Auth),
+- tu as un backend Express + Prisma + Nuxt **entièrement custom**,
+- et tu veux un **contrôle total** sur tes modèles, UUID, RLS, etc.
+
+---
+
+## ✅ Pourquoi recréer proprement ta base dans Railway est une bonne décision
+
+| Avantage                          | Détail                                                                                                                                                  |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🧹 **Schéma propre**              | Tu repars de zéro avec un `schema.prisma` propre, sans résidus ni conflits d’ancienne génération (pas d’erreurs de migration ou de colonnes invalides). |
+| 🔐 **Lucia Auth 100% compatible** | Tu n’es plus contraint par `auth.users` ou les limitations de Supabase Auth.                                                                            |
+| 🔄 **Migrations fiables**         | Tu reprends le contrôle de `prisma migrate dev` et `prisma db push` sans conflit.                                                                       |
+| 🔧 **Debug simplifié**            | Pas de conflit UUID / default, pas de "valeur par défaut côté base mais pas côté Prisma", tout est aligné.                                              |
+| 💡 **Plus flexible à long terme** | Tu pourras facilement ajouter des règles RLS, fonctions, vues ou relations complexes sans les limitations de Supabase.                                  |
+
+---
+
+## 🔁 Étapes pour recréer ta base propre sur Railway
+
+### 1. 🎯 Créer un projet PostgreSQL Railway
+
+- Va sur [https://railway.app](https://railway.app)
+- Crée un projet vide PostgreSQL
+
+### 2. 💾 Récupère la `DATABASE_URL`
+
+- Depuis **"Connect" > "PostgreSQL"**, copie la `DATABASE_URL`
+
+### 3. 🧩 Dans `.env.local` (ou `.env.production`)
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/dbname
+```
+
+### 4. 🧠 Nettoie ton `schema.prisma` (modèle Lucia + tes modèles actuels)
+
+Par exemple :
+
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  username       String?
+  hashedPassword String?
+  role           String?
+  cinemaId       Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  sessions       Session[]
+  keys           Key[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+}
+
+model Key {
+  id             String   @id
+  hashedPassword String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  primary        Boolean  @default(false)
+}
+```
+
+Tu pourras ajouter tes modèles `Film`, `Vote`, `Selection`, etc. ensuite.
+
+---
+
+### 5. 📦 Génère et applique
+
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+⚠️ Si tu veux juste synchroniser le schéma sans créer d’historique :
+
+```bash
+npx prisma db push
+```
+
+---
+
+### 6. 🔄 Branche ton app (Express & Nuxt) sur Railway
+
+Remplace la `DATABASE_URL` partout (backend et scripts)
+
+---
+
+## Ensuite ?
+
+Une fois ça fait, je peux :
+
+- t’aider à **recréer proprement tous tes modèles**,
+- remettre Lucia Auth sur de bons rails,
+- migrer en douceur les données utiles de Supabase → Railway (par exemple utilisateurs, films, votes…),
+- et finaliser le **login par email + mdp + cookies** côté frontend.
+
+Souhaites-tu que je t’aide à **faire le plan de migration étape par étape** ?

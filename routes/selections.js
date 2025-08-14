@@ -1,5 +1,11 @@
 import { prisma } from "../lib/prisma.js";
 import { Router } from "express";
+import {
+  normalizeInterestStats,
+  getInterestCount,
+  computeAverageInterest,
+  computePopularityScore,
+} from "../lib/score.js";
 const router = Router();
 
 // GET all selections
@@ -23,7 +29,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET /api/selections/:id with film details
-router.get("/:id", async (req, res) => {
+/* router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
@@ -102,9 +108,131 @@ router.get("/:id", async (req, res) => {
           createdAt: c.createdAt,
         })) || [],
       // ✅ Ajout du score de la relation selectionFilm
-      score: f.score ?? 0,
+
     })),
   };
+  res.json(result);
+}); */
+
+router.get("/:id", async (req, res) => {
+  const selection = await prisma.selection.findUnique({
+    where: { id: Number(req.params.id) },
+    include: {
+      films: {
+        include: {
+          film: {
+            include: {
+              director: true,
+              productionCountries: {
+                include: {
+                  country: true,
+                },
+              },
+              filmTags: {
+                include: {
+                  tag: true,
+                },
+              },
+              awards: true, // 👈 conservé
+              externalLinks: true, // 👈 conservé
+              comments: {
+                include: {
+                  user: {
+                    select: {
+                      username: true,
+                      user_id: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!selection) {
+    return res.status(404).json({ error: "Selection not found" });
+  }
+
+  // --- AJOUT: récupérer les stats d'intérêts pour TOUS les films en une fois
+  const filmIds = selection.films.map((sf) => sf.film.id);
+  let statsByFilm = {};
+
+  if (filmIds.length) {
+    // ⚠️ Selon ton schéma, remplace "film_id" par "filmId" si besoin.
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"], // ou ["filmId", "value"]
+      where: { film_id: { in: filmIds } }, // ou { filmId: { in: filmIds } }
+      _count: { _all: true },
+    });
+
+    // Regrouper -> { [filmId]: { CURIOUS: n, MUST_SEE: m, ... } }
+    for (const g of grouped) {
+      const fid = g.film_id ?? g.filmId;
+      (statsByFilm[fid] ||= {})[g.value] = g._count._all;
+    }
+  }
+
+  // --- Construction du payload (on garde tout ce que tu avais)
+  const result = {
+    id: selection.id,
+    name: selection.name,
+    films: selection.films.map((f) => {
+      const stats = normalizeInterestStats(statsByFilm[f.film.id] || {});
+      const votes = getInterestCount(stats);
+      const avgScore = computeAverageInterest(stats); // lisibilité “1/2/3”
+      const score = computePopularityScore(stats); // 🔥 popularité (somme)
+
+      return {
+        title: f.film.title,
+        id: f.film.id,
+        category: f.film.category,
+        poster: f.film.posterUrl,
+        tmdbId: f.film.tmdbId,
+        actors: f.film.actors,
+        origin: f.film.origin,
+        synopsis: f.film.synopsis,
+        genre: f.film.genre,
+        duration: f.film.duration,
+        releaseDate: f.film.releaseDate,
+        trailerUrl: f.film.trailerUrl,
+        awards:
+          f.film.awards?.map((a) => ({
+            prize: a.prize,
+            festival: a.festival,
+            year: a.year,
+          })) || [],
+        externalLinks:
+          f.film.externalLinks?.map((l) => ({
+            url: l.url,
+            label: l.label,
+          })) || [],
+        commentaire: f.film.commentaire,
+        rating: f.film.rating,
+        directorName: f.film.director?.name || null,
+        tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
+        firstProductionCountryName:
+          f.film.productionCountries?.[0]?.country?.name || null,
+        // ✅ commentaires par utilisateur (conservé)
+        comments:
+          f.film.comments?.map((c) => ({
+            user_id: c.user.user_id,
+            username: c.user.username,
+            commentaire: c.commentaire,
+            createdAt: c.createdAt,
+          })) || [],
+
+        // ✅ AJOUTS live:
+        interestStats: stats, // { SANS_OPINION:0, NOT_INTERESTED:0, ... }
+        votes,
+        avgScore, // lisible (1/2/3)
+        score, // popularité (somme) — à utiliser pour trier/afficher la passion
+      };
+    }),
+  };
+
   res.json(result);
 });
 

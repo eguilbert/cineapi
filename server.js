@@ -14,7 +14,6 @@ const environment = process.env.NODE_ENV || "development";
 const envFile = environment === "production" ? ".env.production" : ".env.local";
 dotenv.config({ path: path.resolve(process.cwd(), envFile) });
 console.log("🔍 DATABASE_URL =", process.env.DATABASE_URL);
-console.log("📦 SUPABASE_URL =", process.env.SUPABASE_URL);
 
 import express from "express";
 import cors from "cors";
@@ -28,36 +27,43 @@ import selectionsRoutes from "./routes/selections.js";
 import programmationRoutes from "./routes/programmation.js";
 import systemRoutes from "./routes/system.js";
 import interestRoutes from "./routes/interests.js";
-import createUserRouter from "./routes/createUser.js";
-import usersRouter from "./routes/users.js";
-import votesRouter from "./routes/votes.js";
-import profileRouter from "./routes/profile.js";
-import authRoutes from "./routes/auth.js";
+/* import createUserRouter from "./routes/createUser.js"; */
+/* import usersRouter from "./routes/users.js";
+ */ import votesRouter from "./routes/votes.js";
+/* import profileRouter from "./routes/profile.js";
+ */ import authRoutes from "./routes/auth.js";
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 console.log("🔍 PORT =", PORT);
 
-const allowedOrigins = [
+const allowlist = [
   "https://cineplages.vercel.app",
   "http://localhost:3000", // pour Nuxt en local
+  "http://127.0.0.1:3000",
   "http://localhost:3001", // si tu lances Nuxt sur ce port
 ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // Autorise curl, SSR, etc.
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      console.warn("❌ Origin non autorisée :", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin(origin, cb) {
+    // autoriser requêtes server-to-server / curl (pas d'en-tête Origin)
+    if (!origin) return cb(null, true);
+    const ok = allowlist.some((o) =>
+      o instanceof RegExp ? o.test(origin) : o === origin
+    );
+    return ok ? cb(null, true) : cb(new Error("Origin non autorisée"));
+  },
+  credentials: true, // si tu envoies des cookies (sinon tu peux laisser à false)
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  exposedHeaders: ["Content-Length"],
+  optionsSuccessStatus: 204, // évite un body sur le préflight
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -74,15 +80,22 @@ app.use("/api/selections", selectionsRoutes);
 app.use("/api/programmation", programmationRoutes);
 app.use("/api", systemRoutes);
 app.use("/api/interests", interestRoutes);
-app.use("/api/createUser", createUserRouter); // POST
-app.use("/api/users", usersRouter);
-app.use("/api/votes", votesRouter);
-app.use("/api/profile", profileRouter);
+/* app.use("/api/createUser", createUserRouter); // POST
+  app.use("/api/users", usersRouter);
+  app.use("/api/profile", profileRouter);
+*/ app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
+});
+// (facultatif) s’assurer qu’on renvoie bien ce header
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    console.log("CORS preflight from:", req.headers.origin);
+  }
+  next();
 });
 
 function testDbConnection() {

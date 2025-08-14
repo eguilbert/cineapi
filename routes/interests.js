@@ -1,44 +1,35 @@
+// routes/interests.js
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
-import jwt from "jsonwebtoken";
+import { requireAuth } from "../lib/requireAuth.js";
+import { ensureUserProfile } from "../lib/ensureProfile.js";
 import { updateScoresForFilm } from "../lib/updateScores.js";
 
-import { verifySupabaseToken } from "../lib/verifySupabaseToken.js";
-
 const router = Router();
-const JWT_SECRET = process.env.SUPABASE_JWT_SECRET;
-const DEFAULT_CINEMA_ID = "2";
 
-router.use((req, res, next) => {
-  console.log("Incoming request:", req.method, req.originalUrl);
+router.use((req, _res, next) => {
+  console.log("Incoming:", req.method, req.originalUrl);
   next();
 });
 
-// POST /api/interests
-router.post("/", async (req, res) => {
-  console.log("Début POST /api/interests, body:", req.body);
-
-  const { filmId, value } = req.body;
-  const token = req.headers.authorization?.split("Bearer ")[1];
-  if (!token) return res.status(401).json({ error: "Token manquant" });
-
+/**
+ * POST /api/interests
+ * body: { filmId: number, value: "SANS_OPINION"|"NOT_INTERESTED"|"CURIOUS"|"MUST_SEE" }
+ * Auth Lucia requise
+ */
+router.post("/", requireAuth, async (req, res) => {
   try {
-    // ✅ Vérifie le JWT reçu depuis Supabase Auth
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const userId = decoded.sub; // ID Supabase de l'utilisateur connecté
-    console;
-    // ✅ Assure-toi que le user profile existe
-    await prisma.userProfile.upsert({
-      where: { user_id: userId },
-      update: {},
-      create: {
-        user_id: userId,
-        cinemaId: parseInt(DEFAULT_CINEMA_ID, 10),
-        username: "Invité_" + userId.slice(0, 6),
-      },
-    });
+    const { filmId, value } = req.body || {};
+    if (!Number.isInteger(filmId) || !value) {
+      return res.status(400).json({ error: "filmId ou value manquants" });
+    }
 
-    // ✅ Upsert l'intérêt pour le film
+    const userId = req.user.id;
+
+    // Profil auto si absent
+    await ensureUserProfile(userId);
+
+    // Upsert de l’intérêt
     const interest = await prisma.interest.upsert({
       where: {
         user_id_film_id: {
@@ -46,36 +37,42 @@ router.post("/", async (req, res) => {
           film_id: filmId,
         },
       },
-      update: {
-        value,
-      },
-      create: {
-        user_id: userId,
-        film_id: filmId,
-        value,
-      },
+      update: { value },
+      create: { user_id: userId, film_id: filmId, value },
     });
+
+    // Log d’activité
     await prisma.activityLog.create({
       data: {
-        userId: userId,
+        userId,
         action: "interest.post",
         targetId: filmId,
         context: value,
       },
     });
 
+    // Réponse immédiate
     res.json(interest);
-    await updateScoresForFilm(filmId); // ✅ mise à jour automatique du score
+
+    // Mise à jour asynchrone du score (pas bloquant pour la réponse)
+    updateScoresForFilm(filmId).catch((e) =>
+      console.error("updateScoresForFilm error:", e)
+    );
   } catch (err) {
-    console.error("Erreur JWT /api/interests :", err);
-    res.status(401).json({ error: "Token invalide ou expiré" });
+    console.error("POST /api/interests erreur:", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
-//🔍 Retourne le nombre d’utilisateurs par niveau d’intérêt pour un film donné.
+/**
+ * GET /api/interests/film/:id
+ * Public (pas besoin d’auth)
+ */
 router.get("/film/:id", async (req, res) => {
   const filmId = parseInt(req.params.id, 10);
-  if (isNaN(filmId)) return res.status(400).json({ error: "filmId invalide" });
+  if (Number.isNaN(filmId)) {
+    return res.status(400).json({ error: "filmId invalide" });
+  }
 
   try {
     const results = await prisma.interest.groupBy({
@@ -84,73 +81,73 @@ router.get("/film/:id", async (req, res) => {
       _count: { _all: true },
     });
 
-    // Format lisible
-    const counts = {
-      SANS_OPINION: 0,
-      NOT_INTERESTED: 0,
-      CURIOUS: 0,
-      MUST_SEE: 0,
-    };
+    const ALLOWED = new Set([
+      "SANS_OPINION",
+      "NOT_INTERESTED",
+      "CURIOUS",
+      "MUST_SEE",
+      "VERY_INTERESTED",
+    ]);
 
-    results.forEach((r) => {
-      counts[r.value] = r._count._all;
-    });
+    // Initialisation des compteurs à zéro
+    const counts = {};
+    for (const key of ALLOWED) counts[key] = 0;
 
+    // Remplissage avec les valeurs trouvées
+    for (const r of results) {
+      if (ALLOWED.has(r.value)) {
+        counts[r.value] = r._count._all;
+      }
+    }
     res.json({ filmId, interests: counts });
   } catch (err) {
-    console.error("Erreur GET /api/interests/film/:id", err);
+    console.error("GET /api/interests/film/:id erreur:", err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
-//🔐 Retourne tous les intérêts de l’utilisateur connecté
-// GET /api/interests/my
-router.get("/my", async (req, res) => {
-  console.log("Début Get /api/interests/my, body:", req.body);
-
-  const userId = verifySupabaseToken(req);
-  if (!userId) {
-    console.error("❌ Token déchiffré, mais pas d'userId");
-    return res.status(401).json({ error: "Token invalide" });
-  }
-  const profile = await prisma.userProfile.findUnique({
-    where: { user_id: userId },
-  });
-  if (!profile) {
-    console.error("❌ Aucun UserProfile trouvé pour:", userId);
-    return res.status(404).json({ error: "Profil non trouvé" });
-  }
+/**
+ * GET /api/interests/my
+ * Auth Lucia requise
+ */
+router.get("/my", requireAuth, async (req, res) => {
   try {
-    const userId = verifySupabaseToken(req);
+    const userId = req.user.id;
 
-    console.log("✅ userId extrait du token:", userId);
+    // (facultatif) vérifier que le profil existe
+    const profile = await prisma.userProfile.findUnique({
+      where: { user_id: userId },
+    });
+    if (!profile) {
+      return res.status(404).json({ error: "Profil non trouvé" });
+    }
 
     const interests = await prisma.interest.findMany({
       where: { user_id: userId },
-      include: {
-        film: true,
-      },
+      include: { film: true },
     });
 
     res.json(interests);
   } catch (err) {
-    console.error("Erreur GET /api/interests/my :", err.message);
-    res.status(401).json({ error: "Token invalide ou manquant" });
+    console.error("GET /api/interests/my erreur:", err);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
-// GET /api/interests/films?ids=12,45,78
+/**
+ * GET /api/interests/films?ids=1,2,3
+ * Agrégation par film (public)
+ */
 router.get("/films", async (req, res) => {
   const idsParam = req.query.ids;
-
   if (!idsParam) {
     return res.status(400).json({ error: "Paramètre ids manquant" });
   }
 
-  const filmIds = idsParam
+  const filmIds = String(idsParam)
     .split(",")
     .map((id) => parseInt(id, 10))
-    .filter((id) => !isNaN(id));
+    .filter((n) => Number.isInteger(n));
 
   if (filmIds.length === 0) {
     return res.status(400).json({ error: "Paramètres ids invalides" });
@@ -159,42 +156,41 @@ router.get("/films", async (req, res) => {
   try {
     const grouped = await prisma.interest.groupBy({
       by: ["film_id", "value"],
-      where: {
-        film_id: { in: filmIds },
-      },
+      where: { film_id: { in: filmIds } },
       _count: { _all: true },
     });
 
-    // Format : { [film_id]: { SANS_OPINION: x, NOT_INTERESTED: y, ... } }
     const response = {};
-    for (const group of grouped) {
-      if (!response[group.film_id]) {
-        response[group.film_id] = {
-          SANS_OPINION: 0,
-          NOT_INTERESTED: 0,
-          CURIOUS: 0,
-          MUST_SEE: 0,
-        };
-      }
-      response[group.film_id][group.value] = group._count._all;
+    for (const g of grouped) {
+      response[g.film_id] ??= {
+        SANS_OPINION: 0,
+        NOT_INTERESTED: 0,
+        CURIOUS: 0,
+        MUST_SEE: 0,
+        VERY_INTERESTED: 0,
+      };
+      response[g.film_id][g.value] = g._count._all;
     }
 
     res.json(response);
   } catch (err) {
-    console.error("Erreur GET /api/interests/films", err);
+    console.error("GET /api/interests/films erreur:", err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
+/**
+ * POST /api/interests/films
+ * body: { ids: number[] }
+ * Agrégation par film (public)
+ */
 router.post("/films", async (req, res) => {
-  const { ids } = req.body;
-
+  const { ids } = req.body || {};
   if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).json({ error: "Liste d’IDs manquante ou invalide" });
   }
 
-  const filmIds = ids.filter((id) => Number.isInteger(id));
-
+  const filmIds = ids.filter((n) => Number.isInteger(n));
   if (filmIds.length === 0) {
     return res.status(400).json({ error: "Aucun ID de film valide" });
   }
@@ -202,28 +198,25 @@ router.post("/films", async (req, res) => {
   try {
     const grouped = await prisma.interest.groupBy({
       by: ["film_id", "value"],
-      where: {
-        film_id: { in: filmIds },
-      },
+      where: { film_id: { in: filmIds } },
       _count: { _all: true },
     });
 
     const response = {};
-    for (const group of grouped) {
-      if (!response[group.film_id]) {
-        response[group.film_id] = {
-          SANS_OPINION: 0,
-          NOT_INTERESTED: 0,
-          CURIOUS: 0,
-          MUST_SEE: 0,
-        };
-      }
-      response[group.film_id][group.value] = group._count._all;
+    for (const g of grouped) {
+      response[g.film_id] ??= {
+        SANS_OPINION: 0,
+        NOT_INTERESTED: 0,
+        CURIOUS: 0,
+        MUST_SEE: 0,
+        VERY_INTERESTED: 0,
+      };
+      response[g.film_id][g.value] = g._count._all;
     }
 
     res.json(response);
   } catch (err) {
-    console.error("Erreur POST /api/interests/films", err);
+    console.error("POST /api/interests/films erreur:", err);
     res.status(500).json({ error: "Erreur serveur lors de l’agrégation" });
   }
 });

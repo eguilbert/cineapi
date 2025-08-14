@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
-    const finalRedirect = redirectTo || "https://ton-site.fr/login";
+    const finalRedirect = redirectTo || "https://cineplages.vercel.app/login";
     console.log(
       `👉 Invitation en cours pour ${email} avec redirect ${finalRedirect}`
     );

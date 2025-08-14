@@ -88,19 +88,21 @@ router.post("/login", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
-      return res.status(401).json({ error: "Email ou mot de passe invalide" });
-    }
-
-    const passwordMatch = await bcrypt.compare(password, user.hashedPassword);
-    if (!passwordMatch) {
+    if (!user || !(await bcrypt.compare(password, user.hashedPassword))) {
       return res.status(401).json({ error: "Email ou mot de passe invalide" });
     }
 
     const session = await lucia.createSession(user.id, {
       id: crypto.randomUUID(),
     });
-
+    // 👇 Insère la session manuellement
+    await prisma.session.create({
+      data: {
+        id: session.id,
+        userId: user.id,
+        expiresAt: session.expiresAt,
+      },
+    });
     res.cookie("session", session.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -128,13 +130,48 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   const sessionId = req.cookies.session;
-  if (!sessionId) return res.status(401).json({ error: "Non connecté" });
 
-  const session = await lucia.validateSession(sessionId);
-  if (!session || !session.user)
-    return res.status(401).json({ error: "Session invalide" });
+  // marqueurs pour savoir QUEL serveur répond
+  res.setHeader("X-Me-Handler", "express-auth-router");
+  res.setHeader("X-Powered-By", "Express");
 
-  res.json({ user: session.user });
+  console.log("🍪 Session ID reçu:", sessionId);
+
+  if (!sessionId) {
+    return res.status(401).json({
+      ok: false,
+      reason: "no-cookie",
+      from: "express",
+      route: "/api/auth/me",
+    });
+  }
+
+  const { user, session } = await lucia.validateSession(sessionId);
+  console.log("🔎 validateSession ->", {
+    hasUser: !!user,
+    hasSession: !!session,
+  });
+
+  if (!session || !user) {
+    return res.status(401).json({
+      ok: false,
+      reason: "invalid-session",
+      from: "express",
+      route: "/api/auth/me",
+    });
+  }
+
+  return res.json({
+    ok: true,
+    from: "express",
+    route: "/api/auth/me",
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    },
+  });
 });
 
 router.get("/debug/users", async (req, res) => {

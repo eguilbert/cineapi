@@ -89,7 +89,7 @@ router.get("/import/tmdb", async (req, res) => {
           sort_by: "release_date.desc",
           "release_date.gte": startDate,
           "release_date.lte": endDate,
-          with_release_type: 2 | 3,
+          with_release_type: "2|3",
           language: "fr-FR",
           include_video: false,
           include_adult: false,
@@ -348,8 +348,14 @@ router.get("/import/tmdb", async (req, res) => {
 
     res.json(films);
   } catch (error) {
-    console.error("Erreur accès TMDb:", error.message);
-    res.status(500).json({ error: "Erreur récupération TMDb" });
+    console.error(
+      "TMDB discover error:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+    throw error;
+
+    //    res.status(500).json({ error: "Erreur récupération TMDb" });
   }
 });
 

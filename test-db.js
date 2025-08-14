@@ -1,9 +1,17 @@
-app.get("/test-db", async (req, res) => {
-  try {
-    const result = await prisma.$queryRaw`SELECT NOW()`;
-    res.json({ dbTime: result });
-  } catch (e) {
-    console.error("Erreur Prisma:", e);
-    res.status(500).json({ error: "Connexion échouée" });
-  }
-});
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+const run = async () => {
+  const user = await prisma.user.create({
+    data: {
+      id: crypto.randomUUID(),
+      email: "toto@debug.com",
+      username: "debug",
+      hashedPassword: "xxx",
+      role: "INVITE",
+    },
+  });
+  console.log("🧪 User created:", user);
+};
+
+run();

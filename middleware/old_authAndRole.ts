@@ -1,4 +1,4 @@
-export function requireRole(requiredRole: string) {
+/* export function requireRole(requiredRole: string) {
   return async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ error: "Token manquant" });
@@ -18,7 +18,7 @@ export function requireRole(requiredRole: string) {
     req.user = userProfile;
     next();
   };
-}
+} */
 
 //usage
 /* router.post("/films", requireRole("ADMIN"), async (req, res) => {
