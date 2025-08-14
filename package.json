@@ -8,7 +8,9 @@
     "prisma:studio": "dotenv -e .env.local -- prisma studio",
     "prisma:migrate:dev": "dotenv -e .env.local -- prisma migrate dev --name update",
     "prisma:migrate:deploy": "dotenv -e .env.local -- prisma migrate deploy",
-    "prisma:sync": "npm run prisma:generate && npm run prisma:push"
+    "prisma:sync": "npm run prisma:generate && npm run prisma:push",
+    "postinstall": "prisma generate",
+    "prestart": "prisma generate"
   },
   "dependencies": {
     "@lucia-auth/adapter-prisma": "^4.0.1",
@@ -23,7 +25,7 @@
     "h3": "^1.15.3",
     "jsonwebtoken": "^9.0.2",
     "lucia": "^3.2.2",
-    "prisma": "^5.15.0",
+    "prisma": "^5.22.0",
     "supabase": "^2.31.8"
   },
   "devDependencies": {
