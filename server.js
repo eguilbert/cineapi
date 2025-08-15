@@ -34,6 +34,23 @@ import interestRoutes from "./routes/interests.js";
  */ import authRoutes from "./routes/auth.js";
 
 const app = express();
+
+app.use((req, res, next) => {
+  const _setHeader = res.setHeader.bind(res);
+  res.setHeader = (name, value) => {
+    if (typeof name === "string" && name.toLowerCase() === "set-cookie") {
+      const arr = Array.isArray(value) ? value : [String(value)];
+      const patched = arr.map((c) => {
+        const hasNone = /;\s*SameSite=None/i.test(c);
+        const hasPart = /;\s*Partitioned/i.test(c);
+        return hasNone && !hasPart ? `${c}; Partitioned` : c;
+      });
+      return _setHeader(name, patched);
+    }
+    return _setHeader(name, value);
+  };
+  next();
+});
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
