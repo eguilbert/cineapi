@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { lucia } from "../lib/lucia.js";
 import { prisma } from "../lib/prisma.js";
+import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
 
 const router = express.Router();
 
@@ -23,9 +24,13 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email déjà utilisé" });
     }
 
-    const { email, password, username } = req.body;
+    const email = String(req.body.email || "")
+      .toLowerCase()
+      .trim();
+    const password = String(req.body.password || "");
+    const username =
+      typeof req.body.username === "string" ? req.body.username : null;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const cleanUsername = typeof username === "string" ? username : null;
 
     console.log("🔐 Password haché");
     console.log("📦 Données envoyées à Prisma:", {
@@ -44,7 +49,7 @@ router.post("/register", async (req, res) => {
         email,
         hashedPassword,
         id: userId, // 👈 ID explicite
-        username: cleanUsername,
+        username,
         role: "INVITE",
       },
     });
@@ -68,98 +73,95 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST /auth/login
+// POST /api/auth/login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const email = String(req.body.email || "")
+      .toLowerCase()
+      .trim();
+    const password = String(req.body.password || "");
 
-    if (!user || !(await bcrypt.compare(password, user.hashedPassword))) {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || !user.hashedPassword) {
       return res.status(401).json({ error: "Email ou mot de passe invalide" });
     }
 
-    const session = await lucia.createSession(user.id, {
-      id: crypto.randomUUID(),
-    });
-    // 👇 Insère la session manuellement
-    await prisma.session.create({
-      data: {
-        id: session.id,
-        userId: user.id,
-        expiresAt: session.expiresAt,
+    const ok = await bcrypt.compare(password, user.hashedPassword);
+    if (!ok) {
+      return res.status(401).json({ error: "Email ou mot de passe invalide" });
+    }
+
+    // ✅ crée et PERSISTE la session en DB via l'adapter (ne pas faire prisma.session.create)
+    const { id: sessionId } = await lucia.createSession(user.id, {});
+
+    // ✅ génère le Set-Cookie correctement (SameSite/secure/path etc. depuis ta config Lucia)
+    const cookie = lucia.createSessionCookie(sessionId);
+    // en Express, on envoie la chaîne brute:
+    res.setHeader("Set-Cookie", cookie.serialize());
+
+    return res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        username: user.username,
       },
     });
-    res.cookie("session", session.id, {
-      httpOnly: true,
-      sameSite: "none", // ✅
-      secure: true, // ✅ requis avec None
-      httpOnly: true,
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30, // 30 jours
-    });
-
-    return res.status(200).json({ user: { id: user.id, email: user.email } });
   } catch (err) {
-    console.error("❌ Erreur login:", err.message);
+    console.error("❌ Erreur login:", err);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
 // POST /auth/logout
 router.post("/logout", async (req, res) => {
-  const sessionId = req.cookies.session;
-  if (sessionId) {
-    await lucia.invalidateSession(sessionId);
-    res.clearCookie("session");
+  try {
+    const sessionId =
+      req.cookies?.session || parse(req.headers.cookie || "").session;
+
+    if (sessionId) {
+      await lucia.invalidateSession(sessionId);
+    }
+    const blank = lucia.createBlankSessionCookie();
+    res.setHeader("Set-Cookie", blank.serialize());
+
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(200).json({ ok: true }); // idempotent
   }
-  res.json({ success: true });
 });
 
 router.get("/me", async (req, res) => {
-  const sessionId = req.cookies.session;
+  try {
+    const sessionId =
+      req.cookies?.session || parse(req.headers.cookie || "").session;
 
-  // marqueurs pour savoir QUEL serveur répond
-  res.setHeader("X-Me-Handler", "express-auth-router");
-  res.setHeader("X-Powered-By", "Express");
+    if (!sessionId) return res.status(401).json({ user: null });
 
-  console.log("🍪 Session ID reçu:", sessionId);
+    const { user, session } = await lucia.validateSession(sessionId);
+    if (!session) {
+      // session invalide → blank cookie pour nettoyer côté client
+      const blank = lucia.createBlankSessionCookie();
+      res.setHeader("Set-Cookie", blank.serialize());
+      return res.status(401).json({ user: null });
+    }
+    // session valide : si "fresh", renvoyer un set-cookie (rotation/refresh)
+    if (session.fresh) {
+      const cookie = lucia.createSessionCookie(session.id);
+      res.setHeader("Set-Cookie", cookie.serialize());
+    }
 
-  if (!sessionId) {
-    return res.status(401).json({
-      ok: false,
-      reason: "no-cookie",
-      from: "express",
-      route: "/api/auth/me",
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        username: user.username,
+      },
     });
+  } catch {
+    res.status(401).json({ user: null });
   }
-
-  const { user, session } = await lucia.validateSession(sessionId);
-  console.log("🔎 validateSession ->", {
-    hasUser: !!user,
-    hasSession: !!session,
-  });
-
-  if (!session || !user) {
-    return res.status(401).json({
-      ok: false,
-      reason: "invalid-session",
-      from: "express",
-      route: "/api/auth/me",
-    });
-  }
-
-  return res.json({
-    ok: true,
-    from: "express",
-    route: "/api/auth/me",
-    user: {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      role: user.role,
-    },
-  });
 });
 
 router.get("/debug/users", async (req, res) => {
