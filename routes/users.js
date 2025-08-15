@@ -104,4 +104,15 @@ router.post("/invite", async (req, res) => {
   }
 });
 
+router.post("/users/:id/password", async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+  try {
+    await setPasswordForUser(id, password);
+    res.json({ ok: true });
+  } catch (e:any) {
+    res.status(400).json({ ok: false, error: e.message });
+  }
+});
+
 export default router;
