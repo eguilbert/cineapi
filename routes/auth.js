@@ -81,34 +81,53 @@ router.post("/login", async (req, res) => {
       .trim();
     const password = String(req.body.password || "");
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.hashedPassword) {
+    // 1) Trouver l'utilisateur (sans rien révéler sur l'existence)
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, hashedPassword: true },
+    });
+
+    // 2) Vérif mot de passe (éviter la fuite d'info)
+    const valid = user?.hashedPassword
+      ? await bcrypt.compare(password, user.hashedPassword)
+      : false;
+
+    if (!valid) {
+      // même message pour email inconnu et mauvais mot de passe
       return res.status(401).json({ error: "Email ou mot de passe invalide" });
     }
 
-    const ok = await bcrypt.compare(password, user.hashedPassword);
-    if (!ok) {
-      return res.status(401).json({ error: "Email ou mot de passe invalide" });
-    }
+    // 3) Garantir un UserProfile (upsert)
+    const profile = await prisma.userProfile.upsert({
+      where: { user_id: user.id }, // ou userId selon ton mapping Prisma
+      update: {},
+      create: {
+        user_id: user.id,
+        username: email.split("@")[0], // fallback simple (tu peux améliorer)
+        role: "USER",
+      },
+      select: { username: true, role: true, cinemaId: true },
+    });
 
-    // ✅ crée et PERSISTE la session en DB via l'adapter (ne pas faire prisma.session.create)
+    // 4) Créer la session Lucia (persiste via l’adapter)
     const { id: sessionId } = await lucia.createSession(user.id, {});
 
-    // ✅ génère le Set-Cookie correctement (SameSite/secure/path etc. depuis ta config Lucia)
+    // 5) Déposer le cookie (respecte secure/samesite/path depuis ta config Lucia)
     const cookie = lucia.createSessionCookie(sessionId);
-    // en Express, on envoie la chaîne brute:
     res.setHeader("Set-Cookie", cookie.serialize());
 
+    // 6) Réponse unifiée
     return res.json({
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
-        username: user.username,
+        username: profile.username,
+        role: profile.role,
+        cinemaId: profile.cinemaId,
       },
     });
   } catch (err) {
-    console.error("❌ Erreur login:", err);
+    console.error("❌ /login error:", err);
     return res.status(500).json({ error: "Erreur serveur" });
   }
 });
@@ -133,33 +152,66 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
+    // 1. Récupérer le cookie de session
     const sessionId =
       req.cookies?.session || parse(req.headers.cookie || "").session;
 
-    if (!sessionId) return res.status(401).json({ user: null });
+    if (!sessionId) {
+      return res.status(401).json({ user: null });
+    }
 
+    // 2. Valider la session Lucia
     const { user, session } = await lucia.validateSession(sessionId);
+
     if (!session) {
       // session invalide → blank cookie pour nettoyer côté client
       const blank = lucia.createBlankSessionCookie();
       res.setHeader("Set-Cookie", blank.serialize());
       return res.status(401).json({ user: null });
     }
-    // session valide : si "fresh", renvoyer un set-cookie (rotation/refresh)
+
+    // 3. Rotation du cookie si session "fresh"
     if (session.fresh) {
       const cookie = lucia.createSessionCookie(session.id);
       res.setHeader("Set-Cookie", cookie.serialize());
     }
 
-    res.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        username: user.username,
+    // 4. Lire le profil en DB (jointure User ↔ UserProfile)
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        email: true,
+        profile: {
+          select: {
+            username: true,
+            cinemaId: true,
+            role: true,
+          },
+        },
       },
     });
-  } catch {
+
+    if (!dbUser || !dbUser.profile) {
+      // ⚠️ Pas de profil trouvé → erreur explicite (plus de "Invité_*")
+      return res.status(409).json({
+        error: "PROFILE_MISSING",
+        message: "Aucun UserProfile associé à ce compte",
+      });
+    }
+
+    // 5. Réponse finale
+    res.json({
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+        username: dbUser.profile.username,
+        role: dbUser.profile.role,
+        cinemaId: dbUser.profile.cinemaId,
+      },
+    });
+  } catch (err) {
+    console.error("GET /me error:", err);
     res.status(401).json({ user: null });
   }
 });
