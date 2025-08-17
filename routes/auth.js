@@ -151,7 +151,8 @@ router.post("/logout", async (req, res) => {
 router.get("/me", async (req, res) => {
   try {
     // 1) Récupère le nom réel du cookie de session (ex: "auth_session")
-    const cookieName = lucia.sessionCookie?.name || "auth_session";
+    /*     const cookieName = lucia.sessionCookie?.name || "auth_session";
+     */ const cookieName = lucia.sessionCookie.name;
 
     // 2) Récupère la valeur via cookie-parser
     const sessionId = req.cookies?.[cookieName];
