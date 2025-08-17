@@ -152,67 +152,40 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    // 1. Récupérer le cookie de session
-    const sessionId =
-      req.cookies?.session || parse(req.headers.cookie || "").session;
+    const { user, session } = await lucia.validateRequest(req, res);
+    if (!session) return res.status(401).json({ user: null });
 
-    if (!sessionId) {
-      return res.status(401).json({ user: null });
-    }
-
-    // 2. Valider la session Lucia
-    const { user, session } = await lucia.validateSession(sessionId);
-
-    if (!session) {
-      // session invalide → blank cookie pour nettoyer côté client
-      const blank = lucia.createBlankSessionCookie();
-      res.setHeader("Set-Cookie", blank.serialize());
-      return res.status(401).json({ user: null });
-    }
-
-    // 3. Rotation du cookie si session "fresh"
-    if (session.fresh) {
-      const cookie = lucia.createSessionCookie(session.id);
-      res.setHeader("Set-Cookie", cookie.serialize());
-    }
-
-    // 4. Lire le profil en DB (jointure User ↔ UserProfile)
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+      where: { id: user.userId }, // <- Lucia expose userId
       select: {
         id: true,
         email: true,
-        profile: {
-          select: {
-            username: true,
-            cinemaId: true,
-            role: true,
-          },
+        userProfile: {
+          // <- ✅ bon nom de relation
+          select: { username: true, cinemaId: true, role: true },
         },
       },
     });
 
-    if (!dbUser || !dbUser.profile) {
-      // ⚠️ Pas de profil trouvé → erreur explicite (plus de "Invité_*")
+    if (!dbUser?.userProfile) {
       return res.status(409).json({
         error: "PROFILE_MISSING",
         message: "Aucun UserProfile associé à ce compte",
       });
     }
 
-    // 5. Réponse finale
-    res.json({
+    return res.json({
       user: {
         id: dbUser.id,
         email: dbUser.email,
-        username: dbUser.profile.username,
-        role: dbUser.profile.role,
-        cinemaId: dbUser.profile.cinemaId,
+        username: dbUser.userProfile.username,
+        role: dbUser.userProfile.role,
+        cinemaId: dbUser.userProfile.cinemaId,
       },
     });
   } catch (err) {
     console.error("GET /me error:", err);
-    res.status(401).json({ user: null });
+    return res.status(401).json({ user: null });
   }
 });
 
