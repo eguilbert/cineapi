@@ -150,21 +150,38 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    let user, session;
+    // 1) Récupère le nom *réel* du cookie de session (ex: "auth_session")
+    const cookieName = lucia.sessionCookie?.name || "auth_session";
 
-    if (typeof lucia.validateRequest === "function") {
-      // Lucia v2
-      ({ user, session } = await lucia.validateRequest(req, res));
-    } else {
-      // Lucia v3
-      const authReq = lucia.handleRequest(req, res);
-      ({ user, session } = await authReq.validateUser()); // user + session
+    // 2) Récupère sa valeur (cookie-parser OU header brut)
+    const sessionId =
+      req.cookies?.[cookieName] ||
+      parseCookie(req.headers.cookie || "")[cookieName];
+
+    if (!sessionId) {
+      // pas de cookie → pas de session
+      return res.status(401).json({ user: null });
     }
 
-    if (!session) return res.status(401).json({ user: null });
+    // 3) Valide la session
+    const { session, user } = await lucia.validateSession(sessionId);
 
+    if (!session) {
+      // session invalide → on nettoie le cookie côté client
+      const blank = lucia.createBlankSessionCookie();
+      res.setHeader("Set-Cookie", blank.serialize());
+      return res.status(401).json({ user: null });
+    }
+
+    // 4) Rotation si nécessaire
+    if (session.fresh) {
+      const rotated = lucia.createSessionCookie(session.id);
+      res.setHeader("Set-Cookie", rotated.serialize());
+    }
+
+    // 5) Charge le profil en DB (relation userProfile)
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.userId ?? user.id },
+      where: { id: session.userId }, // => fiable (vient de la session)
       select: {
         id: true,
         email: true,
@@ -173,9 +190,13 @@ router.get("/me", async (req, res) => {
     });
 
     if (!dbUser?.userProfile) {
-      return res.status(409).json({ error: "PROFILE_MISSING" });
+      return res.status(409).json({
+        error: "PROFILE_MISSING",
+        message: "Aucun UserProfile associé à ce compte",
+      });
     }
 
+    // 6) OK
     return res.json({
       user: {
         id: dbUser.id,
