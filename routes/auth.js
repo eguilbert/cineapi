@@ -81,42 +81,40 @@ router.post("/login", async (req, res) => {
       .trim();
     const password = String(req.body.password || "");
 
-    // 1) Trouver l'utilisateur (sans rien révéler sur l'existence)
     const user = await prisma.user.findUnique({
       where: { email },
       select: { id: true, email: true, hashedPassword: true },
     });
 
-    // 2) Vérif mot de passe (éviter la fuite d'info)
     const valid = user?.hashedPassword
       ? await bcrypt.compare(password, user.hashedPassword)
       : false;
-
-    if (!valid) {
-      // même message pour email inconnu et mauvais mot de passe
+    if (!valid)
       return res.status(401).json({ error: "Email ou mot de passe invalide" });
-    }
 
-    // 3) Garantir un UserProfile (upsert)
+    // garantit un UserProfile
     const profile = await prisma.userProfile.upsert({
-      where: { user_id: user.id }, // ou userId selon ton mapping Prisma
+      where: { user_id: user.id },
       update: {},
-      create: {
-        user_id: user.id,
-        username: email.split("@")[0], // fallback simple (tu peux améliorer)
-        role: "USER",
-      },
+      create: { user_id: user.id, username: email.split("@")[0], role: "USER" },
       select: { username: true, role: true, cinemaId: true },
     });
 
-    // 4) Créer la session Lucia (persiste via l’adapter)
-    const { id: sessionId } = await lucia.createSession(user.id, {});
+    // créer la session + cookie (v2/v3)
+    let sessionIdOrObj;
+    if (typeof lucia.createSession === "function") {
+      // v2/v3 ont la même signature; en v3 ça renvoie un objet session
+      sessionIdOrObj = await lucia.createSession(user.id, {});
+    }
+    const sessionId = sessionIdOrObj.id ?? sessionIdOrObj; // v3: .id, v2: string
 
-    // 5) Déposer le cookie (respecte secure/samesite/path depuis ta config Lucia)
-    const cookie = lucia.createSessionCookie(sessionId);
-    res.setHeader("Set-Cookie", cookie.serialize());
+    const cookie =
+      typeof lucia.createSessionCookie === "function"
+        ? lucia.createSessionCookie(sessionId) // v2/v3
+        : null;
 
-    // 6) Réponse unifiée
+    if (cookie) res.setHeader("Set-Cookie", cookie.serialize());
+
     return res.json({
       user: {
         id: user.id,
@@ -152,26 +150,30 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    const { user, session } = await lucia.validateRequest(req, res);
+    let user, session;
+
+    if (typeof lucia.validateRequest === "function") {
+      // Lucia v2
+      ({ user, session } = await lucia.validateRequest(req, res));
+    } else {
+      // Lucia v3
+      const authReq = lucia.handleRequest(req, res);
+      ({ user, session } = await authReq.validateUser()); // user + session
+    }
+
     if (!session) return res.status(401).json({ user: null });
 
     const dbUser = await prisma.user.findUnique({
-      where: { id: user.userId }, // <- Lucia expose userId
+      where: { id: user.userId ?? user.id },
       select: {
         id: true,
         email: true,
-        userProfile: {
-          // <- ✅ bon nom de relation
-          select: { username: true, cinemaId: true, role: true },
-        },
+        userProfile: { select: { username: true, role: true, cinemaId: true } },
       },
     });
 
     if (!dbUser?.userProfile) {
-      return res.status(409).json({
-        error: "PROFILE_MISSING",
-        message: "Aucun UserProfile associé à ce compte",
-      });
+      return res.status(409).json({ error: "PROFILE_MISSING" });
     }
 
     return res.json({
@@ -189,11 +191,4 @@ router.get("/me", async (req, res) => {
   }
 });
 
-router.get("/debug/users", async (req, res) => {
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
-  res.json(users);
-});
 export default router;
