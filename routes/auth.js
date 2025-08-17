@@ -150,39 +150,27 @@ router.post("/logout", async (req, res) => {
 
 router.get("/me", async (req, res) => {
   try {
-    // 1) Récupère le nom réel du cookie de session (ex: "auth_session")
-    /*     const cookieName = lucia.sessionCookie?.name || "auth_session";
-     */ const cookieName = lucia.sessionCookie.name;
+    const sessionId = req.cookies?.session;
 
-    // 2) Récupère la valeur via cookie-parser
-    const sessionId = req.cookies?.[cookieName];
-    console.log("cookie name:", lucia.sessionCookie?.name);
-    console.log("req.cookies:", req.cookies);
-    console.log("raw Cookie header:", req.headers.cookie);
     if (!sessionId) {
-      // Pas de session → 401
       return res.status(401).json({ user: null });
     }
 
-    // 3) Valide la session via Lucia
     const { session, user } = await lucia.validateSession(sessionId);
 
     if (!session) {
-      // Session invalide → pose un blank cookie pour nettoyage côté client
       const blank = lucia.createBlankSessionCookie();
       res.setHeader("Set-Cookie", blank.serialize());
       return res.status(401).json({ user: null });
     }
 
-    // 4) Rotation du cookie si la session est "fresh"
     if (session.fresh) {
       const rotated = lucia.createSessionCookie(session.id);
       res.setHeader("Set-Cookie", rotated.serialize());
     }
 
-    // 5) Charge l’utilisateur + son profil
     const dbUser = await prisma.user.findUnique({
-      where: { id: session.userId }, // l'id vient de la session Lucia
+      where: { id: session.userId },
       select: {
         id: true,
         email: true,
@@ -191,13 +179,9 @@ router.get("/me", async (req, res) => {
     });
 
     if (!dbUser?.userProfile) {
-      return res.status(409).json({
-        error: "PROFILE_MISSING",
-        message: "Aucun UserProfile associé à ce compte",
-      });
+      return res.status(409).json({ error: "PROFILE_MISSING" });
     }
 
-    // 6) OK → renvoie le user complet
     return res.json({
       user: {
         id: dbUser.id,
