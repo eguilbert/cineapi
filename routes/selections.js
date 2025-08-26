@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
       select: {
         id: true,
         name: true,
+        status: true,
       },
       orderBy: {
         date: "desc", // facultatif : pour afficher les plus récentes d'abord
@@ -28,93 +29,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET /api/selections/:id with film details
 /* router.get("/:id", async (req, res) => {
-  const selection = await prisma.selection.findUnique({
-    where: { id: Number(req.params.id) },
-    include: {
-      films: {
-        include: {
-          film: {
-            include: {
-              director: true,
-              productionCountries: {
-                include: {
-                  country: true,
-                },
-              },
-              filmTags: {
-                include: {
-                  tag: true,
-                },
-              },
-              awards: true, // 👈 Ajouté
-              externalLinks: true, // 👈 Ajouté,
-              comments: {
-                include: {
-                  user: {
-                    select: {
-                      username: true,
-                      user_id: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-  const result = {
-    id: selection.id,
-    name: selection.name,
-    films: selection.films.map((f) => ({
-      title: f.film.title,
-      id: f.film.id,
-      category: f.film.category,
-      poster: f.film.posterUrl,
-      tmdbId: f.film.tmdbId,
-      actors: f.film.actors,
-      origin: f.film.origin,
-      synopsis: f.film.synopsis,
-      genre: f.film.genre,
-      duration: f.film.duration,
-      releaseDate: f.film.releaseDate,
-      trailerUrl: f.film.trailerUrl,
-      awards:
-        f.film.awards?.map((a) => ({
-          prize: a.prize,
-          festival: a.festival,
-          year: a.year,
-        })) || [],
-      externalLinks:
-        f.film.externalLinks?.map((l) => ({
-          url: l.url,
-          label: l.label,
-        })) || [],
-      commentaire: f.film.commentaire,
-      rating: f.film.rating,
-      directorName: f.film.director?.name || null,
-      tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
-      firstProductionCountryName:
-        f.film.productionCountries?.[0]?.country?.name || null,
-      // ✅ Nouveau champ : commentaires par utilisateur
-      comments:
-        f.film.comments?.map((c) => ({
-          user_id: c.user.user_id,
-          username: c.user.username,
-          commentaire: c.commentaire,
-          createdAt: c.createdAt,
-        })) || [],
-      // ✅ Ajout du score de la relation selectionFilm
-
-    })),
-  };
-  res.json(result);
-}); */
-
-router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
@@ -198,6 +113,7 @@ router.get("/:id", async (req, res) => {
         duration: f.film.duration,
         releaseDate: f.film.releaseDate,
         trailerUrl: f.film.trailerUrl,
+        selected: f.selected,
         awards:
           f.film.awards?.map((a) => ({
             prize: a.prize,
@@ -210,6 +126,7 @@ router.get("/:id", async (req, res) => {
             label: l.label,
           })) || [],
         commentaire: f.film.commentaire,
+        score: f.score ?? null,
         rating: f.film.rating,
         directorName: f.film.director?.name || null,
         tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
@@ -229,6 +146,117 @@ router.get("/:id", async (req, res) => {
         votes,
         avgScore, // lisible (1/2/3)
         score, // popularité (somme) — à utiliser pour trier/afficher la passion
+      };
+    }),
+  };
+
+  res.json(result);
+}); */
+router.get("/:id", async (req, res) => {
+  const selection = await prisma.selection.findUnique({
+    where: { id: Number(req.params.id) },
+    include: {
+      films: {
+        include: {
+          film: {
+            include: {
+              director: true,
+              productionCountries: { include: { country: true } },
+              filmTags: { include: { tag: true } },
+              awards: true,
+              externalLinks: true,
+              comments: {
+                include: {
+                  user: { select: { username: true, user_id: true } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!selection) {
+    return res.status(404).json({ error: "Selection not found" });
+  }
+
+  const filmIds = selection.films.map((sf) => sf.film.id);
+  let statsByFilm = {};
+
+  if (filmIds.length) {
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"], // ou ["filmId", "value"]
+      where: { film_id: { in: filmIds } },
+      _count: { _all: true },
+    });
+
+    for (const g of grouped) {
+      const fid = g.film_id ?? g.filmId;
+      (statsByFilm[fid] ||= {})[g.value] = g._count._all;
+    }
+  }
+
+  const result = {
+    id: selection.id,
+    name: selection.name,
+    films: selection.films.map((f) => {
+      const stats = normalizeInterestStats(statsByFilm[f.film.id] || {});
+      const votes = getInterestCount(stats);
+      const avgScore = computeAverageInterest(stats);
+      const liveScore = computePopularityScore(stats); // calcul instantané
+
+      return {
+        id: f.film.id,
+        title: f.film.title,
+        category: f.film.category,
+        poster: f.film.posterUrl,
+        tmdbId: f.film.tmdbId,
+        actors: f.film.actors,
+        origin: f.film.origin,
+        synopsis: f.film.synopsis,
+        genre: f.film.genre,
+        duration: f.film.duration,
+        releaseDate: f.film.releaseDate,
+        trailerUrl: f.film.trailerUrl,
+        commentaire: f.film.commentaire,
+        rating: f.film.rating,
+        directorName: f.film.director?.name || null,
+        tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
+        firstProductionCountryName:
+          f.film.productionCountries?.[0]?.country?.name || null,
+
+        // champs issus du pivot SelectionFilm
+        selected: f.selected,
+        storedScore: f.score ?? null, // ✅ score persistant (après approbation)
+
+        // awards & liens externes
+        awards:
+          f.film.awards?.map((a) => ({
+            prize: a.prize,
+            festival: a.festival,
+            year: a.year,
+          })) || [],
+        externalLinks:
+          f.film.externalLinks?.map((l) => ({
+            url: l.url,
+            label: l.label,
+          })) || [],
+
+        // commentaires
+        comments:
+          f.film.comments?.map((c) => ({
+            user_id: c.user.user_id,
+            username: c.user.username,
+            commentaire: c.commentaire,
+            createdAt: c.createdAt,
+          })) || [],
+
+        // AJOUTS live (calculés à la volée)
+        interestStats: stats,
+        votes,
+        avgScore,
+        liveScore, // ✅ calcul dynamique basé sur les intérêts
       };
     }),
   };
@@ -475,27 +503,90 @@ router.put("/selection/:id/close-vote", async (req, res) => {
 // Exemple Express
 router.post("/:id/approve", async (req, res) => {
   const selectionId = parseInt(req.params.id, 10);
-  const { filmIds } = req.body;
+  const { films, nbVotants } = req.body || {};
+
+  if (!selectionId || !Array.isArray(films) || films.length === 0) {
+    return res.status(400).json({ error: "selectionId ou films invalides." });
+  }
+
+  // ---- pondérations des intérêts (aligne avec ton front)
+  const WEIGHTS = {
+    SANS_OPINION: 0,
+    NOT_INTERESTED: -1,
+    CURIOUS: 1,
+    VERY_INTERESTED: 2,
+    MUST_SEE: 3,
+  };
+  const KEYS = Object.keys(WEIGHTS);
+
+  const interestScoreFromCounts = (counts = {}) =>
+    KEYS.reduce((acc, k) => acc + (counts[k] || 0) * WEIGHTS[k], 0);
 
   try {
-    // 1. Mettre à jour la sélection
-    await prisma.selection.update({
-      where: { id: selectionId },
-      data: { status: "programmation" },
+    const filmIds = films.map((f) => f.id);
+
+    // 1) Récupérer les intérêts groupés pour tous les films d’un coup
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"], // ou ["filmId","value"] selon ton schéma
+      where: { film_id: { in: filmIds } }, // idem
+      _count: { _all: true },
     });
 
-    // 2. Marquer les films comme sélectionnés dans la jointure
-    await prisma.selectionFilm.updateMany({
-      where: {
-        selectionId,
-        filmId: { in: filmIds },
-      },
-      data: { selected: true },
+    // Regrouper par filmId → { [filmId]: { value: count } }
+    const countsByFilm = {};
+    for (const g of grouped) {
+      const fid = g.film_id ?? g.filmId;
+      (countsByFilm[fid] ||= {})[g.value] = g._count._all;
+    }
+
+    // 2) Construire finalScore par film (vote fourni par le front)
+    const finalScoreByFilm = {};
+    for (const { id: filmId, votes } of films) {
+      const safeVotes = Math.max(0, Number(votes) || 0);
+
+      // Contrôle optionnel : votes <= nbVotants s’il est fourni
+      if (nbVotants != null && safeVotes > Number(nbVotants)) {
+        return res.status(400).json({
+          error: `Le film ${filmId} a ${safeVotes} voix > nbVotants=${nbVotants}`,
+        });
+      }
+
+      const interestCounts = countsByFilm[filmId] || {};
+      const interestScore = interestScoreFromCounts(interestCounts);
+      const finalScore = safeVotes * 2 + interestScore;
+
+      finalScoreByFilm[filmId] = {
+        finalScore,
+        interestScore,
+        votes: safeVotes,
+      };
+    }
+
+    // 3) Transaction : passer la sélection en "programmation" + MAJ pivot
+    await prisma.$transaction(async (tx) => {
+      await tx.selection.update({
+        where: { id: selectionId },
+        data: { status: "programmation" },
+      });
+
+      for (const filmId of filmIds) {
+        const s = finalScoreByFilm[filmId]?.finalScore ?? 0;
+        await tx.selectionFilm.update({
+          where: { filmId_selectionId: { filmId, selectionId } }, // nécessite @@unique([filmId, selectionId]) ✅
+          data: {
+            selected: true,
+            score: s,
+          },
+        });
+
+        // (facultatif) si tu veux aussi persister dans Film.score :
+        await tx.film.update({ where: { id: filmId }, data: { score: s } });
+      }
     });
 
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: true, scores: finalScoreByFilm });
   } catch (err) {
-    console.error(err);
+    console.error("POST /:id/approve error:", err);
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
