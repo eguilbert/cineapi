@@ -4,10 +4,11 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  schemas    = ["public"]
-  extensions = [pgcrypto]
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  extensions        = [pgcrypto]
+  schemas           = ["public"]
 }
 
 model Film {
@@ -41,6 +42,9 @@ model Film {
   selections          SelectionFilm[]
   votes               Vote[]          @relation("FilmVotes")
 
+  selectionProgrammings SelectionFilmProgramming[] @relation("Film_Programmings")
+  programmingComments   ProgrammingComment[]       @relation("Film_ProgrammingComments")
+
   @@schema("public")
 }
 
@@ -69,6 +73,10 @@ model Selection {
   cinemas     SelectionCinema[]
   films       SelectionFilm[]
 
+  // 🆕 opposés
+  programmings        SelectionFilmProgramming[] @relation("Selection_Programmings")
+  programmingComments ProgrammingComment[]       @relation("Selection_ProgrammingComments")
+
   @@schema("public")
 }
 
@@ -85,6 +93,59 @@ model SelectionFilm {
   selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
   @@unique([filmId, selectionId])
+  @@schema("public")
+}
+
+model SelectionFilmProgramming {
+  id          Int      @id @default(autoincrement())
+  selectionId Int
+  filmId      Int
+  cinemaId    Int
+  suggested   Int      @default(0) // 0..9
+  capLabel    String?
+  notes       String?
+  cycleId     Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // relations nommées + champs opposés (voir sections 2/3/4)
+  selection Selection @relation("Selection_Programmings", fields: [selectionId], references: [id], onDelete: Cascade)
+  film      Film      @relation("Film_Programmings", fields: [filmId], references: [id], onDelete: Cascade)
+  cinema    Cinema    @relation("Cinema_Programmings", fields: [cinemaId], references: [id])
+  cycle     Cycle?    @relation(fields: [cycleId], references: [id])
+
+  @@unique([selectionId, filmId, cinemaId])
+  @@schema("public")
+}
+
+model ProgrammingComment {
+  id          Int      @id @default(autoincrement())
+  selectionId Int
+  filmId      Int
+  cinemaId    Int? // null = commentaire général (tous cinémas)
+  user_id     String
+  commentaire String
+  createdAt   DateTime @default(now())
+
+  // relations nommées + champs opposés (voir sections 2/3/4/5)
+  selection Selection   @relation("Selection_ProgrammingComments", fields: [selectionId], references: [id], onDelete: Cascade)
+  film      Film        @relation("Film_ProgrammingComments", fields: [filmId], references: [id], onDelete: Cascade)
+  user      UserProfile @relation("UserProfile_ProgrammingComments", fields: [user_id], references: [user_id])
+  cinema    Cinema?     @relation("Cinema_ProgrammingComments", fields: [cinemaId], references: [id])
+
+  @@index([selectionId, filmId, cinemaId])
+  @@schema("public")
+}
+
+model Cycle {
+  id           Int                        @id @default(autoincrement())
+  name         String
+  slug         String                     @unique
+  description  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  programmings SelectionFilmProgramming[] // champ opposé
+
   @@schema("public")
 }
 
@@ -178,6 +239,9 @@ model Cinema {
   users      UserProfile[]
   votes      Vote[]
 
+  selectionProgrammings SelectionFilmProgramming[] @relation("Cinema_Programmings")
+  programmingComments   ProgrammingComment[]       @relation("Cinema_ProgrammingComments")
+
   @@schema("public")
 }
 
@@ -192,8 +256,7 @@ model SelectionCinema {
 }
 
 model UserProfile {
-  user_id      String        @id @db.Uuid // <— important
-  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id      String        @id
   cinemaId     Int?
   role         String?       @default("INVITE")
   username     String?
@@ -201,7 +264,10 @@ model UserProfile {
   comments     FilmComment[]
   interests    Interest[]
   cinema       Cinema?       @relation(fields: [cinemaId], references: [id])
+  user         User          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   user_votes   Vote[]        @relation("UserVotes")
+
+  programmingComments ProgrammingComment[] @relation("UserProfile_ProgrammingComments")
 
   @@index([cinemaId])
   @@schema("public")
@@ -249,40 +315,50 @@ model ActivityLog {
 }
 
 model User {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  email          String   @unique
+  id             String       @id @default(dbgenerated("gen_random_uuid()"))
+  email          String       @unique
   username       String?
   hashedPassword String?
-  role           String? // 'ADMIN', 'INVITE', etc.
+  role           String?
   cinemaId       Int?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now())
-
-  keys        Key[]
-  sessions    Session[]
-  userProfile UserProfile? @relation() // 👈 important
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @default(now())
+  keys           Key[]        @ignore
+  sessions       Session[]
+  userProfile    UserProfile?
 
   @@schema("public")
 }
 
 model Session {
   id        String   @id @default(cuid())
-  userId    String   @db.Uuid
+  userId    String
   expiresAt DateTime
-
-  user User @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
 
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Key {
-  id             String  @id
+  id             String
   hashedPassword String?
-  userId         String  @db.Uuid
+  userId         String
   primary        Boolean @default(false)
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  user User @relation(fields: [userId], references: [id])
+  @@ignore
+  @@schema("public")
+}
 
+model interest_staging {
+  id        String        @id
+  user_id   String
+  film_id   Int
+  value     InterestLevel @default(SANS_OPINION)
+  createdAt DateTime      @default(now())
+
+  @@unique([user_id, film_id], map: "interest_staging_user_id_film_id_idx")
   @@schema("public")
 }
 
