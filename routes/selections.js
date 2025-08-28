@@ -6,6 +6,8 @@ import {
   computeAverageInterest,
   computePopularityScore,
 } from "../lib/score.js";
+import { requireSession } from "../middleware/lucia.js";
+
 const router = Router();
 
 // GET all selections
@@ -205,7 +207,7 @@ router.get("/:id", async (req, res) => {
       const votes = getInterestCount(stats);
       const avgScore = computeAverageInterest(stats);
       const liveScore = computePopularityScore(stats); // calcul instantané
-
+      console.log(">>> liveScore", liveScore);
       return {
         id: f.film.id,
         title: f.film.title,
@@ -228,7 +230,7 @@ router.get("/:id", async (req, res) => {
 
         // champs issus du pivot SelectionFilm
         selected: f.selected,
-        storedScore: f.score ?? null, // ✅ score persistant (après approbation)
+        storedScore: f.liveScore ?? null, // ✅ score persistant (après approbation)
 
         // awards & liens externes
         awards:
@@ -260,6 +262,21 @@ router.get("/:id", async (req, res) => {
       };
     }),
   };
+  const programming = await prisma.selectionFilmProgramming.findMany({
+    where: { selectionId: selection.id },
+    include: { cinema: true, cycle: true },
+  });
+  const progByFilm = programming.reduce((acc, p) => {
+    (acc[p.filmId] ||= []).push({
+      cinemaId: p.cinemaId,
+      cinemaName: p.cinema?.name,
+      suggested: p.suggested,
+      capLabel: p.capLabel,
+      notes: p.notes,
+      cycle: p.cycle ? { id: p.cycle.id, name: p.cycle.name } : null,
+    });
+    return acc;
+  }, {});
 
   res.json(result);
 });
@@ -578,9 +595,6 @@ router.post("/:id/approve", async (req, res) => {
             score: s,
           },
         });
-
-        // (facultatif) si tu veux aussi persister dans Film.score :
-        await tx.film.update({ where: { id: filmId }, data: { score: s } });
       }
     });
 
@@ -590,5 +604,106 @@ router.post("/:id/approve", async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+// POST /api/selections/:id/programming
+// body: { items: [{ filmId, cinemas: [2,5], perCinema: { "2": { suggested, capLabel, notes, cycleId? }, "5": {...} } }] }
+router.post("/:id/programming", async (req, res) => {
+  const selectionId = parseInt(req.params.id, 10);
+  const { items } = req.body || {};
+
+  if (!selectionId || !Array.isArray(items)) {
+    return res.status(400).json({ error: "Payload invalide" });
+  }
+
+  // validation rapide
+  for (const it of items) {
+    if (!it?.filmId || !Array.isArray(it?.cinemas)) {
+      return res.status(400).json({ error: "item invalide" });
+    }
+    for (const cid of it.cinemas) {
+      const cfg = it.perCinema?.[cid];
+      if (!cfg) continue;
+      const s = Number(cfg.suggested ?? 0);
+      if (Number.isNaN(s) || s < 0 || s > 9) {
+        return res.status(400).json({
+          error: `suggested hors bornes (0..9) pour film ${it.filmId} / cinema ${cid}`,
+        });
+      }
+    }
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const it of items) {
+        for (const cid of it.cinemas) {
+          const cfg = it.perCinema?.[cid] || {};
+          await tx.selectionFilmProgramming.upsert({
+            where: {
+              selectionId_filmId_cinemaId: {
+                selectionId,
+                filmId: it.filmId,
+                cinemaId: Number(cid),
+              },
+            },
+            create: {
+              selectionId,
+              filmId: it.filmId,
+              cinemaId: Number(cid),
+              suggested: Number(cfg.suggested ?? 0),
+              capLabel: cfg.capLabel ?? null,
+              notes: cfg.notes ?? null,
+              cycleId: cfg.cycleId ?? null,
+            },
+            update: {
+              suggested: Number(cfg.suggested ?? 0),
+              capLabel: cfg.capLabel ?? null,
+              notes: cfg.notes ?? null,
+              cycleId: cfg.cycleId ?? null,
+            },
+          });
+        }
+      }
+    });
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error("POST /:id/programming error", e);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// POST /api/selections/:id/programming/:filmId/comments
+// body: { cinemaId?: number, commentaire: string }
+router.post(
+  "/:id/programming/:filmId/comments",
+  requireSession,
+  async (req, res) => {
+    const selectionId = parseInt(req.params.id, 10);
+    const filmId = parseInt(req.params.filmId, 10);
+    console.log(">>> filmId", filmId);
+    const { cinemaId, commentaire } = req.body || {};
+    const user_id = req.user?.id || req.auth?.userId;
+    console.log(">>> user_id", user_id);
+    if (!selectionId || !filmId || !commentaire?.trim()) {
+      return res.status(400).json({ error: "Paramètres invalides" });
+    }
+
+    try {
+      const created = await prisma.programmingComment.create({
+        data: {
+          selectionId,
+          filmId,
+          cinemaId: cinemaId ?? null,
+          user_id,
+          commentaire: commentaire.trim(),
+        },
+      });
+      res.json(created);
+    } catch (e) {
+      console.error("POST programming comment error", e);
+      res.status(500).json({ error: "Erreur serveur" });
+    }
+  }
+);
 
 export default router;

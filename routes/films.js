@@ -422,10 +422,11 @@ router.get("/:id/score", async (req, res) => {
     where: { film_id: filmId },
     _count: { _all: true },
   });
+  console.log("---- Interets grouped:", grouped);
   const stats = normalizeInterestStats(
     Object.fromEntries(grouped.map((g) => [g.value, g._count._all]))
   );
-
+  console.log("---- Interets stats:", stats);
   // récupère la note moyenne si tu l'utilises (sinon mets 0)
   const film = await prisma.film.findUnique({
     where: { id: filmId },
