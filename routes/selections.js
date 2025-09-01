@@ -262,21 +262,6 @@ router.get("/:id", async (req, res) => {
       };
     }),
   };
-  const programming = await prisma.selectionFilmProgramming.findMany({
-    where: { selectionId: selection.id },
-    include: { cinema: true, cycle: true },
-  });
-  const progByFilm = programming.reduce((acc, p) => {
-    (acc[p.filmId] ||= []).push({
-      cinemaId: p.cinemaId,
-      cinemaName: p.cinema?.name,
-      suggested: p.suggested,
-      capLabel: p.capLabel,
-      notes: p.notes,
-      cycle: p.cycle ? { id: p.cycle.id, name: p.cycle.name } : null,
-    });
-    return acc;
-  }, {});
 
   res.json(result);
 });

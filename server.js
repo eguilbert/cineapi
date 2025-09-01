@@ -32,6 +32,7 @@ import interestRoutes from "./routes/interests.js";
  */ import votesRouter from "./routes/votes.js";
 /* import profileRouter from "./routes/profile.js";
  */ import authRoutes from "./routes/auth.js";
+import projectionRoutes from "./routes/projections.js";
 
 const app = express();
 
@@ -103,6 +104,7 @@ app.use("/api/interests", interestRoutes);
 */ app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/projections", projectionRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
