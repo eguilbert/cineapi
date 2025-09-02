@@ -65,4 +65,25 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.get("/films/search", async (req, res) => {
+  try {
+    const q = String(req.query.q || "").trim();
+    const limit = Math.min(parseInt(req.query.limit || "12", 10), 50);
+
+    if (q.length < 2) return res.json([]); // évite de charger la DB pour rien
+
+    const films = await prisma.film.findMany({
+      where: { title: { contains: q, mode: "insensitive" } },
+      select: { id: true, title: true, releaseDate: true, posterUrl: true },
+      orderBy: [{ title: "asc" }],
+      take: limit,
+    });
+
+    res.json(films);
+  } catch (err) {
+    console.error("GET /api/films/search error:", err);
+    res.status(500).json({ error: "Erreur recherche films" });
+  }
+});
+
 export default router;

@@ -104,7 +104,8 @@ app.use("/api/interests", interestRoutes);
 /* app.use("/api/createUser", createUserRouter); // POST
   app.use("/api/users", usersRouter);
   app.use("/api/profile", profileRouter);
-*/ app.use("/api/votes", votesRouter);
+*/
+app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/projections", projectionRoutes);

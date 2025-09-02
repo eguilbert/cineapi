@@ -332,7 +332,7 @@ router.post("/:tmdbId/refresh", requireAuth, requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 }); */
-router.get("/search", async (req, res) => {
+/* router.get("/search", async (req, res) => {
   try {
     const q = String(req.query.q || "").trim();
     const limit = Math.min(parseInt(req.query.limit || "12", 10), 50);
@@ -351,7 +351,98 @@ router.get("/search", async (req, res) => {
     console.error("GET /api/films/search error:", err);
     res.status(500).json({ error: "Erreur recherche films" });
   }
+}); */
+router.get("/search", async (req, res) => {
+  console.log("GET /api/films/search", req.query);
+  try {
+    const {
+      q,
+      id,
+      category,
+      director,
+      dateFrom,
+      dateTo,
+      page = 1,
+      pageSize = 20,
+    } = req.query;
+
+    const take = Math.min(parseInt(pageSize || 20, 10), 100);
+    const skip = (Math.max(parseInt(page || 1, 10), 1) - 1) * take;
+
+    // Normalise catégories (peut être string ou tableau)
+    const categories = category
+      ? Array.isArray(category)
+        ? category
+        : String(category)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+      : undefined;
+
+    const where = {
+      AND: [
+        id ? { id: Number(id) } : {},
+        q ? { title: { contains: q, mode: "insensitive" } } : {},
+        categories && categories.length ? { category: { in: categories } } : {},
+        director
+          ? {
+              director: {
+                OR: [
+                  { name: { contains: director, mode: "insensitive" } },
+                  { lastName: { contains: director, mode: "insensitive" } }, // au cas où vous avez séparé
+                ],
+              },
+            }
+          : {},
+        dateFrom || dateTo
+          ? {
+              releaseDate: {
+                gte: dateFrom ? new Date(dateFrom) : undefined,
+                lte: dateTo ? new Date(dateTo) : undefined,
+              },
+            }
+          : {},
+      ],
+    };
+
+    const [total, items] = await Promise.all([
+      prisma.film.count({ where }),
+      prisma.film.findMany({
+        where,
+        skip,
+        take,
+        orderBy: [{ releaseDate: "desc" }, { title: "asc" }],
+        select: {
+          id: true,
+          title: true,
+          category: true,
+          releaseDate: true,
+          posterUrl: true,
+          tmdbId: true,
+          director: { select: { id: true, name: true } },
+          // un aperçu utile :
+          _count: {
+            select: {
+              selections: true, // relation SelectionFilm?
+              filmProjections: true, // relation FilmProjection?
+            },
+          },
+        },
+      }),
+    ]);
+
+    res.json({
+      page: Number(page),
+      pageSize: take,
+      total,
+      items,
+    });
+  } catch (err) {
+    console.error("GET /api/films/search error:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
 });
+
 router.get("/:id", async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -468,6 +559,59 @@ router.get("/:id/score", async (req, res) => {
 
   const score = computeAggregateScore(stats, film?.rating ?? 0);
   return res.json({ filmId, score, interestStats: stats });
+});
+
+/**
+ * GET /api/films/:id/full
+ * Fiche détaillée + sélections, listes,
+ * projections rattachées.
+ */
+router.get("/:id/full", async (req, res) => {
+  try {
+    const filmId = Number(req.params.id);
+    if (Number.isNaN(filmId)) {
+      return res.status(400).json({ error: "id invalide" });
+    }
+
+    const film = await prisma.film.findUnique({
+      where: { id: filmId },
+      include: {
+        director: true,
+        awards: true,
+        externalLinks: true,
+        filmTags: { include: { tag: true } },
+
+        // Sélections (pivot)
+        selections: {
+          include: {
+            selection: true, // { id, name, status, date, ... }
+          },
+        },
+
+        // Listes curatoriales si vous avez
+        /*  lists: {
+          include: {
+            list: true, // { id, name, slug, ... }
+          },
+        }, */
+
+        // Projections
+        filmProjections: {
+          orderBy: [{ date: "desc" }, { hour: "desc" }],
+          include: {
+            cinema: true,
+          },
+        },
+      },
+    });
+
+    if (!film) return res.status(404).json({ error: "Film introuvable" });
+
+    res.json(film);
+  } catch (err) {
+    console.error("GET /api/films/:id/full error:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
 });
 
 export default router;
