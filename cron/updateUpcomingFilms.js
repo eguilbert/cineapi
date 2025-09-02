@@ -21,9 +21,6 @@ export async function updateUpcomingFilms() {
         gte: today.toDate(),
         lte: inThreeMonths.toDate(),
       },
-      tmdbId: {
-        not: null,
-      },
     },
   });
 
