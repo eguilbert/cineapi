@@ -1,7 +1,5 @@
 import { Router } from "express";
-import "../cron/updateUpcomingFilms.js";
-
-import { prisma } from "../lib/prisma.js";
+import { updateUpcomingFilms } from "../cron/updateUpcomingFilms.js";
 
 const router = Router();
 
