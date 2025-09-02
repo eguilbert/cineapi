@@ -1,4 +1,107 @@
-import cron from "node-cron";
+import { prisma } from "./prisma.js";
+import axios from "axios";
+
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+
+export async function updateUpcomingFilms() {
+  console.log("→ Fetching TMDB upcoming films...");
+
+  // Dates des 3 prochains mois
+  const now = new Date();
+  const in3Months = new Date();
+  in3Months.setMonth(now.getMonth() + 3);
+
+  // Convert to YYYY-MM-DD
+  const startDate = now.toISOString().split("T")[0];
+  const endDate = in3Months.toISOString().split("T")[0];
+
+  // Récupérer les films français à venir (paginer si nécessaire)
+  const { data: discovery } = await axios.get(
+    `${TMDB_BASE_URL}/discover/movie`,
+    {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: "fr-FR",
+        region: "FR",
+        sort_by: "release_date.asc",
+        include_adult: false,
+        include_video: false,
+        page: 1,
+        with_release_type: 3, // sortie cinéma
+        "release_date.gte": startDate,
+        "release_date.lte": endDate,
+      },
+    }
+  );
+
+  const films = discovery.results || [];
+
+  for (const film of films) {
+    const tmdbId = film.id;
+
+    // Récupérer les détails complets
+    const { data } = await axios.get(`${TMDB_BASE_URL}/movie/${tmdbId}`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: "fr-FR",
+        append_to_response: "videos",
+      },
+    });
+
+    const title = data.title?.trim() || data.original_title;
+    const releaseDate = data.release_date ? new Date(data.release_date) : null;
+    const posterUrl = data.poster_path
+      ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
+      : null;
+
+    const trailer = data.videos?.results?.find(
+      (v) => v.site === "YouTube" && v.type === "Trailer"
+    );
+
+    const trailerUrl = trailer
+      ? `https://www.youtube.com/watch?v=${trailer.key}`
+      : null;
+
+    const existing = await prisma.film.findUnique({
+      where: { tmdbId },
+    });
+
+    if (existing) {
+      // Mise à jour si le film existe
+      await prisma.film.update({
+        where: { tmdbId },
+        data: {
+          title,
+          releaseDate,
+          posterUrl,
+          trailerUrl,
+        },
+      });
+      console.log(`🔄 Film mis à jour : ${title}`);
+    } else {
+      // Création sinon
+      await prisma.film.create({
+        data: {
+          tmdbId,
+          title,
+          releaseDate,
+          posterUrl,
+          trailerUrl,
+          origin: data.original_language?.toUpperCase() || "FR",
+          genre: data.genres?.map((g) => g.name).join(", "),
+          synopsis: data.overview,
+          duration: data.runtime || null,
+        },
+      });
+      console.log(`➕ Film ajouté : ${title}`);
+    }
+  }
+
+  console.log(`✅ Import terminé : ${films.length} films traités.`);
+}
+
+/* import cron from "node-cron";
 import { prisma } from "../lib/prisma.js";
 import { fetchTmdbDetails } from "../lib/tmdb.js";
 import dayjs from "dayjs";
@@ -20,9 +123,6 @@ export async function updateUpcomingFilms() {
       releaseDate: {
         gte: today.toDate(),
         lte: inThreeMonths.toDate(),
-      },
-      select: {
-        tmdbId: true,
       },
     },
   });
@@ -65,3 +165,4 @@ export async function updateUpcomingFilms() {
     }
   }
 }
+ */
