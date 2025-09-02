@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import "./cron/updateUpcomingFilms.js";
 
 import { fileURLToPath } from "url";
 import path from "path";
@@ -19,7 +20,6 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { prisma } from "./lib/prisma.js";
-import "./cron/updateUpcomingFilms.js";
 
 import importTmdbRoutes from "./routes/import_tmdb.js";
 import filmsRoutes from "./routes/films.js";

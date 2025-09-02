@@ -12,6 +12,7 @@ cron.schedule("0 2 * * *", async () => {
 export async function updateUpcomingFilms() {
   const today = dayjs();
   const inThreeMonths = today.add(3, "months");
+  console.log("→ Fetching TMDB upcoming...");
 
   // 1. Films dans les 3 prochains mois
   const films = await prisma.film.findMany({
