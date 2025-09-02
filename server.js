@@ -28,6 +28,7 @@ import programmationRoutes from "./routes/programmation.js";
 import systemRoutes from "./routes/system.js";
 import interestRoutes from "./routes/interests.js";
 import cinemaRoutes from "./routes/cinemas.js";
+import cronRoutes from "./routes/cron.js";
 /* import createUserRouter from "./routes/createUser.js"; */
 /* import usersRouter from "./routes/users.js";
  */ import votesRouter from "./routes/votes.js";
@@ -108,6 +109,7 @@ app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/projections", projectionRoutes);
 app.use("/api/cinemas", cinemaRoutes);
+app.use("/api/cron", cronRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
