@@ -1,4 +1,4 @@
-import { prisma } from "./prisma.js";
+import { prisma } from "../lib/prisma.js";
 import axios from "axios";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
