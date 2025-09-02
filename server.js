@@ -27,12 +27,14 @@ import selectionsRoutes from "./routes/selections.js";
 import programmationRoutes from "./routes/programmation.js";
 import systemRoutes from "./routes/system.js";
 import interestRoutes from "./routes/interests.js";
+import cinemaRoutes from "./routes/cinemas.js";
 /* import createUserRouter from "./routes/createUser.js"; */
 /* import usersRouter from "./routes/users.js";
  */ import votesRouter from "./routes/votes.js";
 /* import profileRouter from "./routes/profile.js";
  */ import authRoutes from "./routes/auth.js";
 import projectionRoutes from "./routes/projections.js";
+import "./cron/updateUpcomingFilms.js";
 
 const app = express();
 
@@ -105,6 +107,7 @@ app.use("/api/interests", interestRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/projections", projectionRoutes);
+app.use("/api/cinemas", cinemaRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");

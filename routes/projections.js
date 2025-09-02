@@ -20,8 +20,16 @@ router.get("/", async (req, res) => {
 // Créer une projection
 router.post("/", async (req, res) => {
   try {
+    const { date, hour, ...rest } = req.body;
+
+    const fullDateTime = new Date(`${date}T${hour}:00`);
+
     const projection = await prisma.filmProjection.create({
-      data: req.body,
+      data: {
+        ...rest,
+        date: fullDateTime,
+        hour,
+      },
     });
     res.status(201).json(projection);
   } catch (error) {

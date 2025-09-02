@@ -318,7 +318,7 @@ router.post("/:tmdbId/refresh", requireAuth, requireAdmin, async (req, res) => {
 // --- Recherche rapide -----------------------------------------------------
 
 // GET /api/films/search (public) ?q=...
-router.get("/search", async (req, res) => {
+/* router.get("/search", async (req, res) => {
   try {
     const q = req.query.q;
     if (!q) return res.json([]);
@@ -331,8 +331,41 @@ router.get("/search", async (req, res) => {
     console.error("GET /films/search:", e);
     res.status(500).json({ error: "Erreur serveur" });
   }
-});
+}); */
+router.get("/search", async (req, res) => {
+  try {
+    const q = String(req.query.q || "").trim();
+    const limit = Math.min(parseInt(req.query.limit || "12", 10), 50);
 
+    if (q.length < 2) return res.json([]); // évite de charger la DB pour rien
+
+    const films = await prisma.film.findMany({
+      where: { title: { contains: q, mode: "insensitive" } },
+      select: { id: true, title: true, releaseDate: true, posterUrl: true },
+      orderBy: [{ title: "asc" }],
+      take: limit,
+    });
+
+    res.json(films);
+  } catch (err) {
+    console.error("GET /api/films/search error:", err);
+    res.status(500).json({ error: "Erreur recherche films" });
+  }
+});
+router.get("/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const film = await prisma.film.findUnique({
+      where: { id },
+      select: { id: true, title: true, releaseDate: true, posterUrl: true },
+    });
+    if (!film) return res.status(404).json({ error: "Film introuvable" });
+    res.json(film);
+  } catch (err) {
+    console.error("GET /api/films/:id error:", err);
+    res.status(500).json({ error: "Erreur lecture film" });
+  }
+});
 // --- Commentaires ---------------------------------------------------------
 
 // POST /api/films/:id/comment  (AUTH)

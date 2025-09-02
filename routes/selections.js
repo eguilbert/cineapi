@@ -7,6 +7,7 @@ import {
   computePopularityScore,
 } from "../lib/score.js";
 import { requireSession } from "../middleware/lucia.js";
+import { importFilmFromTmdb } from "../lib/importFilmFromTmdb.js";
 
 const router = Router();
 
@@ -371,34 +372,25 @@ router.put("/:id", async (req, res) => {
 });
 
 ///api/selections/:id/add-film
+// /api/selections/:id/add-film
 router.post("/:id/add-film", async (req, res) => {
   const selectionId = Number(req.params.id);
   const { tmdbId, category } = req.body;
 
-  // Vérifier si le film est déjà en base
-  let film = await prisma.film.findUnique({ where: { tmdbId } });
-
+  let film = await prisma.film.findUnique({
+    where: { tmdbId: Number(tmdbId) },
+  });
   if (!film) {
-    film = await importFilmFromTmdb(tmdbId); // ← tu utilises ton utilitaire d’import
+    film = await importFilmFromTmdb(Number(tmdbId)); // ⇦ ici
   }
 
-  // Vérifie s’il est déjà lié à la sélection
   const exists = await prisma.selectionFilm.findUnique({
-    where: {
-      filmId_selectionId: {
-        filmId: film.id,
-        selectionId,
-      },
-    },
+    where: { filmId_selectionId: { filmId: film.id, selectionId } },
   });
 
   if (!exists) {
     await prisma.selectionFilm.create({
-      data: {
-        filmId: film.id,
-        selectionId,
-        category,
-      },
+      data: { filmId: film.id, selectionId, category: category ?? null },
     });
   }
 

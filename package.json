@@ -20,11 +20,13 @@
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.18",
     "dotenv": "^17.2.0",
     "express": "^4.18.2",
     "h3": "^1.15.3",
     "jsonwebtoken": "^9.0.2",
     "lucia": "^3.2.2",
+    "node-cron": "^4.2.1",
     "oslo": "^1.2.1",
     "prisma": "^5.22.0",
     "supabase": "^2.31.8"
