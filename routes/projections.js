@@ -86,4 +86,24 @@ router.get("/films/search", async (req, res) => {
   }
 });
 
+// routes/projections.js
+router.get("/next", async (req, res) => {
+  try {
+    const now = new Date();
+    const projections = await prisma.filmProjection.findMany({
+      where: { date: { gte: now } },
+      orderBy: [{ date: "asc" }, { hour: "asc" }],
+      take: 5,
+      include: {
+        film: { select: { id: true, title: true } },
+        cinema: { select: { id: true, name: true } },
+      },
+    });
+    res.json(projections);
+  } catch (err) {
+    console.error("Erreur GET /api/projections/next:", err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
 export default router;

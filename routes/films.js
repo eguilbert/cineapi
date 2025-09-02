@@ -613,5 +613,21 @@ router.get("/:id/full", async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+router.get("/light/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (Number.isNaN(id)) return res.status(400).json({ error: "id invalide" });
 
+  const film = await prisma.film.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      synopsis: true,
+      posterUrl: true,
+    },
+  });
+
+  if (!film) return res.status(404).json({ error: "Film introuvable" });
+  res.json(film);
+});
 export default router;
