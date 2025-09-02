@@ -1,5 +1,4 @@
 import * as dotenv from "dotenv";
-import "./cron/updateUpcomingFilms.js";
 
 import { fileURLToPath } from "url";
 import path from "path";
