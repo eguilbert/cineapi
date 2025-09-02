@@ -7,7 +7,8 @@ const router = Router();
  * GET /api/cron
  */
 router.get("/update-upcoming", async (req, res) => {
-  await updateUpcomingFilms();
+  /* await updateUpcomingFilms(); */
+  console.log("Route cron appelée !");
   res.json({ status: "OK" });
 });
 
