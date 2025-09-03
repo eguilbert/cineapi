@@ -39,11 +39,17 @@ model Film {
   filmTags              FilmFilmTag[]
   interests             Interest[]
   programmations        Programmation[]
+  afcae                 Boolean                    @default(false)
   programmingComments   ProgrammingComment[]       @relation("Film_ProgrammingComments")
   selections            SelectionFilm[]
   selectionProgrammings SelectionFilmProgramming[] @relation("Film_Programmings")
   votes                 Vote[]                     @relation("FilmVotes")
+  filmProjections       FilmProjection[]
 
+  @@index([releaseDate])
+  @@index([category])
+  @@index([category, releaseDate])
+  @@index([directorId])
   @@schema("public")
 }
 
@@ -73,7 +79,10 @@ model Selection {
   cinemas             SelectionCinema[]
   films               SelectionFilm[]
   programmings        SelectionFilmProgramming[] @relation("Selection_Programmings")
+  filmProjections     FilmProjection[]
 
+  @@index([date])
+  @@index([status])
   @@schema("public")
 }
 
@@ -90,24 +99,59 @@ model SelectionFilm {
   selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
   @@unique([filmId, selectionId])
+  @@unique([selectionId, filmId]) // pivot unique
+  @@index([selectionId, score])   // lister les films d’une sélection triés par score
+  @@index([filmId])               // retrouver vite les sélections d’un film
+  @@schema("public")
+}
+
+model FilmProjection {
+  id            Int      @id @default(autoincrement())
+  filmId        Int
+  cinemaId      Int
+  date          DateTime
+  hour          String
+  salle         String?
+  audienceCount Int?
+  commentaire   String?
+  selectionId   Int?
+  programmingId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  film        Film                      @relation(fields: [filmId], references: [id])
+  cinema      Cinema                    @relation(fields: [cinemaId], references: [id])
+  selection   Selection?                @relation(fields: [selectionId], references: [id])
+  programming SelectionFilmProgramming? @relation("Programming_Projections", fields: [programmingId], references: [id])
+
+  @@index([filmId])
+  @@index([cinemaId])
+  @@index([date])
+  @@index([filmId, date])
+  @@index([cinemaId, date])
   @@schema("public")
 }
 
 model SelectionFilmProgramming {
-  id          Int       @id @default(autoincrement())
-  selectionId Int
-  filmId      Int
-  cinemaId    Int
-  suggested   Int       @default(0)
-  capLabel    String?
-  notes       String?
-  cycleId     Int?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  cinema      Cinema    @relation("Cinema_Programmings", fields: [cinemaId], references: [id])
-  cycle       Cycle?    @relation(fields: [cycleId], references: [id])
-  film        Film      @relation("Film_Programmings", fields: [filmId], references: [id], onDelete: Cascade)
-  selection   Selection @relation("Selection_Programmings", fields: [selectionId], references: [id], onDelete: Cascade)
+  id               Int      @id @default(autoincrement())
+  selectionId      Int
+  filmId           Int
+  cinemaId         Int
+  suggested        Int      @default(0)
+  capLabel         String?
+  notes            String?
+  cycleId          Int?
+  totalSpectateurs Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  selection Selection @relation("Selection_Programmings", fields: [selectionId], references: [id], onDelete: Cascade)
+  film      Film      @relation("Film_Programmings", fields: [filmId], references: [id], onDelete: Cascade)
+  cinema    Cinema    @relation("Cinema_Programmings", fields: [cinemaId], references: [id])
+  cycle     Cycle?    @relation(fields: [cycleId], references: [id])
+
+  filmProjections FilmProjection[] @relation("Programming_Projections")
 
   @@unique([selectionId, filmId, cinemaId])
   @@schema("public")
@@ -148,6 +192,7 @@ model Director {
   films Film[]
 
   @@schema("public")
+  @@index([name])
 }
 
 model Country {
@@ -233,6 +278,7 @@ model Cinema {
   selectionProgrammings SelectionFilmProgramming[] @relation("Cinema_Programmings")
   users                 UserProfile[]
   votes                 Vote[]
+  filmProjections       FilmProjection[]
 
   @@schema("public")
 }
@@ -290,6 +336,8 @@ model Interest {
   user      UserProfile   @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, film_id])
+  @@index([film_id, value])    // groupBy counts rapides
+  @@index([user_id])           // récupérer mes intérêts
   @@schema("public")
 }
 
@@ -362,3 +410,5 @@ enum InterestLevel {
 
   @@schema("public")
 }
+enum ListType { CURATED DYNAMIC FAVORITES SYSTEM }
+enum ListScope { GLOBAL CINEMA USER }
