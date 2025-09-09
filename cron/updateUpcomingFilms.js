@@ -21,23 +21,20 @@ export async function updateUpcomingFilms() {
   // Récupérer les films français à venir (paginer si nécessaire)
   let totalPages = 1;
   do {
-    const discoverRes = = await axios.get(
-      `${TMDB_BASE_URL}/discover/movie`,
-      {
-        params: {
-          api_key: TMDB_API_KEY,
-          language: "fr-FR",
-          region: "FR",
-          sort_by: "release_date.asc",
-          include_adult: false,
-          include_video: false,
-          page: 1,
-          with_release_type: 3, // sortie cinéma
-          "release_date.gte": startDate,
-          "release_date.lte": endDate,
-        },
-      }
-    );
+    const discoverRes = await axios.get(`${TMDB_BASE_URL}/discover/movie`, {
+      params: {
+        api_key: TMDB_API_KEY,
+        language: "fr-FR",
+        region: "FR",
+        sort_by: "release_date.asc",
+        include_adult: false,
+        include_video: false,
+        page: 1,
+        with_release_type: 3, // sortie cinéma
+        "release_date.gte": startDate,
+        "release_date.lte": endDate,
+      },
+    });
 
     const results = discovery.results || [];
     totalPages = discoverRes.data.total_pages;
@@ -47,7 +44,7 @@ export async function updateUpcomingFilms() {
   } while (page <= totalPages && page <= 10);
 
   console.log("🧾 Films récupérés de discover :", allResults.length);
-const films = [];
+  const films = [];
   for (const film of allResults) {
     const tmdbId = film.id;
 
