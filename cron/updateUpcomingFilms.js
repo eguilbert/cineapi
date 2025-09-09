@@ -21,7 +21,7 @@ export async function updateUpcomingFilms() {
   // Récupérer les films français à venir (paginer si nécessaire)
   let totalPages = 1;
   do {
-    const { data: discovery } = await axios.get(
+    const discoverRes = = await axios.get(
       `${TMDB_BASE_URL}/discover/movie`,
       {
         params: {
@@ -39,7 +39,7 @@ export async function updateUpcomingFilms() {
       }
     );
 
-    const films = discovery.results || [];
+    const results = discovery.results || [];
     totalPages = discoverRes.data.total_pages;
 
     allResults.push(...results);
@@ -47,8 +47,8 @@ export async function updateUpcomingFilms() {
   } while (page <= totalPages && page <= 10);
 
   console.log("🧾 Films récupérés de discover :", allResults.length);
-
-  for (const film of films) {
+const films = [];
+  for (const film of allResults) {
     const tmdbId = film.id;
 
     // Récupérer les détails complets
