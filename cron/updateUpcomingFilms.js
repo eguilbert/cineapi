@@ -36,7 +36,7 @@ export async function updateUpcomingFilms() {
       },
     });
 
-    const results = discovery.results || [];
+    const results = discoverRes.results || [];
     totalPages = discoverRes.data.total_pages;
 
     allResults.push(...results);
