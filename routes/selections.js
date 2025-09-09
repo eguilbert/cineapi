@@ -213,6 +213,7 @@ router.get("/:id", async (req, res) => {
         id: f.film.id,
         title: f.film.title,
         category: f.film.category,
+        afcae: f.film.afcae,
         poster: f.film.posterUrl,
         tmdbId: f.film.tmdbId,
         actors: f.film.actors,
