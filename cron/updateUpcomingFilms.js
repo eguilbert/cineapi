@@ -17,7 +17,8 @@ export async function updateUpcomingFilms() {
   // Convert to YYYY-MM-DD
   const startDate = now.toISOString().split("T")[0];
   const endDate = in3Months.toISOString().split("T")[0];
-
+  let page = 1;
+  const allResults = [];
   // Récupérer les films français à venir (paginer si nécessaire)
   let totalPages = 1;
   do {
