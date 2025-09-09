@@ -31,6 +31,7 @@ import interestRoutes from "./routes/interests.js";
 import cinemaRoutes from "./routes/cinemas.js";
 import cronRoutes from "./routes/cron.js";
 import statsRoutes from "./routes/stats.js";
+import listsRoutes from "./routes/lists.js";
 /* import createUserRouter from "./routes/createUser.js"; */
 /* import usersRouter from "./routes/users.js";
  */ import votesRouter from "./routes/votes.js";
@@ -110,6 +111,7 @@ app.use("/api/projections", projectionRoutes);
 app.use("/api/cinemas", cinemaRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/stats", statsRoutes);
+app.use("/api/lists", listsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");

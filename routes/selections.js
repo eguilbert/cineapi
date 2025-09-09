@@ -208,7 +208,7 @@ router.get("/:id", async (req, res) => {
       const votes = getInterestCount(stats);
       const avgScore = computeAverageInterest(stats);
       const liveScore = computePopularityScore(stats); // calcul instantané
-      console.log(">>> liveScore", liveScore);
+
       return {
         id: f.film.id,
         title: f.film.title,
@@ -657,10 +657,8 @@ router.post(
   async (req, res) => {
     const selectionId = parseInt(req.params.id, 10);
     const filmId = parseInt(req.params.filmId, 10);
-    console.log(">>> filmId", filmId);
     const { cinemaId, commentaire } = req.body || {};
     const user_id = req.user?.id || req.auth?.userId;
-    console.log(">>> user_id", user_id);
     if (!selectionId || !filmId || !commentaire?.trim()) {
       return res.status(400).json({ error: "Paramètres invalides" });
     }

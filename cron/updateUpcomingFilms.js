@@ -12,7 +12,7 @@ export async function updateUpcomingFilms() {
   const in3Months = new Date();
   in3Months.setMonth(now.getMonth() + 3);
   console.log("DEPUIS...", now);
-  console.log("...JUSQU'A", in3Months);
+  console.log("...JUSQU'A ", in3Months);
 
   // Convert to YYYY-MM-DD
   const startDate = now.toISOString().split("T")[0];

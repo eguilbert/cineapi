@@ -4,6 +4,7 @@ import axios from "axios";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../lib/requireAuth.js"; // <- ton middleware Lucia v3
 import { computeAggregateScore, normalizeInterestStats } from "../lib/score.js";
+import { requireSession } from "../middleware/lucia.js";
 
 // import { ensureUserProfile } from "../lib/ensureProfile.js"; // optionnel
 
@@ -630,4 +631,107 @@ router.get("/light/:id", async (req, res) => {
   if (!film) return res.status(404).json({ error: "Film introuvable" });
   res.json(film);
 });
+
+// POST rating public
+router.post("/films/:id/rating", requireSession, async (req, res) => {
+  const filmId = Number(req.params.id),
+    userId = req.user.id;
+  const { value } = req.body; // DISLIKE | NEUTRAL | LIKE | LOVE
+  async function ensureUserFavoritesList(userId) {
+    const slug = `favoris-user-${userId}`;
+    let list = await prisma.list.findUnique({ where: { slug } });
+    if (!list) {
+      list = await prisma.list.create({
+        data: {
+          name: "Mes favoris",
+          slug,
+          type: "FAVORITES",
+          scope: "USER",
+          ownerId: userId,
+          isPublic: false,
+        },
+      });
+    }
+    return list;
+  }
+
+  await prisma.publicRating.upsert({
+    where: { filmId_userId: { filmId, userId } },
+    create: { filmId, userId, value },
+    update: { value },
+  });
+
+  if (value === "LOVE") {
+    const fav = await ensureUserFavoritesList(userId);
+    await prisma.listFilm.upsert({
+      where: { listId_filmId: { listId: fav.id, filmId } },
+      create: { listId: fav.id, filmId, rank: 999, addedById: userId },
+      update: {},
+    });
+  } else {
+    // enlever si présent
+    const slug = `favoris-user-${userId}`;
+    const fav = await prisma.list.findUnique({ where: { slug } });
+    if (fav)
+      await prisma.listFilm.deleteMany({ where: { listId: fav.id, filmId } });
+  }
+  res.json({ ok: true });
+});
+
+// POST follow / unfollow
+router.post("/films/:id/follow", requireSession, async (req, res) => {
+  console.lo;
+  const filmId = Number(req.params.id),
+    userId = req.user.id;
+  const { follow } = req.body;
+  if (follow) {
+    await prisma.filmFollow.upsert({
+      where: { filmId_userId: { filmId, userId } },
+      create: { filmId, userId },
+      update: {},
+    });
+  } else {
+    await prisma.filmFollow.deleteMany({ where: { filmId, userId } });
+  }
+  res.json({ ok: true, following: !!follow });
+});
+
+// GET public fiche
+router.get("/films/:id/public", async (req, res) => {
+  const filmId = Number(req.params.id);
+  const userId = req.user?.id ?? null;
+
+  const [film, myRating, breakdown, amIFollowing] = await Promise.all([
+    prisma.film.findUnique({
+      where: { id: filmId },
+      select: { id: true, title: true, synopsis: true, posterUrl: true },
+    }),
+    userId
+      ? prisma.publicRating.findUnique({
+          where: { filmId_userId: { filmId, userId } },
+        })
+      : null,
+    prisma.publicRating.groupBy({
+      by: ["value"],
+      where: { filmId },
+      _count: { _all: true },
+    }),
+    userId
+      ? prisma.filmFollow.findUnique({
+          where: { filmId_userId: { filmId, userId } },
+        })
+      : null,
+  ]);
+
+  res.json({
+    film,
+    myRating: myRating?.value ?? null,
+    ratingBreakdown: breakdown.reduce(
+      (acc, r) => ({ ...acc, [r.value]: r._count._all }),
+      {}
+    ),
+    amIFollowing: !!amIFollowing,
+  });
+});
+
 export default router;
