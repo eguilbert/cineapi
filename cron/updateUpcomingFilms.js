@@ -56,7 +56,7 @@ export async function updateUpcomingFilms() {
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${film.id}/release_dates`,
       {
-        params: { api_key: TMDB_KEY },
+        params: { api_key: TMDB_API_KEY },
       }
     );
 
