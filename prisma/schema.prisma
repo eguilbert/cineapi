@@ -45,6 +45,9 @@ model Film {
   selectionProgrammings SelectionFilmProgramming[] @relation("Film_Programmings")
   votes                 Vote[]                     @relation("FilmVotes")
   filmProjections       FilmProjection[]
+  lists                 ListFilm[] // 👈 accès pivot
+  PublicRating          PublicRating[]
+  FilmFollow            FilmFollow[]
 
   @@index([releaseDate])
   @@index([category])
@@ -72,7 +75,7 @@ model Selection {
   name                String
   date                DateTime                   @default(now())
   description         String?
-  status              String                     @default("selection")
+  status              String                     @default("selection") // DRAFT | OPEN | CLOSED | PROGRAMMATION
   voteClosed          Boolean                    @default(false)
   voteDate            DateTime?
   programmingComments ProgrammingComment[]       @relation("Selection_ProgrammingComments")
@@ -95,13 +98,48 @@ model SelectionFilm {
   category    String?
   score       Float?
   selected    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
   film        Film      @relation(fields: [filmId], references: [id])
   selection   Selection @relation(fields: [selectionId], references: [id], onDelete: Cascade)
 
+  // 👇 intérêts + votes de programmation
+  interests ProgrammingInterest[]
+  votes     ProgrammingVote[]
+
   @@unique([filmId, selectionId])
   @@unique([selectionId, filmId]) // pivot unique
-  @@index([selectionId, score])   // lister les films d’une sélection triés par score
-  @@index([filmId])               // retrouver vite les sélections d’un film
+  @@index([selectionId, score]) // lister les films d’une sélection triés par score
+  @@index([filmId]) // retrouver vite les sélections d’un film
+  @@schema("public")
+}
+
+model ProgrammingInterest {
+  id              Int           @id @default(autoincrement())
+  selectionFilmId Int
+  userId          Int
+  value           InterestLevel
+  createdAt       DateTime      @default(now())
+
+  selectionFilm SelectionFilm @relation(fields: [selectionFilmId], references: [id])
+
+  @@unique([selectionFilmId, userId]) // 1 intérêt par user et par film dans CETTE sélection
+  @@index([selectionFilmId, value])
+  @@index([userId])
+  @@schema("public")
+}
+
+model ProgrammingVote {
+  id              Int      @id @default(autoincrement())
+  selectionFilmId Int
+  userId          Int
+  weight          Int      @default(1) // ex: nb de voix allouées par film
+  createdAt       DateTime @default(now())
+
+  selectionFilm SelectionFilm @relation(fields: [selectionFilmId], references: [id])
+
+  @@unique([selectionFilmId, userId]) // 1 vote agrégé par user (modifiable)
+  @@index([selectionFilmId])
+  @@index([userId])
   @@schema("public")
 }
 
@@ -191,8 +229,8 @@ model Director {
   name  String @unique
   films Film[]
 
-  @@schema("public")
   @@index([name])
+  @@schema("public")
 }
 
 model Country {
@@ -336,8 +374,8 @@ model Interest {
   user      UserProfile   @relation(fields: [user_id], references: [user_id])
 
   @@unique([user_id, film_id])
-  @@index([film_id, value])    // groupBy counts rapides
-  @@index([user_id])           // récupérer mes intérêts
+  @@index([film_id, value]) // groupBy counts rapides
+  @@index([user_id]) // récupérer mes intérêts
   @@schema("public")
 }
 
@@ -401,6 +439,81 @@ model Key {
   @@schema("public")
 }
 
+model PublicRating {
+  id        Int               @id @default(autoincrement())
+  filmId    Int
+  userId    Int
+  value     PublicRatingValue
+  createdAt DateTime          @default(now())
+
+  film Film @relation(fields: [filmId], references: [id])
+
+  @@unique([filmId, userId]) // 1 note par user & par film (modifiable)
+  @@index([filmId, value])
+  @@index([userId])
+  @@schema("public")
+}
+
+model FilmFollow {
+  id        Int      @id @default(autoincrement())
+  filmId    Int
+  userId    Int
+  createdAt DateTime @default(now())
+
+  film Film @relation(fields: [filmId], references: [id])
+
+  @@unique([filmId, userId]) // suivre / ne plus suivre
+  @@index([userId])
+  @@schema("public")
+}
+
+// List "tête"
+model List {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  type        ListType
+  scope       ListScope @default(GLOBAL)
+  description String?
+  coverUrl    String?
+  isPublic    Boolean   @default(true)
+
+  // portée/ownership (optionnels selon le type)
+  ownerId  Int?
+  cinemaId Int?
+
+  // critères pour listes dynamiques / système (JSON libre)
+  criteria Json?
+
+  films     ListFilm[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([type])
+  @@index([scope])
+  @@index([ownerId])
+  @@index([cinemaId])
+  @@schema("public")
+}
+
+// Pivot avec ordre
+model ListFilm {
+  listId    Int
+  filmId    Int
+  rank      Int? // pour ordonner manuellement une liste CURATED
+  comment   String?
+  addedById Int?
+  createdAt DateTime @default(now())
+
+  list List @relation(fields: [listId], references: [id], onDelete: Cascade)
+  film Film @relation(fields: [filmId], references: [id], onDelete: Cascade)
+
+  @@id([listId, filmId])
+  @@index([filmId])
+  @@index([listId, rank])
+  @@schema("public")
+}
+
 enum InterestLevel {
   SANS_OPINION
   NOT_INTERESTED
@@ -410,5 +523,29 @@ enum InterestLevel {
 
   @@schema("public")
 }
-enum ListType { CURATED DYNAMIC FAVORITES SYSTEM }
-enum ListScope { GLOBAL CINEMA USER }
+
+enum ListType {
+  CURATED
+  DYNAMIC
+  FAVORITES
+  SYSTEM
+
+  @@schema("public")
+}
+
+enum ListScope {
+  GLOBAL
+  CINEMA
+  USER
+
+  @@schema("public")
+}
+
+enum PublicRatingValue {
+  DISLIKE
+  NEUTRAL
+  LIKE
+  LOVE
+
+  @@schema("public")
+}
