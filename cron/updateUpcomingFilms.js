@@ -52,7 +52,36 @@ export async function updateUpcomingFilms() {
     });
 
     const title = data.title?.trim() || data.original_title;
-    const releaseDate = data.release_date ? new Date(data.release_date) : null;
+    /* const releaseDate = data.release_date ? new Date(data.release_date) : null; */
+    const releases = await axios.get(
+      `https://api.themoviedb.org/3/movie/${film.id}/release_dates`,
+      {
+        params: { api_key: TMDB_KEY },
+      }
+    );
+
+    const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
+
+    const validRelease = frReleases?.release_dates.find((rd) => {
+      const date = new Date(rd.release_date);
+      return (
+        (rd.type === 2 || rd.type === 3) &&
+        date >= new Date(startDate) &&
+        date <= new Date(endDate)
+      );
+    });
+    if (!validRelease) {
+      console.log(`⛔ Pas de sortie FR valable pour "${detail.data.title}"`);
+      continue;
+    }
+
+    const safeDate = (d) => {
+      if (!d) return null;
+      const dateObj = new Date(d);
+      return isNaN(dateObj.getTime()) ? null : dateObj;
+    };
+    const releaseDate = new Date(validRelease.release_date);
+
     const posterUrl = data.poster_path
       ? `https://image.tmdb.org/t/p/w500${data.poster_path}`
       : null;
