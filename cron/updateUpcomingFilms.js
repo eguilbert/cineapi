@@ -44,7 +44,7 @@ export async function updateUpcomingFilms() {
 
     allResults.push(...results);
     page++;
-  } while (page <= totalPages && page <= 10); // garde une borne haute
+  } while (page <= totalPages && page <= 15); // garde une borne haute
 
   console.log("🧾 Films récupérés de discover :", allResults.length);
 
@@ -62,6 +62,11 @@ export async function updateUpcomingFilms() {
           append_to_response: "videos",
         },
       });
+
+      if (data.runtime && data.runtime <= 45) {
+        console.log(`⏩ Ignoré : "${data.title}" (durée ${data.runtime} min)`);
+        continue;
+      }
 
       // Release dates par pays
       const { data: rel } = await axios.get(
