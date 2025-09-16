@@ -74,7 +74,11 @@ router.get("/films/search", async (req, res) => {
 
     const films = await prisma.film.findMany({
       where: { title: { contains: q, mode: "insensitive" } },
-      select: { id: true, title: true, releaseDate: true, posterUrl: true },
+      /*       select: { id: true, title: true, releaseDate: true, posterUrl: true },
+       */
+      include: {
+        director: true,
+      },
       orderBy: [{ title: "asc" }],
       take: limit,
     });

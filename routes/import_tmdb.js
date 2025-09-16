@@ -481,6 +481,55 @@ router.get("/import-one/:tmdbId", async (req, res) => {
       runtime: detail.data.runtime,
       genres: detail.data.genres || [],
     });
+    function autocategorize(film) {
+      const genre = film.genres.map((g) => g.name.toLowerCase());
+      const budget = Number(film.budget || 0);
+      const origin = String(film.origin || "");
+      const keywords = Array.isArray(film.keywords)
+        ? film.keywords.map((k) => k.toLowerCase())
+        : [];
+      const countries = (film.production_countries || []).map((c) =>
+        c.toLowerCase()
+      );
+
+      if (
+        genre.includes("animation") ||
+        genre.includes("familial") ||
+        keywords.includes("children") ||
+        keywords.includes("enfant")
+      )
+        return "Jeunesse";
+
+      if (
+        genre.includes("drame") &&
+        (countries.includes("france") ||
+          countries.includes("belgium") ||
+          countries.includes("japan")) &&
+        !genre.includes("action") &&
+        budget > 0 &&
+        budget < 5000000
+      )
+        return "Art et Essai";
+
+      if (
+        genre.includes("comédie") ||
+        genre.includes("action") ||
+        genre.includes("aventure") ||
+        genre.includes("fantasy") ||
+        genre.includes("science-fiction") ||
+        genre.includes("thriller") ||
+        budget >= 5000000
+      )
+        return "Grand Public";
+
+      // 🎭 Règles de catégorisation simples
+      if (genre.includes("documentaire")) {
+        return "Documentaire";
+      }
+
+      // 🎯 Valeur par défaut
+      return "Art et Essai";
+    }
 
     const posterUrl = detail.data.poster_path
       ? `https://image.tmdb.org/t/p/w500${detail.data.poster_path}`
