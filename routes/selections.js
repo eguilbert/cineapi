@@ -374,28 +374,60 @@ router.put("/:id", async (req, res) => {
 
 ///api/selections/:id/add-film
 // /api/selections/:id/add-film
+// router.post("/:id/add-film", async (req, res) => {
+//   const selectionId = Number(req.params.id);
+//   const { tmdbId, category } = req.body;
+
+//   let film = await prisma.film.findUnique({
+//     where: { tmdbId: Number(tmdbId) },
+//   });
+//   if (!film) {
+//     film = await importFilmFromTmdb(Number(tmdbId)); // ⇦ ici
+//   }
+
+//   const exists = await prisma.selectionFilm.findUnique({
+//     where: { filmId_selectionId: { filmId: film.id, selectionId } },
+//   });
+
+//   if (!exists) {
+//     await prisma.selectionFilm.create({
+//       data: { filmId: film.id, selectionId, category: category ?? null },
+//     });
+//   }
+
+//   res.json({ success: true, film });
+// });
+
 router.post("/:id/add-film", async (req, res) => {
   const selectionId = Number(req.params.id);
-  const { tmdbId, category } = req.body;
+  const { filmId, tmdbId, category } = req.body;
 
-  let film = await prisma.film.findUnique({
-    where: { tmdbId: Number(tmdbId) },
-  });
-  if (!film) {
-    film = await importFilmFromTmdb(Number(tmdbId)); // ⇦ ici
-  }
+  try {
+    let id = filmId ?? null;
+    if (!id && tmdbId) {
+      const f = await prisma.film.findUnique({
+        where: { tmdbId: Number(tmdbId) },
+      });
+      if (!f)
+        return res
+          .status(400)
+          .json({ error: "Film introuvable pour ce tmdbId" });
+      id = f.id;
+    }
+    if (!id) return res.status(400).json({ error: "filmId ou tmdbId requis" });
 
-  const exists = await prisma.selectionFilm.findUnique({
-    where: { filmId_selectionId: { filmId: film.id, selectionId } },
-  });
-
-  if (!exists) {
-    await prisma.selectionFilm.create({
-      data: { filmId: film.id, selectionId, category: category ?? null },
+    // Exemple avec une table pivot SelectionFilm (à adapter à ton schéma)
+    const link = await prisma.selectionFilm.upsert({
+      where: { selectionId_filmId: { selectionId, filmId: id } },
+      update: { category },
+      create: { selectionId, filmId: id, category },
     });
-  }
 
-  res.json({ success: true, film });
+    res.json(link);
+  } catch (e) {
+    console.error("add-film selection:", e);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
 });
 
 // DELETE /api/selections/:id
@@ -659,7 +691,7 @@ router.post(
     const selectionId = parseInt(req.params.id, 10);
     const filmId = parseInt(req.params.filmId, 10);
     const { cinemaId, commentaire } = req.body || {};
-    const user_id = req.user?.id || req.auth?.userId;
+    const user_id = req.user?.userId || req.auth?.userId;
     if (!selectionId || !filmId || !commentaire?.trim()) {
       return res.status(400).json({ error: "Paramètres invalides" });
     }

@@ -370,16 +370,163 @@ router.get("/tmdb/search", async (req, res) => {
       language: "fr-FR",
     },
   });
-
+  console.log("...........TMDB search results:", tmdbRes.data.results);
   const simplified = tmdbRes.data.results.map((r) => ({
     tmdbId: r.id,
     title: r.title,
     poster: r.poster_path
       ? `https://image.tmdb.org/t/p/w300${r.poster_path}`
       : null,
+    releaseDate: r.release_date,
   }));
 
   res.json(simplified);
+});
+
+// GET /api/tmdb/import-one/:tmdbId
+
+// GET /tmdb/import-one/:tmdbId
+router.get("/import-one/:tmdbId", async (req, res) => {
+  const tmdbId = parseInt(req.params.tmdbId, 10);
+  if (!tmdbId) return res.status(400).json({ error: "tmdbId invalide" });
+
+  try {
+    const detail = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}`,
+      {
+        params: {
+          api_key: TMDB_KEY,
+          language: "fr-FR",
+        },
+      }
+    );
+
+    const releases = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
+      { params: { api_key: TMDB_KEY } }
+    );
+
+    const credits = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/credits`,
+      { params: { api_key: TMDB_KEY } }
+    );
+
+    const videos = await axios.get(
+      `https://api.themoviedb.org/3/movie/${tmdbId}/videos`,
+      {
+        params: {
+          api_key: TMDB_KEY,
+          language: "fr-FR",
+        },
+      }
+    );
+
+    const trailer = videos.data.results
+      ?.filter(
+        (v) =>
+          v.site === "YouTube" &&
+          v.key &&
+          ["Trailer", "Teaser", "Clip"].includes(v.type)
+      )
+      ?.sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
+
+    const trailerUrl = trailer
+      ? `https://www.youtube.com/watch?v=${trailer.key}`
+      : null;
+
+    const releaseFR = releases.data.results.find((r) => r.iso_3166_1 === "FR");
+    const validRelease = releaseFR?.release_dates?.find(
+      (rd) => rd.type === 2 || rd.type === 3
+    );
+
+    const releaseDate = validRelease?.release_date
+      ? new Date(validRelease.release_date)
+      : null;
+
+    const safeDate = (d) => {
+      const date = new Date(d);
+      return isNaN(date.getTime()) ? null : date;
+    };
+
+    const directorName = credits.data.crew.find(
+      (p) => p.job === "Director"
+    )?.name;
+    const cast = credits.data.cast
+      ?.slice(0, 4)
+      .map((actor) => actor.name)
+      .join(", ");
+
+    let director = null;
+    if (directorName) {
+      director = await prisma.director.upsert({
+        where: { name: directorName },
+        update: {},
+        create: { name: directorName },
+      });
+    }
+
+    const countryRecords = await Promise.all(
+      (detail.data.production_countries || []).map((c) =>
+        prisma.country.upsert({
+          where: { name: c.name },
+          update: {},
+          create: { name: c.name },
+        })
+      )
+    );
+
+    const category = autocategorize({
+      title: detail.data.title,
+      overview: detail.data.overview,
+      runtime: detail.data.runtime,
+      genres: detail.data.genres || [],
+    });
+
+    const posterUrl = detail.data.poster_path
+      ? `https://image.tmdb.org/t/p/w500${detail.data.poster_path}`
+      : null;
+
+    const savedFilm = await prisma.film.upsert({
+      where: { tmdbId },
+      update: {
+        title: detail.data.title,
+        releaseDate: safeDate(releaseDate),
+        posterUrl,
+        trailerUrl,
+        duration: detail.data.runtime,
+        genre: detail.data.genres?.[0]?.name || "",
+        synopsis: detail.data.overview,
+        budget: detail.data.budget,
+        origin: detail.data.origin_country?.[0] || "",
+        director: director ? { connect: { id: director.id } } : undefined,
+      },
+      create: {
+        tmdbId,
+        title: detail.data.title,
+        releaseDate: safeDate(releaseDate),
+        posterUrl,
+        trailerUrl,
+        duration: detail.data.runtime,
+        genre: detail.data.genres?.[0]?.name || "",
+        synopsis: detail.data.overview,
+        budget: detail.data.budget,
+        origin: detail.data.origin_country?.[0] || "",
+        actors: cast,
+        category,
+        director: director ? { connect: { id: director.id } } : undefined,
+        productionCountries: {
+          create: countryRecords.map((c) => ({
+            country: { connect: { id: c.id } },
+          })),
+        },
+      },
+    });
+
+    res.json(savedFilm);
+  } catch (err) {
+    console.error("Erreur enrichissement TMDB:", err.message);
+    res.status(500).json({ error: "Erreur enrichissement TMDB" });
+  }
 });
 
 export default router;

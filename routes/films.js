@@ -2,7 +2,7 @@
 import { Router } from "express";
 import axios from "axios";
 import { prisma } from "../lib/prisma.js";
-import { requireAuth } from "../lib/requireAuth.js"; // <- ton middleware Lucia v3
+import { requireAuth } from "../middleware/jwt.js";
 import { computeAggregateScore, normalizeInterestStats } from "../lib/score.js";
 import { requireSession } from "../middleware/lucia.js";
 
@@ -462,6 +462,7 @@ router.get("/:id", async (req, res) => {
 
 // POST /api/films/:id/comment  (AUTH)
 router.post("/:id/comment", requireAuth, async (req, res) => {
+  console.log("POST COMMENT user_id:", req.user);
   try {
     const film_id = parseIntParam(req.params.id);
     const { commentaire } = req.body || {};
@@ -469,7 +470,8 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "Champs requis manquants" });
     }
 
-    const user_id = req.user.id;
+    const user_id = req.user.userId;
+    console.log("POST COMMENT user_id:", user_id);
     // optionnel :
     // await ensureUserProfile(user_id);
 
@@ -499,7 +501,7 @@ router.post("/:id/comment", requireAuth, async (req, res) => {
 router.delete("/:id/comment", requireAuth, async (req, res) => {
   try {
     const film_id = parseIntParam(req.params.id);
-    const user_id = req.user.id;
+    const user_id = req.user.userId;
     if (!film_id) return res.status(400).json({ error: "ID invalide" });
 
     await prisma.filmComment.delete({
@@ -635,7 +637,7 @@ router.get("/light/:id", async (req, res) => {
 // POST rating public
 router.post("/films/:id/rating", requireSession, async (req, res) => {
   const filmId = Number(req.params.id),
-    userId = req.user.id;
+    userId = req.user.userId;
   const { value } = req.body; // DISLIKE | NEUTRAL | LIKE | LOVE
   async function ensureUserFavoritesList(userId) {
     const slug = `favoris-user-${userId}`;
@@ -679,10 +681,9 @@ router.post("/films/:id/rating", requireSession, async (req, res) => {
 });
 
 // POST follow / unfollow
-router.post("/films/:id/follow", requireSession, async (req, res) => {
-  console.lo;
+router.post("/:id/follow", requireAuth, async (req, res) => {
   const filmId = Number(req.params.id),
-    userId = req.user.id;
+    userId = req.user.userId;
   const { follow } = req.body;
   if (follow) {
     await prisma.filmFollow.upsert({
@@ -697,9 +698,9 @@ router.post("/films/:id/follow", requireSession, async (req, res) => {
 });
 
 // GET public fiche
-router.get("/films/:id/public", async (req, res) => {
+router.get("/:id/public", requireAuth, async (req, res) => {
   const filmId = Number(req.params.id);
-  const userId = req.user?.id ?? null;
+  const userId = req.user?.userId ?? null;
 
   const [film, myRating, breakdown, amIFollowing] = await Promise.all([
     prisma.film.findUnique({

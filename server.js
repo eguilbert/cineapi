@@ -41,7 +41,7 @@ import projectionRoutes from "./routes/projections.js";
 
 const app = express();
 
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
   const _setHeader = res.setHeader.bind(res);
   res.setHeader = (name, value) => {
     if (typeof name === "string" && name.toLowerCase() === "set-cookie") {
@@ -57,7 +57,7 @@ app.use((req, res, next) => {
   };
   next();
 });
-app.set("trust proxy", 1);
+app.set("trust proxy", 1); */
 const PORT = process.env.PORT || 3000;
 
 console.log("🔍 PORT =", PORT);
@@ -69,7 +69,7 @@ const allowlist = [
   "http://localhost:3001", // si tu lances Nuxt sur ce port
 ];
 
-const corsOptions = {
+/* const corsOptions = {
   origin(origin, cb) {
     // autoriser requêtes server-to-server / curl (pas d'en-tête Origin)
     if (!origin) return cb(null, true);
@@ -83,10 +83,20 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
   exposedHeaders: ["Content-Length"],
   optionsSuccessStatus: 204, // évite un body sur le préflight
-};
+}; */
 
-app.use(cors(corsOptions));
+/* app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+ */
+app.use(
+  cors({
+    origin: [
+      "https://cineplages.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:3001",
+    ],
+  })
+);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -101,8 +111,8 @@ app.use("/api/films", filmsRoutes);
 app.use("/api/tags", tagsRoutes);
 app.use("/api/selections", selectionsRoutes);
 app.use("/api/programmation", programmationRoutes);
-app.use("/api", systemRoutes);
-app.use("/api/interests", interestRoutes);
+/* app.use("/api", systemRoutes);
+ */ app.use("/api/interests", interestRoutes);
 
 app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
@@ -123,9 +133,9 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.get("/health", (req, res) =>
+/* app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })
-);
+); */
 function testDbConnection() {
   return prisma.$executeRawUnsafe("SELECT 1");
 }

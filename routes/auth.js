@@ -1,6 +1,9 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { requireAuth } from "../lib/requireAuth.js";
+
 import { lucia } from "../lib/lucia.js";
 import { prisma } from "../lib/prisma.js";
 import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
@@ -74,7 +77,7 @@ router.post("/register", async (req, res) => {
 });
 
 // POST /api/auth/login
-router.post("/login", async (req, res) => {
+/* router.post("/login", async (req, res) => {
   try {
     const email = String(req.body.email || "")
       .toLowerCase()
@@ -128,6 +131,43 @@ router.post("/login", async (req, res) => {
     console.error("❌ /login error:", err);
     return res.status(500).json({ error: "Erreur serveur" });
   }
+}); */
+
+router.post("/login", async (req, res) => {
+  const email = String(req.body.email || "")
+    .toLowerCase()
+    .trim();
+  const password = String(req.body.password);
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    const valid = await bcrypt.compare(password, user.hashedPassword);
+    if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+
+    // Générer le token JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email }, // payload
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    // Renvoyer le token au frontend
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        cinemaId: user.cinemaId,
+      },
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 // POST /auth/logout
@@ -148,7 +188,7 @@ router.post("/logout", async (req, res) => {
   }
 });
 
-router.get("/me", async (req, res) => {
+/* router.get("/me", async (req, res) => {
   try {
     const sessionId = req.cookies?.session;
 
@@ -194,6 +234,31 @@ router.get("/me", async (req, res) => {
   } catch (err) {
     console.error("GET /me error:", err);
     return res.status(401).json({ user: null });
+  }
+}); */
+
+// Récupérer l'utilisateur connecté
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        username: true, // si tu as ce champ
+        cinemaId: true, // si tu l’utilises
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ user });
+  } catch (err) {
+    console.error("GET /me error:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

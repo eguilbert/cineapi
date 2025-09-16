@@ -1,7 +1,7 @@
 // routes/interests.js
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
-import { requireAuth } from "../lib/requireAuth.js";
+import { requireAuth } from "../middleware/jwt.js";
 import { ensureUserProfile } from "../lib/ensureProfile.js";
 import { updateScoresForFilm } from "../lib/updateScores.js";
 
@@ -24,7 +24,7 @@ router.post("/", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "filmId ou value manquants" });
     }
 
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     // Profil auto si absent
     await ensureUserProfile(userId);
@@ -112,11 +112,11 @@ router.get("/film/:id", async (req, res) => {
  */
 router.get("/my", requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
 
     // (facultatif) vérifier que le profil existe
-    const profile = await prisma.userProfile.findUnique({
-      where: { user_id: userId },
+    const profile = await prisma.user.findUnique({
+      where: { id: userId },
     });
     if (!profile) {
       return res.status(404).json({ error: "Profil non trouvé" });

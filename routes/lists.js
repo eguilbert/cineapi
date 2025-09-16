@@ -111,7 +111,7 @@ router.get("/:slug/items", async (req, res) => {
   const items = await resolveListItems(
     list,
     { skip, take: pageSize },
-    req.user?.id || null
+    req.user?.userId || null
   );
   res.json({ page, pageSize, items });
 });
@@ -171,13 +171,47 @@ router.post(
         filmId,
         rank,
         comment,
-        addedById: req.user?.id || null,
+        addedById: req.user?.userId || null,
       },
       update: { rank, comment },
     });
     res.json({ ok: true });
   }
 );
+
+// POST /api/lists/:id/add-film  (ajout d’un film à une CURATED/FAVORITES)
+// routes/lists.js
+router.post("/:id/add-film", async (req, res) => {
+  const listId = Number(req.params.id);
+  const { filmId, tmdbId } = req.body;
+
+  try {
+    let id = filmId ?? null;
+    if (!id && tmdbId) {
+      const f = await prisma.film.findUnique({
+        where: { tmdbId: Number(tmdbId) },
+      });
+      if (!f)
+        return res
+          .status(400)
+          .json({ error: "Film introuvable pour ce tmdbId" });
+      id = f.id;
+    }
+    if (!id) return res.status(400).json({ error: "filmId ou tmdbId requis" });
+
+    // Exemple pivot ListFilm (à adapter)
+    const link = await prisma.listFilm.upsert({
+      where: { listId_filmId: { listId, filmId: id } },
+      update: {},
+      create: { listId, filmId: id },
+    });
+
+    res.json(link);
+  } catch (e) {
+    console.error("add-film list:", e);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
 
 // POST /api/lists/:slug/remove
 router.post(
