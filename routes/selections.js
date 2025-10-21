@@ -6,8 +6,8 @@ import {
   computeAverageInterest,
   computePopularityScore,
 } from "../lib/score.js";
-import { requireSession } from "../middleware/lucia.js";
-import { importFilmFromTmdb } from "../lib/importFilmFromTmdb.js";
+/* import { requireSession } from "../middleware/lucia.js";
+ */ import { importFilmFromTmdb } from "../lib/importFilmFromTmdb.js";
 
 const router = Router();
 
@@ -32,130 +32,8 @@ router.get("/", async (req, res) => {
   }
 });
 
+/* get film */
 /* router.get("/:id", async (req, res) => {
-  const selection = await prisma.selection.findUnique({
-    where: { id: Number(req.params.id) },
-    include: {
-      films: {
-        include: {
-          film: {
-            include: {
-              director: true,
-              productionCountries: {
-                include: {
-                  country: true,
-                },
-              },
-              filmTags: {
-                include: {
-                  tag: true,
-                },
-              },
-              awards: true, // 👈 conservé
-              externalLinks: true, // 👈 conservé
-              comments: {
-                include: {
-                  user: {
-                    select: {
-                      username: true,
-                      user_id: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  if (!selection) {
-    return res.status(404).json({ error: "Selection not found" });
-  }
-
-  // --- AJOUT: récupérer les stats d'intérêts pour TOUS les films en une fois
-  const filmIds = selection.films.map((sf) => sf.film.id);
-  let statsByFilm = {};
-
-  if (filmIds.length) {
-    // ⚠️ Selon ton schéma, remplace "film_id" par "filmId" si besoin.
-    const grouped = await prisma.interest.groupBy({
-      by: ["film_id", "value"], // ou ["filmId", "value"]
-      where: { film_id: { in: filmIds } }, // ou { filmId: { in: filmIds } }
-      _count: { _all: true },
-    });
-
-    // Regrouper -> { [filmId]: { CURIOUS: n, MUST_SEE: m, ... } }
-    for (const g of grouped) {
-      const fid = g.film_id ?? g.filmId;
-      (statsByFilm[fid] ||= {})[g.value] = g._count._all;
-    }
-  }
-
-  // --- Construction du payload (on garde tout ce que tu avais)
-  const result = {
-    id: selection.id,
-    name: selection.name,
-    films: selection.films.map((f) => {
-      const stats = normalizeInterestStats(statsByFilm[f.film.id] || {});
-      const votes = getInterestCount(stats);
-      const avgScore = computeAverageInterest(stats); // lisibilité “1/2/3”
-      const score = computePopularityScore(stats); // 🔥 popularité (somme)
-
-      return {
-        title: f.film.title,
-        id: f.film.id,
-        category: f.film.category,
-        poster: f.film.posterUrl,
-        tmdbId: f.film.tmdbId,
-        actors: f.film.actors,
-        origin: f.film.origin,
-        synopsis: f.film.synopsis,
-        genre: f.film.genre,
-        duration: f.film.duration,
-        releaseDate: f.film.releaseDate,
-        trailerUrl: f.film.trailerUrl,
-        selected: f.selected,
-        awards:
-          f.film.awards?.map((a) => ({
-            prize: a.prize,
-            festival: a.festival,
-            year: a.year,
-          })) || [],
-        externalLinks:
-          f.film.externalLinks?.map((l) => ({
-            url: l.url,
-            label: l.label,
-          })) || [],
-        commentaire: f.film.commentaire,
-        score: f.score ?? null,
-        rating: f.film.rating,
-        directorName: f.film.director?.name || null,
-        tags: f.film.filmTags?.map((ft) => ft.tag.label) || [],
-        firstProductionCountryName:
-          f.film.productionCountries?.[0]?.country?.name || null,
-        // ✅ commentaires par utilisateur (conservé)
-        comments:
-          f.film.comments?.map((c) => ({
-            user_id: c.user.user_id,
-            username: c.user.username,
-            commentaire: c.commentaire,
-            createdAt: c.createdAt,
-          })) || [],
-
-        // ✅ AJOUTS live:
-        interestStats: stats, // { SANS_OPINION:0, NOT_INTERESTED:0, ... }
-        votes,
-        avgScore, // lisible (1/2/3)
-        score, // popularité (somme) — à utiliser pour trier/afficher la passion
-      };
-    }),
-  };
-
-  res.json(result);
-}); */
-router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
@@ -266,6 +144,176 @@ router.get("/:id", async (req, res) => {
   };
 
   res.json(result);
+}); */
+
+// GET /programmation/:id?page=1&pageSize=60&with=links,awards,comments&commentsLimit=5
+router.get("/:id", async (req, res) => {
+  const selectionId = Number(req.params.id);
+  const page = Math.max(1, Number(req.query.page || 1));
+  const pageSize = Math.min(
+    100,
+    Math.max(10, Number(req.query.pageSize || 60))
+  );
+  const withSet = new Set(
+    String(req.query.with || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  );
+  const commentsLimit = Math.min(
+    20,
+    Math.max(1, Number(req.query.commentsLimit || 5))
+  );
+
+  // 1) Charge *uniquement* ce qui est utile, et par pages
+  const selection = await prisma.selection.findUnique({
+    where: { id: selectionId },
+    select: {
+      id: true,
+      name: true,
+      films: {
+        where: {}, // filtre pivot éventuel (ex: selected: true)
+        orderBy: { id: "asc" }, // tri stable pour pagination
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        select: {
+          selected: true,
+          liveScore: true, // score persistant si tu l'utilises
+          film: {
+            select: {
+              id: true,
+              title: true,
+              category: true,
+              afcae: true,
+              posterUrl: true,
+              tmdbId: true,
+              actors: true,
+              origin: true,
+              synopsis: true,
+              genre: true,
+              duration: true,
+              releaseDate: true,
+              trailerUrl: true,
+              commentaire: true,
+              rating: true,
+              director: { select: { name: true } },
+              // ⚠️ relations lourdes → seulement si demandées
+              productionCountries: withSet.has("countries")
+                ? { select: { country: { select: { name: true } } } }
+                : undefined,
+              filmTags: withSet.has("tags")
+                ? { select: { tag: { select: { label: true } } } }
+                : undefined,
+              awards: withSet.has("awards")
+                ? { select: { prize: true, festival: true, year: true } }
+                : undefined,
+              externalLinks: withSet.has("links")
+                ? { select: { url: true, label: true } }
+                : undefined,
+              comments: withSet.has("comments")
+                ? {
+                    select: {
+                      commentaire: true,
+                      createdAt: true,
+                      user: { select: { username: true, user_id: true } },
+                    },
+                    orderBy: { createdAt: "desc" },
+                    take: commentsLimit, // ⬅️ borné
+                  }
+                : undefined,
+              // si tu as programmming sur Film, expose-le de manière minimale
+              programming: withSet.has("programming")
+                ? { select: { cinemaId: true, cinemaName: true } }
+                : undefined,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!selection) return res.status(404).json({ error: "Selection not found" });
+
+  // 2) Stats d’intérêt sur *les films paginés uniquement*
+  const filmIds = selection.films.map((sf) => sf.film.id);
+  let statsByFilm = {};
+  if (filmIds.length) {
+    const grouped = await prisma.interest.groupBy({
+      by: ["film_id", "value"],
+      where: { film_id: { in: filmIds } },
+      _count: { _all: true },
+    });
+    for (const g of grouped) {
+      const fid = g.film_id;
+      (statsByFilm[fid] ||= {})[g.value] = g._count._all;
+    }
+  }
+
+  // 3) Mise en forme finale — objets compacts
+  const result = {
+    id: selection.id,
+    name: selection.name,
+    page,
+    pageSize,
+    films: selection.films.map((pivot) => {
+      const f = pivot.film;
+      const stats = normalizeInterestStats(statsByFilm[f.id] || {});
+      const votes = getInterestCount(stats);
+      const avgScore = computeAverageInterest(stats);
+      const liveScore = computePopularityScore(stats);
+
+      return {
+        id: f.id,
+        title: f.title,
+        category: f.category,
+        afcae: f.afcae,
+        poster: f.posterUrl,
+        tmdbId: f.tmdbId,
+        actors: f.actors,
+        origin: f.origin,
+        synopsis: f.synopsis,
+        genre: f.genre,
+        duration: f.duration,
+        releaseDate: f.releaseDate,
+        trailerUrl: f.trailerUrl,
+        commentaire: f.commentaire,
+        rating: f.rating,
+        directorName: f.director?.name || null,
+        tags: withSet.has("tags")
+          ? f.filmTags?.map((ft) => ft.tag.label) || []
+          : undefined,
+        firstProductionCountryName: withSet.has("countries")
+          ? f.productionCountries?.[0]?.country?.name || null
+          : undefined,
+
+        // champs pivot
+        selected: pivot.selected,
+        storedScore: pivot.liveScore ?? null,
+
+        // lourds → uniquement si demandés
+        awards: withSet.has("awards") ? f.awards || [] : undefined,
+        externalLinks: withSet.has("links") ? f.externalLinks || [] : undefined,
+        comments: withSet.has("comments")
+          ? f.comments?.map((c) => ({
+              user_id: c.user.user_id,
+              username: c.user.username,
+              commentaire: c.commentaire,
+              createdAt: c.createdAt,
+            })) || []
+          : undefined,
+
+        // live
+        interestStats: stats,
+        votes,
+        avgScore,
+        liveScore,
+        // programmation (si demandée)
+        programming: withSet.has("programming") ? f.programming : undefined,
+      };
+    }),
+  };
+
+  return res.json(result);
 });
 
 // POST /api/selections
@@ -686,7 +734,7 @@ router.post("/:id/programming", async (req, res) => {
 // body: { cinemaId?: number, commentaire: string }
 router.post(
   "/:id/programming/:filmId/comments",
-  requireSession,
+
   async (req, res) => {
     const selectionId = parseInt(req.params.id, 10);
     const filmId = parseInt(req.params.filmId, 10);
