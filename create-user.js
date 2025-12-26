@@ -8,8 +8,29 @@ const prisma = new PrismaClient();
 
 const usersToCreate = [
   {
-    email: "jordan.painn@gmail.com",
+    email: "isabelle.giot@gmail.com",
+    username: "Isabelle",
+    password: "plages@2025",
+  },
+  /*
+  {
+    email: "agadi@orange.fr",
+    username: "Agathe",
+    password: "plages@2025",
+  },
+  {
+    email: "nellyvilquin50@gmail.com",
+    username: "Nelly",
+    password: "plages@2025",
+  },
+  /*   {
+    email: "guilbert_alice@yahoo.ca",
     username: "visiteur",
+    password: "mercurea0",
+  },
+ 
+    email: "jordan.painn@gmail.com",
+    username: "Jordan",
     password: "plages@2025",
   },
   /*   {
@@ -67,6 +88,7 @@ const usersToCreate = [
     username: "François",
     password: "plages@2025",
   }, */
+  ,
 ];
 
 const run = async () => {
