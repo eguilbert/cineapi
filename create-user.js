@@ -1,8 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-const DATABASE_URL =
-  "postgresql://postgres:MmoKFPUZAlOMcIXqUzOapfSekyUntexR@interchange.proxy.rlwy.net:54197/railway";
 
 const prisma = new PrismaClient();
 
