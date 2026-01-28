@@ -39,6 +39,11 @@ import listsRoutes from "./routes/lists.js";
  */ import authRoutes from "./routes/auth.js";
 import projectionRoutes from "./routes/projections.js";
 
+import filmTagsRouter from "./routes/filmtags.js";
+import filmTagsLinkingRouter from "./routes/filmTagsLinking.js";
+import filmsSearchRouter from "./routes/filmsSearch.js";
+import selectionsFilmsRouter from "./routes/selectionsFilms.js";
+
 const app = express();
 
 /* app.use((req, res, next) => {
@@ -122,6 +127,8 @@ app.use("/api/cinemas", cinemaRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/lists", listsRoutes);
+
+app.use("/api", selectionsFilmsRouter(prisma));
 
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");

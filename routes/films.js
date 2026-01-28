@@ -4,8 +4,8 @@ import axios from "axios";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/jwt.js";
 import { computeAggregateScore, normalizeInterestStats } from "../lib/score.js";
-import { requireSession } from "../middleware/lucia.js";
-
+/* import { requireSession } from "../middleware/lucia.js";
+ */
 // import { ensureUserProfile } from "../lib/ensureProfile.js"; // optionnel
 
 const router = Router();
@@ -87,7 +87,7 @@ router.post("/:filmId/tags", requireAuth, requireAdmin, async (req, res) => {
 
     const relations = tagIds.map((tagId) => ({ filmId, tagId }));
 
-    const created = await Promise.all(
+    /*  const created = await Promise.all(
       relations.map((rel) =>
         prisma.filmFilmTag.upsert({
           where: { filmId_tagId: { filmId: rel.filmId, tagId: rel.tagId } },
@@ -95,9 +95,22 @@ router.post("/:filmId/tags", requireAuth, requireAdmin, async (req, res) => {
           create: rel,
         })
       )
-    );
+    ); */
+    const tagIdsClean = [
+      ...new Set(tagIds.map((t) => parseInt(t, 10)).filter(Boolean)),
+    ];
+    await prisma.filmFilmTag.createMany({
+      data: tagIdsClean.map((tagId) => ({ filmId, tagId })),
+      skipDuplicates: true,
+    });
+    // Renvoie la liste à jour des tags du film (pratique UI)
+    const links = await prisma.filmFilmTag.findMany({
+      where: { filmId },
+      include: { tag: true },
+      orderBy: [{ tag: { category: "asc" } }, { tag: { label: "asc" } }],
+    });
 
-    res.json(created);
+    res.json(links.map((ft) => ft.tag));
   } catch (e) {
     console.error("POST /films/:filmId/tags:", e);
     res.status(500).json({ error: "Sauvegarde des tags impossible" });
@@ -121,6 +134,27 @@ router.get("/:filmId/tags", async (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
+
+// DELETE /api/films/:filmId/tags/:tagId (ADMIN)
+router.delete(
+  "/:filmId/tags/:tagId",
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const filmId = parseIntParam(req.params.filmId);
+      const tagId = parseIntParam(req.params.tagId);
+      if (!filmId || !tagId)
+        return res.status(400).json({ error: "IDs invalides" });
+
+      await prisma.filmFilmTag.deleteMany({ where: { filmId, tagId } });
+      res.json({ ok: true });
+    } catch (e) {
+      console.error("DELETE /films/:filmId/tags/:tagId:", e);
+      res.status(500).json({ error: "Suppression impossible" });
+    }
+  }
+);
 
 // --- Listing / recherche --------------------------------------------------
 
@@ -634,8 +668,8 @@ router.get("/light/:id", async (req, res) => {
   res.json(film);
 });
 
-// POST rating public
-router.post("/films/:id/rating", requireSession, async (req, res) => {
+// POST rating
+router.post("/films/:id/rating", async (req, res) => {
   const filmId = Number(req.params.id),
     userId = req.user.userId;
   const { value } = req.body; // DISLIKE | NEUTRAL | LIKE | LOVE
