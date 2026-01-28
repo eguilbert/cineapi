@@ -14,6 +14,8 @@ const TMDB_KEY = process.env.TMDB_API_KEY;
 // --- Helpers --------------------------------------------------------------
 
 function requireAdmin(req, res, next) {
+  console.log("requireAdmin req.user =", req.user); // TEMP
+
   // role vient de getUserAttributes dans lib/lucia.js
   if (req.user?.role === "ADMIN") return next();
   return res.status(403).json({ error: "Accès admin requis" });

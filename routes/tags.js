@@ -13,13 +13,20 @@ router.get("/categories", async (_req, res) => {
   res.json(rows.map((r) => r.category).filter(Boolean));
 });
 
-// GET /api/tags
+// GET /api/tags?validated=true|false&category=...&search=...
 router.get("/", async (req, res) => {
-  const validatedOnly = req.query.validated === "true";
+  const category = (req.query.category || "").toString().trim();
+  const search = (req.query.search || "").toString().trim();
+
+  const where = {
+    ...(category ? { category } : {}),
+    ...(search ? { label: { contains: search, mode: "insensitive" } } : {}),
+  };
 
   const tags = await prisma.filmTag.findMany({
-    where: validatedOnly ? { validated: true } : {},
+    where,
     orderBy: [{ category: "asc" }, { label: "asc" }],
+    take: 200,
   });
 
   res.json(tags);
