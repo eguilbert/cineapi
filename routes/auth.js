@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { requireAuth } from "../lib/requireAuth.js";
 
-import { lucia } from "../lib/lucia.js";
-import { prisma } from "../lib/prisma.js";
+/* import { lucia } from "../lib/lucia.js";
+ */ import { prisma } from "../lib/prisma.js";
 import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
 
 const router = express.Router();
@@ -76,63 +76,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// POST /api/auth/login
-/* router.post("/login", async (req, res) => {
-  try {
-    const email = String(req.body.email || "")
-      .toLowerCase()
-      .trim();
-    const password = String(req.body.password || "");
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, hashedPassword: true },
-    });
-
-    const valid = user?.hashedPassword
-      ? await bcrypt.compare(password, user.hashedPassword)
-      : false;
-    if (!valid)
-      return res.status(401).json({ error: "Email ou mot de passe invalide" });
-
-    // garantit un UserProfile
-    const profile = await prisma.userProfile.upsert({
-      where: { user_id: user.id },
-      update: {},
-      create: { user_id: user.id, username: email.split("@")[0], role: "USER" },
-      select: { username: true, role: true, cinemaId: true },
-    });
-
-    // créer la session + cookie (v2/v3)
-    let sessionIdOrObj;
-    if (typeof lucia.createSession === "function") {
-      // v2/v3 ont la même signature; en v3 ça renvoie un objet session
-      sessionIdOrObj = await lucia.createSession(user.id, {});
-    }
-    const sessionId = sessionIdOrObj.id ?? sessionIdOrObj; // v3: .id, v2: string
-
-    const cookie =
-      typeof lucia.createSessionCookie === "function"
-        ? lucia.createSessionCookie(sessionId) // v2/v3
-        : null;
-
-    if (cookie) res.setHeader("Set-Cookie", cookie.serialize());
-
-    return res.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        username: profile.username,
-        role: profile.role,
-        cinemaId: profile.cinemaId,
-      },
-    });
-  } catch (err) {
-    console.error("❌ /login error:", err);
-    return res.status(500).json({ error: "Erreur serveur" });
-  }
-}); */
-
 router.post("/login", async (req, res) => {
   const email = String(req.body.email || "")
     .toLowerCase()
@@ -187,55 +130,6 @@ router.post("/logout", async (req, res) => {
     res.status(200).json({ ok: true }); // idempotent
   }
 });
-
-/* router.get("/me", async (req, res) => {
-  try {
-    const sessionId = req.cookies?.session;
-
-    if (!sessionId) {
-      return res.status(401).json({ user: null });
-    }
-
-    const { session, user } = await lucia.validateSession(sessionId);
-
-    if (!session) {
-      const blank = lucia.createBlankSessionCookie();
-      res.setHeader("Set-Cookie", blank.serialize());
-      return res.status(401).json({ user: null });
-    }
-
-    if (session.fresh) {
-      const rotated = lucia.createSessionCookie(session.id);
-      res.setHeader("Set-Cookie", rotated.serialize());
-    }
-
-    const dbUser = await prisma.user.findUnique({
-      where: { id: session.userId },
-      select: {
-        id: true,
-        email: true,
-        userProfile: { select: { username: true, role: true, cinemaId: true } },
-      },
-    });
-
-    if (!dbUser?.userProfile) {
-      return res.status(409).json({ error: "PROFILE_MISSING" });
-    }
-
-    return res.json({
-      user: {
-        id: dbUser.id,
-        email: dbUser.email,
-        username: dbUser.userProfile.username,
-        role: dbUser.userProfile.role,
-        cinemaId: dbUser.userProfile.cinemaId,
-      },
-    });
-  } catch (err) {
-    console.error("GET /me error:", err);
-    return res.status(401).json({ user: null });
-  }
-}); */
 
 // Récupérer l'utilisateur connecté
 router.get("/me", requireAuth, async (req, res) => {

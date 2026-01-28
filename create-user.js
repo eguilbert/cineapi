@@ -6,11 +6,16 @@ const prisma = new PrismaClient();
 
 const usersToCreate = [
   {
+    email: "catdelah@gmail.com",
+    username: "Catherine",
+    password: "plages@2025",
+  },
+  /*{
     email: "isabelle.giot@gmail.com",
     username: "Isabelle",
     password: "plages@2025",
   },
-  /*
+ 
   {
     email: "agadi@orange.fr",
     username: "Agathe",
