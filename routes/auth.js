@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { requireAuth } from "../middleware/jwt.js";
 
- */ import { prisma } from "../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
 
 const router = express.Router();
@@ -89,11 +89,11 @@ router.post("/login", async (req, res) => {
     if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
     // Générer le token JWT
-const token = jwt.sign(
-  { userId: user.id, email: user.email, role: user.role }, // ✅ ajoute role
-  process.env.JWT_SECRET,
-  { expiresIn: process.env.JWT_EXPIRES_IN }
-);
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role }, // ✅ ajoute role
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
 
     // Renvoyer le token au frontend
     res.json({
