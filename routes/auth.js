@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { requireAuth } from "../lib/requireAuth.js";
 
-/* import { lucia } from "../lib/lucia.js";
  */ import { prisma } from "../lib/prisma.js";
 import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
 
@@ -39,12 +38,12 @@ router.post("/register", async (req, res) => {
     console.log("📦 Données envoyées à Prisma:", {
       email,
       hashedPassword,
-      cleanUsername,
+      username,
       role: "INVITE",
     });
     console.log("🔎 Types envoyés à Prisma:");
     console.log("email:", typeof email, email);
-    console.log("username:", typeof cleanUsername, cleanUsername);
+    console.log("username:", typeof username, username);
     console.log("hashedPassword:", typeof hashedPassword, hashedPassword);
     const userId = crypto.randomUUID();
     const user = await prisma.user.create({
@@ -90,11 +89,11 @@ router.post("/login", async (req, res) => {
     if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
     // Générer le token JWT
-    const token = jwt.sign(
-      { userId: user.id, email: user.email }, // payload
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
+const token = jwt.sign(
+  { userId: user.id, email: user.email, role: user.role }, // ✅ ajoute role
+  process.env.JWT_SECRET,
+  { expiresIn: process.env.JWT_EXPIRES_IN }
+);
 
     // Renvoyer le token au frontend
     res.json({
