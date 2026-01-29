@@ -2,7 +2,7 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { requireAuth } from "../lib/requireAuth.js";
+import { requireAuth } from "../middleware/jwt.js";
 
  */ import { prisma } from "../lib/prisma.js";
 import { parse } from "cookie"; // ou 'oslo/cookie' si tu préfères
@@ -113,21 +113,9 @@ const token = jwt.sign(
 });
 
 // POST /auth/logout
-router.post("/logout", async (req, res) => {
-  try {
-    const sessionId =
-      req.cookies?.session || parse(req.headers.cookie || "").session;
-
-    if (sessionId) {
-      await lucia.invalidateSession(sessionId);
-    }
-    const blank = lucia.createBlankSessionCookie();
-    res.setHeader("Set-Cookie", blank.serialize());
-
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(200).json({ ok: true }); // idempotent
-  }
+router.post("/logout", async (_req, res) => {
+  // JWT: côté serveur rien à invalider (sauf blacklist/rotation)
+  res.json({ ok: true });
 });
 
 // Récupérer l'utilisateur connecté
