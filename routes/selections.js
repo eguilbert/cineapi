@@ -1,4 +1,6 @@
 import { prisma } from "../lib/prisma.js";
+import { requireAuth } from "../middleware/jwt.js";
+
 import { Router } from "express";
 import {
   normalizeInterestStats,
@@ -589,7 +591,24 @@ router.post(
       console.error("POST programming comment error", e);
       res.status(500).json({ error: "Erreur serveur" });
     }
-  }
+  },
 );
+
+router.post("/:selectionId/films", requireAuth, async (req, res) => {
+  const selectionId = Number(req.params.selectionId);
+  const filmId = Number(req.body.filmId);
+
+  try {
+    const sf = await prisma.selectionFilm.upsert({
+      where: { selectionId_filmId: { selectionId, filmId } }, // ✅ grâce à @@unique([selectionId, filmId])
+      update: {},
+      create: { selectionId, filmId, slug: `${selectionId}-${filmId}` }, // ⚠️ slug est REQUIRED chez toi
+    });
+    res.json(sf);
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ error: "add_to_selection_failed" });
+  }
+});
 
 export default router;

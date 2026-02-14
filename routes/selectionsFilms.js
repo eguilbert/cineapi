@@ -4,7 +4,7 @@ export default function selectionsFilmsRouter(prisma) {
   const router = express.Router();
 
   // GET /api/selections/:id/films?includeTags=1
-  router.get("/selections/:id/films", async (req, res) => {
+  router.get("/selections/:id/films?includeTags=1", async (req, res) => {
     try {
       const selectionId = Number(req.params.id);
       const includeTags = (req.query.includeTags || "") === "1";

@@ -39,23 +39,6 @@ router.post("/", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// PUT /api/films/:id  (ADMIN)
-router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
-  try {
-    const id = parseIntParam(req.params.id);
-    if (!id) return res.status(400).json({ error: "ID invalide" });
-
-    const updated = await prisma.film.update({
-      where: { id },
-      data: req.body,
-    });
-    res.json(updated);
-  } catch (e) {
-    console.error("PUT /films/:id:", e);
-    res.status(500).json({ error: "Mise à jour impossible" });
-  }
-});
-
 // PUT /api/films/:id/category  (ADMIN)
 router.put("/:id/category", requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -155,7 +138,7 @@ router.delete(
       console.error("DELETE /films/:filmId/tags/:tagId:", e);
       res.status(500).json({ error: "Suppression impossible" });
     }
-  }
+  },
 );
 
 // --- Listing / recherche --------------------------------------------------
@@ -269,7 +252,7 @@ router.put("/:id/meta", requireAuth, requireAdmin, async (req, res) => {
       prisma.externalLink.deleteMany({ where: { filmId } }),
       ...awards.map((a) => prisma.award.create({ data: { ...a, filmId } })),
       ...externalLinks.map((l) =>
-        prisma.externalLink.create({ data: { ...l, filmId } })
+        prisma.externalLink.create({ data: { ...l, filmId } }),
       ),
     ]);
 
@@ -298,17 +281,17 @@ router.post("/:tmdbId/refresh", requireAuth, requireAdmin, async (req, res) => {
     // 1) Détails FR
     const detail = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}`,
-      { params: { api_key: TMDB_KEY, language: "fr-FR" } }
+      { params: { api_key: TMDB_KEY, language: "fr-FR" } },
     );
 
     // 2) Dates FR
     const releases = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/release_dates`,
-      { params: { api_key: TMDB_KEY } }
+      { params: { api_key: TMDB_KEY } },
     );
     const frReleases = releases.data.results.find((r) => r.iso_3166_1 === "FR");
     const validRelease = frReleases?.release_dates.find(
-      (rd) => rd.type === 2 || rd.type === 3
+      (rd) => rd.type === 2 || rd.type === 3,
     );
     const releaseDate = validRelease?.release_date
       ? new Date(validRelease.release_date)
@@ -317,7 +300,7 @@ router.post("/:tmdbId/refresh", requireAuth, requireAdmin, async (req, res) => {
     // 3) Traductions
     const translations = await axios.get(
       `https://api.themoviedb.org/3/movie/${tmdbId}/translations`,
-      { params: { api_key: TMDB_KEY } }
+      { params: { api_key: TMDB_KEY } },
     );
     const fr = translations.data.translations.find((t) => t.iso_639_1 === "fr");
 
@@ -345,8 +328,8 @@ router.post("/:tmdbId/refresh", requireAuth, requireAdmin, async (req, res) => {
           stack: e.stack,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
     res.status(500).json({ error: "Erreur TMDB" });
   }
@@ -587,7 +570,7 @@ router.get("/:id/score", async (req, res) => {
   });
   console.log("---- Interets grouped:", grouped);
   const stats = normalizeInterestStats(
-    Object.fromEntries(grouped.map((g) => [g.value, g._count._all]))
+    Object.fromEntries(grouped.map((g) => [g.value, g._count._all])),
   );
   console.log("---- Interets stats:", stats);
   // récupère la note moyenne si tu l'utilises (sinon mets 0)
@@ -765,10 +748,64 @@ router.get("/:id/public", requireAuth, async (req, res) => {
     myRating: myRating?.value ?? null,
     ratingBreakdown: breakdown.reduce(
       (acc, r) => ({ ...acc, [r.value]: r._count._all }),
-      {}
+      {},
     ),
     amIFollowing: !!amIFollowing,
   });
+});
+
+// routes/films.js
+
+router.put("/:id", requireAuth, async (req, res) => {
+  const id = Number(req.params.id);
+
+  // ✅ on retire directorName (et directorId si tu veux)
+  const { directorName, directorId, ...rest } = req.body;
+
+  try {
+    const name = (directorName || "").trim();
+    console.log("UPDATE keys:", Object.keys(rest));
+    console.log("directorName:", directorName);
+    const film = await prisma.film.update({
+      where: { id },
+      data: {
+        // ✅ seulement des champs Film valides (tu peux compléter)
+        title: rest.title,
+        genre: rest.genre,
+        category: rest.category ?? null,
+        synopsis: rest.synopsis ?? null,
+        releaseDate: rest.releaseDate ? new Date(rest.releaseDate) : null,
+        duration: rest.duration ?? null,
+        budget: rest.budget ?? null,
+        origin: rest.origin ?? null,
+        posterUrl: rest.posterUrl ?? null,
+        trailerUrl: rest.trailerUrl ?? null,
+        actors: rest.actors ?? null,
+        keywords: rest.keywords ?? null,
+        commentaire: rest.commentaire ?? null,
+        rating: rest.rating ?? null,
+        seances: rest.seances ?? undefined,
+
+        // ✅ relation director (et AUCUN directorName dans data)
+        director: directorId
+          ? { connect: { id: Number(directorId) } }
+          : name
+            ? {
+                connectOrCreate: {
+                  where: { name },
+                  create: { name },
+                },
+              }
+            : { disconnect: true },
+      },
+      include: { director: true },
+    });
+
+    res.json(film);
+  } catch (e) {
+    console.error(e);
+    res.status(400).json({ error: "update_failed" });
+  }
 });
 
 export default router;
