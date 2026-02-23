@@ -80,9 +80,10 @@ router.get("/:id", async (req, res) => {
     (acc[p.filmId] ||= []).push({
       cinemaId: p.cinemaId,
       cinemaName: p.cinema?.name,
-      seances: p.sessionsCount ?? p.nbSeances ?? p.seances ?? 0,
 
-      suggested: p.suggested,
+      // ✅ nb de séances = suggested
+      seances: p.suggested ?? 0,
+
       capLabel: p.capLabel,
       notes: p.notes,
       cycle: p.cycle ? { id: p.cycle.id, name: p.cycle.name } : null,
