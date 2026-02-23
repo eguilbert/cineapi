@@ -279,24 +279,79 @@ router.put("/:id", async (req, res) => {
 // });
 
 router.post("/:id/add-film", async (req, res) => {
-  const selectionId = Number(req.params.id);
+  const selectionId = Number.parseInt(req.params.id, 10);
   const { filmId, tmdbId, category } = req.body;
 
   try {
-    let id = filmId ?? null;
-    if (!id && tmdbId) {
-      const f = await prisma.film.findUnique({
-        where: { tmdbId: Number(tmdbId) },
+    if (!Number.isFinite(selectionId)) {
+      return res.status(400).json({ error: "selectionId invalide" });
+    }
+
+    let id = filmId != null ? Number.parseInt(String(filmId), 10) : null;
+    if (id != null && !Number.isFinite(id)) id = null;
+
+    // --- parse tmdbId proprement ---
+    let parsedTmdbId = null;
+    if (!id && tmdbId != null && tmdbId !== "") {
+      const raw = String(tmdbId).trim();
+
+      // si on reçoit "movie/12345" ou une URL, on extrait le premier groupe de chiffres
+      const m = raw.match(/(\d{2,})/);
+      if (!m) {
+        return res.status(400).json({
+          error: "tmdbId invalide (aucun nombre détecté)",
+          received: raw,
+        });
+      }
+
+      parsedTmdbId = Number.parseInt(m[1], 10);
+      if (!Number.isFinite(parsedTmdbId)) {
+        return res.status(400).json({
+          error: "tmdbId invalide (parse NaN)",
+          received: raw,
+        });
+      }
+
+      // LOG utile
+      console.log(
+        "[add-film] selectionId",
+        selectionId,
+        "tmdbId raw=",
+        tmdbId,
+        "parsed=",
+        parsedTmdbId,
+      );
+
+      // findFirst (plus tolérant si tmdbId pas @unique)
+      const f = await prisma.film.findFirst({
+        where: { tmdbId: parsedTmdbId },
+        select: { id: true, tmdbId: true, title: true },
       });
-      if (!f)
-        return res
-          .status(400)
-          .json({ error: "Film introuvable pour ce tmdbId" });
+
+      if (!f) {
+        // log diagnostic
+        const sample = await prisma.film.findMany({
+          where: { tmdbId: parsedTmdbId },
+          select: { id: true, tmdbId: true, title: true },
+          take: 5,
+        });
+
+        return res.status(400).json({
+          error: "Film introuvable pour ce tmdbId (pas en base)",
+          tmdbId: parsedTmdbId,
+          received: tmdbId,
+          hint: "Le film existe sur TMDB mais n'est pas importé dans ta table film.",
+          debug: { sample },
+        });
+      }
+
       id = f.id;
     }
-    if (!id) return res.status(400).json({ error: "filmId ou tmdbId requis" });
 
-    // Exemple avec une table pivot SelectionFilm (à adapter à ton schéma)
+    if (!id) {
+      return res.status(400).json({ error: "filmId ou tmdbId requis" });
+    }
+
     const link = await prisma.selectionFilm.upsert({
       where: { selectionId_filmId: { selectionId, filmId: id } },
       update: { category },
