@@ -290,12 +290,10 @@ router.post("/:id/add-film", async (req, res) => {
     let id = filmId != null ? Number.parseInt(String(filmId), 10) : null;
     if (id != null && !Number.isFinite(id)) id = null;
 
-    // --- parse tmdbId proprement ---
     let parsedTmdbId = null;
+
     if (!id && tmdbId != null && tmdbId !== "") {
       const raw = String(tmdbId).trim();
-
-      // si on reçoit "movie/12345" ou une URL, on extrait le premier groupe de chiffres
       const m = raw.match(/(\d{2,})/);
       if (!m) {
         return res.status(400).json({
@@ -312,7 +310,6 @@ router.post("/:id/add-film", async (req, res) => {
         });
       }
 
-      // LOG utile
       console.log(
         "[add-film] selectionId",
         selectionId,
@@ -322,26 +319,22 @@ router.post("/:id/add-film", async (req, res) => {
         parsedTmdbId,
       );
 
-      // findFirst (plus tolérant si tmdbId pas @unique)
-      const f = await prisma.film.findFirst({
+      // ✅ tmdbId est @unique -> findUnique
+      const f = await prisma.film.findUnique({
         where: { tmdbId: parsedTmdbId },
         select: { id: true, tmdbId: true, title: true },
       });
 
       if (!f) {
-        // log diagnostic
-        const sample = await prisma.film.findMany({
-          where: { tmdbId: parsedTmdbId },
-          select: { id: true, tmdbId: true, title: true },
-          take: 5,
-        });
+        // diagnostic : combien de films en base ?
+        const count = await prisma.film.count();
 
         return res.status(400).json({
           error: "Film introuvable pour ce tmdbId (pas en base)",
           tmdbId: parsedTmdbId,
           received: tmdbId,
-          hint: "Le film existe sur TMDB mais n'est pas importé dans ta table film.",
-          debug: { sample },
+          hint: "Soit tu n'es pas sur la même base (DATABASE_URL), soit le film n'est réellement pas importé.",
+          debug: { count },
         });
       }
 
@@ -352,10 +345,13 @@ router.post("/:id/add-film", async (req, res) => {
       return res.status(400).json({ error: "filmId ou tmdbId requis" });
     }
 
+    // ✅ slug obligatoire
+    const slug = `sel-${selectionId}-film-${id}`;
+
     const link = await prisma.selectionFilm.upsert({
       where: { selectionId_filmId: { selectionId, filmId: id } },
-      update: { category },
-      create: { selectionId, filmId: id, category },
+      update: { category: category ?? null },
+      create: { selectionId, filmId: id, category: category ?? null, slug },
     });
 
     res.json(link);
