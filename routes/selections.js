@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/jwt.js";
-
+import axios from "axios";
 import { Router } from "express";
 import {
   normalizeInterestStats,
@@ -34,7 +34,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-/* get film */
+/* get selection */
 router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
@@ -92,7 +92,7 @@ router.get("/:id", async (req, res) => {
       return {
         id: f.film.id,
         title: f.film.title,
-        category: f.film.category,
+        category: f.category ?? f.film.category ?? null,
         afcae: f.film.afcae,
         poster: f.film.posterUrl,
         tmdbId: f.film.tmdbId,
@@ -277,6 +277,12 @@ router.put("/:id", async (req, res) => {
 
 //   res.json({ success: true, film });
 // });
+function requireAdmin(req, res, next) {
+  console.log("requireAdmin req.user =", req.user); // TEMP
+
+  if (req.user?.role === "ADMIN") return next();
+  return res.status(403).json({ error: "Accès admin requis" });
+}
 
 router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
   const selectionId = Number.parseInt(req.params.id, 10);
@@ -385,16 +391,27 @@ router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "filmId ou tmdbId requis" });
     }
 
-    // slug obligatoire
-    const slug = `sel-${selectionId}-film-${id}`;
-
-    const link = await prisma.selectionFilm.upsert({
-      where: { selectionId_filmId: { selectionId, filmId: id } },
-      update: { category: category ?? null },
-      create: { selectionId, filmId: id, category: category ?? null, slug },
+    const existing = await prisma.selectionFilm.findFirst({
+      where: { selectionId, filmId: id },
+      select: { id: true },
     });
 
-    res.json({ ok: true, filmId: id, selectionId, link });
+    const link = existing
+      ? await prisma.selectionFilm.update({
+          where: { id: existing.id },
+          data: { category: category ?? null },
+        })
+      : await prisma.selectionFilm.create({
+          data: { selectionId, filmId: id, category: category ?? null },
+        });
+    const selection = await prisma.selection.findUnique({
+      where: { id: selectionId },
+      include: {
+        films: { include: { film: true } },
+      },
+    });
+
+    return res.json({ ok: true, selectionId, filmId: id, link, selection });
   } catch (e) {
     console.error("add-film selection:", e);
     res.status(500).json({ error: "Erreur serveur" });
@@ -692,8 +709,8 @@ router.post("/:selectionId/films", requireAuth, async (req, res) => {
   try {
     const sf = await prisma.selectionFilm.upsert({
       where: { selectionId_filmId: { selectionId, filmId } }, // ✅ grâce à @@unique([selectionId, filmId])
-      update: {},
-      create: { selectionId, filmId, slug: `${selectionId}-${filmId}` }, // ⚠️ slug est REQUIRED chez toi
+      update: { category: category ?? null },
+      create: { selectionId, filmId, category: category ?? null },
     });
     res.json(sf);
   } catch (e) {
