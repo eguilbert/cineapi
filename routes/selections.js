@@ -278,7 +278,7 @@ router.put("/:id", async (req, res) => {
 //   res.json({ success: true, film });
 // });
 
-router.post("/:id/add-film", async (req, res) => {
+router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
   const selectionId = Number.parseInt(req.params.id, 10);
   const { filmId, tmdbId, category } = req.body;
 
@@ -295,57 +295,97 @@ router.post("/:id/add-film", async (req, res) => {
     if (!id && tmdbId != null && tmdbId !== "") {
       const raw = String(tmdbId).trim();
       const m = raw.match(/(\d{2,})/);
-      if (!m) {
-        return res.status(400).json({
-          error: "tmdbId invalide (aucun nombre détecté)",
-          received: raw,
-        });
-      }
+      if (!m)
+        return res
+          .status(400)
+          .json({ error: "tmdbId invalide", received: raw });
 
       parsedTmdbId = Number.parseInt(m[1], 10);
       if (!Number.isFinite(parsedTmdbId)) {
-        return res.status(400).json({
-          error: "tmdbId invalide (parse NaN)",
-          received: raw,
-        });
+        return res
+          .status(400)
+          .json({ error: "tmdbId invalide", received: raw });
       }
 
-      console.log(
-        "[add-film] selectionId",
-        selectionId,
-        "tmdbId raw=",
-        tmdbId,
-        "parsed=",
-        parsedTmdbId,
-      );
-
-      // ✅ tmdbId est @unique -> findUnique
-      const f = await prisma.film.findUnique({
+      // 1) Cherche en base
+      let film = await prisma.film.findUnique({
         where: { tmdbId: parsedTmdbId },
         select: { id: true, tmdbId: true, title: true },
       });
 
-      if (!f) {
-        // diagnostic : combien de films en base ?
-        const count = await prisma.film.count();
+      // 2) Si absent => import TMDB -> DB
+      if (!film) {
+        const TMDB_KEY = process.env.TMDB_API_KEY;
+        if (!TMDB_KEY)
+          return res.status(500).json({ error: "TMDB_API_KEY manquant" });
 
-        return res.status(400).json({
-          error: "Film introuvable pour ce tmdbId (pas en base)",
-          tmdbId: parsedTmdbId,
-          received: tmdbId,
-          hint: "Soit tu n'es pas sur la même base (DATABASE_URL), soit le film n'est réellement pas importé.",
-          debug: { count },
+        const detail = await axios.get(
+          `https://api.themoviedb.org/3/movie/${parsedTmdbId}`,
+          {
+            params: { api_key: TMDB_KEY, language: "fr-FR" },
+          },
+        );
+
+        const d = detail.data;
+
+        // director (optionnel) via credits
+        let directorId = null;
+        try {
+          const credits = await axios.get(
+            `https://api.themoviedb.org/3/movie/${parsedTmdbId}/credits`,
+            {
+              params: { api_key: TMDB_KEY },
+            },
+          );
+          const dir = credits.data?.crew?.find((c) => c.job === "Director");
+          if (dir?.name) {
+            const director = await prisma.director.upsert({
+              where: { name: dir.name },
+              update: {},
+              create: { name: dir.name },
+              select: { id: true },
+            });
+            directorId = director.id;
+          }
+        } catch (e) {
+          // pas bloquant
+          console.warn("TMDB credits failed:", e?.message);
+        }
+
+        // genre obligatoire dans ton schema
+        const genre =
+          (Array.isArray(d.genres) && d.genres.length
+            ? d.genres[0].name
+            : null) || "Unknown";
+
+        const releaseDate = d.release_date ? new Date(d.release_date) : null;
+
+        film = await prisma.film.create({
+          data: {
+            tmdbId: parsedTmdbId,
+            title: d.title || d.original_title || `tmdb-${parsedTmdbId}`,
+            genre,
+            synopsis: d.overview || null,
+            releaseDate,
+            posterUrl: d.poster_path
+              ? `https://image.tmdb.org/t/p/w500${d.poster_path}`
+              : null,
+            duration: d.runtime ?? null,
+            origin: d.original_language ?? null,
+            directorId,
+          },
+          select: { id: true, tmdbId: true, title: true },
         });
       }
 
-      id = f.id;
+      id = film.id;
     }
 
     if (!id) {
       return res.status(400).json({ error: "filmId ou tmdbId requis" });
     }
 
-    // ✅ slug obligatoire
+    // slug obligatoire
     const slug = `sel-${selectionId}-film-${id}`;
 
     const link = await prisma.selectionFilm.upsert({
@@ -354,7 +394,7 @@ router.post("/:id/add-film", async (req, res) => {
       create: { selectionId, filmId: id, category: category ?? null, slug },
     });
 
-    res.json(link);
+    res.json({ ok: true, filmId: id, selectionId, link });
   } catch (e) {
     console.error("add-film selection:", e);
     res.status(500).json({ error: "Erreur serveur" });
