@@ -42,7 +42,7 @@ import projectionRoutes from "./routes/projections.js";
 import filmTagsRouter from "./routes/filmtags.js";
 import filmTagsLinkingRouter from "./routes/filmTagsLinking.js";
 import filmsSearchRouter from "./routes/filmsSearch.js";
-import selectionsFilmsRouter from "./routes/selectionsFilms.js";
+import selectionsFilmsRoutes from "./routes/selectionsFilms.js";
 
 const app = express();
 
@@ -100,7 +100,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
     ],
-  })
+  }),
 );
 
 app.use(express.json());
@@ -127,9 +127,7 @@ app.use("/api/cinemas", cinemaRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/lists", listsRoutes);
-
-app.use("/api", selectionsFilmsRouter(prisma));
-
+app.use("/api/selectionsFilms", selectionsFilmsRoutes(prisma));
 app.get("/", (req, res) => {
   res.send("Hello from CineAPI 🎬");
 });
