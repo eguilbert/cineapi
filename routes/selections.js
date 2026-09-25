@@ -418,6 +418,31 @@ router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// DELETE /api/selections/:id/films
+router.delete("/:id/films", requireAuth, requireAdmin, async (req, res) => {
+  const selectionId = Number.parseInt(req.params.id, 10);
+  const filmId = Number.parseInt(String(req.body?.filmId ?? ""), 10);
+
+  if (!Number.isFinite(selectionId) || !Number.isFinite(filmId)) {
+    return res.status(400).json({ error: "selectionId ou filmId invalide" });
+  }
+
+  try {
+    const result = await prisma.selectionFilm.deleteMany({
+      where: { selectionId, filmId },
+    });
+
+    if (result.count === 0) {
+      return res.status(404).json({ error: "Film absent de cette sélection" });
+    }
+
+    return res.json({ success: true, selectionId, filmId });
+  } catch (error) {
+    console.error("Erreur retrait film de la sélection :", error);
+    return res.status(500).json({ error: "Erreur lors du retrait du film" });
+  }
+});
+
 // DELETE /api/selections/:id
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
