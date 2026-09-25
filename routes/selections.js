@@ -391,6 +391,16 @@ router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
       return res.status(400).json({ error: "filmId ou tmdbId requis" });
     }
 
+    const selection = await prisma.selection.findUnique({
+      where: { id: selectionId },
+      select: { id: true, status: true },
+    });
+    if (!selection) {
+      return res.status(404).json({ error: "Sélection introuvable" });
+    }
+    const addAsSelected =
+      String(selection.status || "").toLowerCase() === "programmation";
+
     const existing = await prisma.selectionFilm.findFirst({
       where: { selectionId, filmId: id },
       select: { id: true },
@@ -399,19 +409,33 @@ router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
     const link = existing
       ? await prisma.selectionFilm.update({
           where: { id: existing.id },
-          data: { category: category ?? null },
+          data: {
+            category: category ?? null,
+            ...(addAsSelected ? { selected: true } : {}),
+          },
         })
       : await prisma.selectionFilm.create({
-          data: { selectionId, filmId: id, category: category ?? null },
+          data: {
+            selectionId,
+            filmId: id,
+            category: category ?? null,
+            selected: addAsSelected,
+          },
         });
-    const selection = await prisma.selection.findUnique({
+    const refreshedSelection = await prisma.selection.findUnique({
       where: { id: selectionId },
       include: {
         films: { include: { film: true } },
       },
     });
 
-    return res.json({ ok: true, selectionId, filmId: id, link, selection });
+    return res.json({
+      ok: true,
+      selectionId,
+      filmId: id,
+      link,
+      selection: refreshedSelection,
+    });
   } catch (e) {
     console.error("add-film selection:", e);
     res.status(500).json({ error: "Erreur serveur" });
