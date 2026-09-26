@@ -48,6 +48,7 @@ model Film {
   lists                 ListFilm[] // 👈 accès pivot
   PublicRating          PublicRating[]
   FilmFollow            FilmFollow[]
+  recommendations       FilmRecommendation[]
 
   @@index([releaseDate])
   @@index([category])
@@ -317,6 +318,57 @@ model Cinema {
   users                 UserProfile[]
   votes                 Vote[]
   filmProjections       FilmProjection[]
+  profile               CinemaProfile?
+  recommendations       FilmRecommendation[]
+  recommendationFeedback RecommendationFeedback[]
+
+  @@schema("public")
+}
+
+model CinemaProfile {
+  cinemaId       Int      @id
+  description    String   @default("")
+  // Terms chosen by the programmer; stored as JSON arrays of strings.
+  favoredTerms   Json     @default("[]")
+  avoidedTerms   Json     @default("[]")
+  updatedAt      DateTime @updatedAt
+  cinema         Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+
+  @@schema("public")
+}
+
+model FilmRecommendation {
+  id             Int      @id @default(autoincrement())
+  cinemaId       Int
+  filmId         Int
+  editorialFit   Int?
+  audienceFit    Int?
+  criticalInterest Int?
+  discoveryValue Int?
+  recommendedWeek Int?
+  recommendedShows Int?
+  reasoning      String
+  evidence       Json
+  algorithmVersion String
+  generatedAt    DateTime @default(now())
+  cinema         Cinema   @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
+  film           Film     @relation(fields: [filmId], references: [id], onDelete: Cascade)
+  feedback       RecommendationFeedback?
+
+  @@unique([cinemaId, filmId])
+  @@schema("public")
+}
+
+model RecommendationFeedback {
+  id               Int      @id @default(autoincrement())
+  recommendationId Int      @unique
+  cinemaId         Int
+  decision         String
+  plannedShows     Int?
+  note             String?
+  updatedAt        DateTime @updatedAt
+  recommendation   FilmRecommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  cinema           Cinema @relation(fields: [cinemaId], references: [id], onDelete: Cascade)
 
   @@schema("public")
 }
