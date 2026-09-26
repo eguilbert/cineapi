@@ -86,6 +86,63 @@ router.post("/cinemas/:cinemaId/films/:filmId/recommendation", requireAuth, admi
   res.json(recommendation);
 });
 
+router.post("/cinemas/:cinemaId/selections/:selectionId/recommendations", requireAuth, admin, async (req, res) => {
+  const cinemaId = Number(req.params.cinemaId);
+  const selectionId = Number(req.params.selectionId);
+  if (![cinemaId, selectionId].every((id) => Number.isSafeInteger(id) && id > 0))
+    return res.status(400).json({ error: "Identifiants invalides" });
+
+  try {
+    const [cinema, selection, profile] = await Promise.all([
+      prisma.cinema.findUnique({ where: { id: cinemaId }, select: { id: true } }),
+      prisma.selection.findUnique({
+        where: { id: selectionId },
+        select: {
+          id: true,
+          films: { select: { category: true, film: { select: {
+            id: true, title: true, genre: true, category: true, origin: true, keywords: true,
+          } } } },
+        },
+      }),
+      prisma.cinemaProfile.findUnique({ where: { cinemaId } }),
+    ]);
+    if (!cinema || !selection) return res.status(404).json({ error: "Cinéma ou sélection introuvable" });
+    if (selection.films.length > 150)
+      return res.status(400).json({ error: "La sélection dépasse 150 films" });
+
+    const categories = [...new Set(selection.films.map((sf) => sf.category || sf.film.category).filter(Boolean))];
+    const pastProjections = categories.length ? await prisma.filmProjection.findMany({
+      where: { cinemaId, date: { lt: new Date() }, audienceCount: { not: null }, film: { category: { in: categories } } },
+      select: { filmId: true, audienceCount: true, film: { select: { category: true } } },
+    }) : [];
+    const history = new Map();
+    for (const category of categories) {
+      const rows = pastProjections.filter((p) => p.film.category === category);
+      const filmCount = new Set(rows.map((p) => p.filmId)).size;
+      if (rows.length >= 5 && filmCount >= 3) history.set(category, {
+        category, filmCount, projectionCount: rows.length,
+        averagePerShow: Math.round(rows.reduce((sum, p) => sum + p.audienceCount, 0) / rows.length),
+      });
+    }
+
+    const rows = await prisma.$transaction(selection.films.map((sf) => {
+      const film = { ...sf.film, category: sf.category || sf.film.category };
+      const data = recommendFilm(film, profile, history.get(film.category) || null);
+      return prisma.filmRecommendation.upsert({
+        where: { cinemaId_filmId: { cinemaId, filmId: film.id } },
+        create: { cinemaId, filmId: film.id, ...data },
+        update: { ...data, generatedAt: new Date() },
+      });
+    }));
+    res.json(rows.map((row, index) => ({ ...row, film: {
+      id: selection.films[index].film.id, title: selection.films[index].film.title,
+    } })));
+  } catch (error) {
+    console.error("Erreur analyse sélection:", error);
+    res.status(500).json({ error: "Impossible d'analyser la sélection" });
+  }
+});
+
 router.put("/recommendations/:id/feedback", requireAuth, admin, async (req, res) => {
   const recommendationId = Number(req.params.id);
   const { decision, plannedShows, note } = req.body;
