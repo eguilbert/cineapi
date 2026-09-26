@@ -173,6 +173,7 @@ router.post("/", async (req, res) => {
           origin: f.origin,
           actors: f.actors,
           posterUrl: f.posterUrl,
+          category: f.category || null,
           releaseDate: f.releaseDate ? new Date(f.releaseDate) : null,
           budget: f.budget || null,
         },
@@ -214,42 +215,69 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { films = [] } = req.body; // tableau de films à ajouter
 
-  for (const f of films) {
-    const exists = await prisma.selectionFilm.findUnique({
-      where: {
-        filmId_selectionId: {
-          filmId: f.id,
-          selectionId: Number(id),
+  const selectionId = Number(id);
+  if (!Number.isSafeInteger(selectionId) || selectionId <= 0 || !Array.isArray(films))
+    return res.status(400).json({ error: "Sélection ou films invalides" });
+
+  const selection = await prisma.selection.findUnique({ where: { id: selectionId }, select: { id: true } });
+  if (!selection) return res.status(404).json({ error: "Sélection introuvable" });
+
+  try {
+    for (const f of films) {
+      if (!f || (f.tmdbId && (!Number.isSafeInteger(Number(f.tmdbId)) || Number(f.tmdbId) <= 0)))
+        return res.status(400).json({ error: "Identifiant TMDB invalide" });
+      // Les films issus de TMDB ont un id externe : ne jamais l'utiliser comme filmId.
+      const film = f.tmdbId
+        ? await prisma.film.upsert({
+            where: { tmdbId: Number(f.tmdbId) },
+            update: {},
+            create: {
+              tmdbId: Number(f.tmdbId), title: f.title, genre: f.genre || "",
+              synopsis: f.synopsis || null, duration: f.duration || null,
+              origin: f.origin || null, actors: f.actors || null,
+              posterUrl: f.posterUrl || null, category: f.category || null,
+              releaseDate: f.releaseDate ? new Date(f.releaseDate) : null,
+              budget: f.budget || null,
+            },
+          })
+        : Number.isSafeInteger(Number(f.id)) && Number(f.id) > 0
+          ? await prisma.film.findUnique({ where: { id: Number(f.id) } })
+          : null;
+      if (!film) return res.status(400).json({ error: "Film introuvable dans la base" });
+      const exists = await prisma.selectionFilm.findUnique({
+        where: {
+          filmId_selectionId: { filmId: film.id, selectionId },
+        },
+      });
+
+      if (!exists) {
+        await prisma.selectionFilm.create({
+          data: {
+            filmId: film.id,
+            selectionId,
+            note: f.note || null,
+            commentaire: f.commentaire || null,
+            category: f.category || null,
+          },
+        });
+      }
+    }
+
+    // Retourner la sélection mise à jour avec les identifiants internes.
+    const refreshed = await prisma.selection.findUnique({
+      where: { id: selectionId },
+      include: {
+        films: {
+          include: { film: true },
         },
       },
     });
 
-    if (!exists) {
-      await prisma.selectionFilm.create({
-        data: {
-          filmId: f.id,
-          selectionId: Number(id),
-          note: f.note || null,
-          commentaire: f.commentaire || null,
-          category: f.category || null,
-        },
-      });
-    }
+    res.json(refreshed);
+  } catch (error) {
+    console.error("Erreur ajout films à une sélection:", error);
+    res.status(500).json({ error: "Erreur lors de l'ajout des films" });
   }
-
-  // Facultatif : retourner la sélection mise à jour
-  const refreshed = await prisma.selection.findUnique({
-    where: { id: Number(id) },
-    include: {
-      films: {
-        include: {
-          film: true,
-        },
-      },
-    },
-  });
-
-  res.json(refreshed);
 });
 
 ///api/selections/:id/add-film

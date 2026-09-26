@@ -38,6 +38,7 @@ import listsRoutes from "./routes/lists.js";
 /* import profileRouter from "./routes/profile.js";
  */ import authRoutes from "./routes/auth.js";
 import projectionRoutes from "./routes/projections.js";
+import recommendationRoutes from "./routes/recommendations.js";
 
 import filmTagsRouter from "./routes/filmtags.js";
 import filmTagsLinkingRouter from "./routes/filmTagsLinking.js";
@@ -123,6 +124,7 @@ app.use("/api/votes", votesRouter);
 app.use("/api/activity", activityRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/projections", projectionRoutes);
+app.use("/api", recommendationRoutes);
 app.use("/api/cinemas", cinemaRoutes);
 app.use("/api/cron", cronRoutes);
 app.use("/api/stats", statsRoutes);
