@@ -59,7 +59,25 @@ router.post("/cinemas/:cinemaId/films/:filmId/recommendation", requireAuth, admi
     prisma.cinemaProfile.findUnique({ where: { cinemaId } }),
   ]);
   if (!cinema || !film) return res.status(404).json({ error: "Cinéma ou film introuvable" });
-  const data = recommendFilm(film, profile);
+  // Historical context is descriptive only. Never infer attendance for a new film
+  // from a small cohort or treat attendance as a forecast.
+  let attendanceHistory = null;
+  if (film.category) {
+    const projections = await prisma.filmProjection.findMany({
+      where: { cinemaId, date: { lt: new Date() }, audienceCount: { not: null }, film: { category: film.category } },
+      select: { filmId: true, audienceCount: true },
+    });
+    const filmCount = new Set(projections.map((p) => p.filmId)).size;
+    if (projections.length >= 5 && filmCount >= 3) {
+      attendanceHistory = {
+        category: film.category,
+        projectionCount: projections.length,
+        filmCount,
+        averagePerShow: Math.round(projections.reduce((sum, p) => sum + p.audienceCount, 0) / projections.length),
+      };
+    }
+  }
+  const data = recommendFilm(film, profile, attendanceHistory);
   const recommendation = await prisma.filmRecommendation.upsert({
     where: { cinemaId_filmId: { cinemaId, filmId } },
     create: { cinemaId, filmId, ...data },

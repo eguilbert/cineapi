@@ -16,3 +16,10 @@ test("le calcul explicite les correspondances sans inventer de données public o
 test("aucune correspondance ne produit pas un faux score", () => {
   assert.equal(recommendFilm({ genre: "Drame" }, { favoredTerms: ["documentaire"], avoidedTerms: [] }).editorialFit, null);
 });
+
+test("l'historique est conservé comme observation, sans prédiction de fréquentation", () => {
+  const history = { category: "Documentaire", projectionCount: 8, filmCount: 3, averagePerShow: 24 };
+  const result = recommendFilm({ genre: "Documentaire" }, { favoredTerms: ["documentaire"], avoidedTerms: [] }, history);
+  assert.deepEqual(result.evidence.attendanceHistory, history);
+  assert.equal(result.audienceFit, null);
+});
