@@ -60,6 +60,32 @@ router.get('/critical-analysis/availability', requireAuth, admin, (req, res) => 
   });
 });
 
+// Analyses publiées dans les fiches de films : lecture seule pour tout compte connecté.
+router.get('/selections/:selectionId/critical-analyses', requireAuth, async (req, res) => {
+  const selectionId = Number(req.params.selectionId);
+  if (!Number.isSafeInteger(selectionId) || selectionId <= 0)
+    return res.status(400).json({ error: 'Sélection invalide' });
+  try {
+    const selection = await prisma.selection.findUnique({
+      where: { id: selectionId }, select: { films: { select: { filmId: true } } },
+    });
+    if (!selection) return res.status(404).json({ error: 'Sélection introuvable' });
+    const filmIds = selection.films.map(({ filmId }) => filmId);
+    if (!filmIds.length) return res.json([]);
+    const rows = await prisma.filmRecommendation.findMany({
+      where: { filmId: { in: filmIds } },
+      select: { filmId: true, cinemaId: true, evidence: true, cinema: { select: { name: true } } },
+    });
+    res.json(rows.filter((row) => row.evidence?.criticalAnalysis).map((row) => ({
+      filmId: row.filmId, cinemaId: row.cinemaId,
+      cinemaName: row.cinema.name, analysis: row.evidence.criticalAnalysis,
+    })));
+  } catch (error) {
+    console.error('Lecture des analyses impossible:', error);
+    res.status(500).json({ error: 'Analyses indisponibles' });
+  }
+});
+
 router.get("/cinemas/:cinemaId/profile", requireAuth, canRead, async (req, res) => {
   const profile = await prisma.cinemaProfile.findUnique({ where: { cinemaId: Number(req.params.cinemaId) } });
   res.json(profile ?? { cinemaId: Number(req.params.cinemaId), description: "", favoredTerms: [], avoidedTerms: [] });
