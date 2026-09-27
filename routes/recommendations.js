@@ -50,7 +50,14 @@ router.param("cinemaId", (req, res, next, value) => {
 });
 
 router.get('/critical-analysis/availability', requireAuth, admin, (req, res) => {
-  res.json({ available: researchConfigured() });
+  res.set('Cache-Control', 'no-store');
+  res.json({
+    available: researchConfigured(),
+    environment: process.env.RAILWAY_ENVIRONMENT_NAME || null,
+    environmentId: process.env.RAILWAY_ENVIRONMENT_ID || null,
+    service: process.env.RAILWAY_SERVICE_NAME || null,
+    serviceId: process.env.RAILWAY_SERVICE_ID || null,
+  });
 });
 
 router.get("/cinemas/:cinemaId/profile", requireAuth, canRead, async (req, res) => {
