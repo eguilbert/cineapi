@@ -14,6 +14,34 @@ const termsValid = (value) => Array.isArray(value) && value.length <= 40 && valu
   (item) => typeof item === "string" && item.trim().length > 0 && item.length <= 80 && /[a-zA-ZÀ-ÿ0-9]/.test(item),
 );
 
+const researchFilmSelect = {
+  tmdbId: true, genre: true, category: true, origin: true, keywords: true,
+  filmTags: { select: { tag: { select: { label: true } } } },
+};
+
+async function ensureRecommendation(cinemaId, filmId, film, selectedCategory) {
+  const existing = await prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId, filmId } } });
+  if (existing) return existing;
+  const category = selectedCategory || film.category;
+  const [profile, projections] = await Promise.all([
+    prisma.cinemaProfile.findUnique({ where: { cinemaId } }),
+    category ? prisma.filmProjection.findMany({
+      where: { cinemaId, date: { lt: new Date() }, audienceCount: { not: null }, film: { category } },
+      select: { filmId: true, audienceCount: true },
+    }) : [],
+  ]);
+  const filmCount = new Set(projections.map((p) => p.filmId)).size;
+  const attendanceHistory = projections.length >= 5 && filmCount >= 3 ? {
+    category, filmCount, projectionCount: projections.length,
+    averagePerShow: Math.round(projections.reduce((sum, p) => sum + p.audienceCount, 0) / projections.length),
+  } : null;
+  const data = recommendFilm({ ...film, category }, profile, attendanceHistory);
+  return prisma.filmRecommendation.upsert({
+    where: { cinemaId_filmId: { cinemaId, filmId } },
+    create: { cinemaId, filmId, ...data }, update: {},
+  });
+}
+
 router.param("cinemaId", (req, res, next, value) => {
   const id = Number(value);
   if (!Number.isSafeInteger(id) || id <= 0) return res.status(400).json({ error: "Identifiant de cinéma invalide" });
@@ -36,12 +64,11 @@ router.get("/cinemas/:cinemaId/attendance-portrait", requireAuth, canRead, async
 router.post("/cinemas/:cinemaId/films/:filmId/research", requireAuth, admin, async (req, res) => {
   const filmId = Number(req.params.filmId);
   if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: "Film invalide" });
-  const film = await prisma.film.findUnique({ where: { id: filmId }, select: { tmdbId: true, filmTags: { select: { tag: { select: { label: true } } } } } });
+  const film = await prisma.film.findUnique({ where: { id: filmId }, select: researchFilmSelect });
   if (!film) return res.status(404).json({ error: "Film introuvable" });
   try {
+    const existing = await ensureRecommendation(Number(req.params.cinemaId), filmId, film);
     const research = await researchFilm(film);
-    const existing = await prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId: Number(req.params.cinemaId), filmId } } });
-    if (!existing) return res.status(409).json({ error: "Lancez d'abord l'analyse du film" });
     const updated = await prisma.filmRecommendation.update({ where: { id: existing.id }, data: { evidence: { ...existing.evidence, research } } });
     res.json(updated);
   } catch (error) {
@@ -68,17 +95,18 @@ router.post("/cinemas/:cinemaId/selections/:selectionId/research", requireAuth, 
   const currentBatch = films.slice(requestedOffset, end);
   const results = [];
   for (let offset = 0; offset < currentBatch.length; offset += 4) {
-    const batch = await Promise.all(currentBatch.slice(offset, offset + 4).map(async ({ filmId }) => {
+    const batch = await Promise.all(currentBatch.slice(offset, offset + 4).map(async ({ filmId, category: selectedCategory }) => {
       try {
-        const [film, existing] = await Promise.all([
-          prisma.film.findUnique({ where: { id: filmId }, select: { tmdbId: true, filmTags: { select: { tag: { select: { label: true } } } } } }),
-          prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId: Number(req.params.cinemaId), filmId } } }),
-        ]);
-        if (!existing) return { filmId, error: "Analyse préalable requise" };
+        const film = await prisma.film.findUnique({ where: { id: filmId }, select: researchFilmSelect });
+        if (!film) return { filmId, error: "Film introuvable" };
+        const existing = await ensureRecommendation(Number(req.params.cinemaId), filmId, film, selectedCategory);
         const research = await researchFilm(film);
         await prisma.filmRecommendation.update({ where: { id: existing.id }, data: { evidence: { ...existing.evidence, research } } });
         return { filmId, ok: true };
-      } catch (error) { return { filmId, error: "Recherche indisponible" }; }
+      } catch (error) {
+        console.error(`Recherche du film ${filmId} impossible:`, error.message);
+        return { filmId, error: "Recherche TMDB ou enregistrement indisponible" };
+      }
     }));
     results.push(...batch);
   }
