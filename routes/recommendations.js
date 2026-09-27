@@ -53,12 +53,22 @@ router.post("/cinemas/:cinemaId/films/:filmId/research", requireAuth, admin, asy
 router.post("/cinemas/:cinemaId/selections/:selectionId/research", requireAuth, admin, async (req, res) => {
   const selectionId = Number(req.params.selectionId);
   if (!Number.isSafeInteger(selectionId) || selectionId <= 0) return res.status(400).json({ error: "Sélection invalide" });
-  const selection = await prisma.selection.findUnique({ where: { id: selectionId }, select: { films: { select: { filmId: true } } } });
+  const requestedOffset = Number(req.body?.offset ?? 0);
+  if (!Number.isSafeInteger(requestedOffset) || requestedOffset < 0) return res.status(400).json({ error: "Position invalide" });
+  const selection = await prisma.selection.findUnique({ where: { id: selectionId }, select: { films: { select: { filmId: true, category: true, film: { select: { category: true } } } } } });
   if (!selection) return res.status(404).json({ error: "Sélection introuvable" });
-  if (selection.films.length > 30) return res.status(400).json({ error: "Limite de 30 films par recherche ; lancez les autres individuellement." });
+  const categoryOf = (row) => row.category || row.film.category || 'Sans catégorie';
+  const priority = (category) => /art\s*(?:et|&)\s*essai/i.test(category) ? 0 : /docu/i.test(category) ? 1 : 2;
+  const films = selection.films.sort((a, b) =>
+    priority(categoryOf(a)) - priority(categoryOf(b)) ||
+    categoryOf(a).localeCompare(categoryOf(b), 'fr') || a.filmId - b.filmId);
+  const category = films[requestedOffset] ? categoryOf(films[requestedOffset]) : null;
+  let end = requestedOffset;
+  while (end < films.length && end - requestedOffset < 12 && categoryOf(films[end]) === category) end++;
+  const currentBatch = films.slice(requestedOffset, end);
   const results = [];
-  for (let offset = 0; offset < selection.films.length; offset += 4) {
-    const batch = await Promise.all(selection.films.slice(offset, offset + 4).map(async ({ filmId }) => {
+  for (let offset = 0; offset < currentBatch.length; offset += 4) {
+    const batch = await Promise.all(currentBatch.slice(offset, offset + 4).map(async ({ filmId }) => {
       try {
         const [film, existing] = await Promise.all([
           prisma.film.findUnique({ where: { id: filmId }, select: { tmdbId: true, filmTags: { select: { tag: { select: { label: true } } } } } }),
@@ -72,7 +82,7 @@ router.post("/cinemas/:cinemaId/selections/:selectionId/research", requireAuth, 
     }));
     results.push(...batch);
   }
-  res.json(results);
+  res.json({ results, total: films.length, nextOffset: end < films.length ? end : null, category });
 });
 
 router.put("/cinemas/:cinemaId/profile", requireAuth, admin, async (req, res) => {
@@ -95,7 +105,7 @@ router.get("/cinemas/:cinemaId/recommendations", requireAuth, canRead, async (re
   const cinemaId = Number(req.params.cinemaId);
   const rows = await prisma.filmRecommendation.findMany({
     where: { cinemaId }, include: { film: { select: { id: true, title: true, posterUrl: true, releaseDate: true } }, feedback: true },
-    orderBy: { generatedAt: "desc" }, take: 100,
+    orderBy: { generatedAt: "desc" }, take: 500,
   });
   res.json(rows);
 });
