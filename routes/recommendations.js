@@ -4,6 +4,7 @@ import { requireAuth } from "../middleware/jwt.js";
 import { recommendFilm } from "../lib/recommendationV1.js";
 import { attendancePortrait } from "../lib/attendancePortrait.js";
 import { researchFilm } from "../lib/filmResearch.js";
+import { researchConfigured, startCriticalResearch, retrieveCriticalResearch, formatCriticalResearch } from "../lib/criticalResearch.js";
 
 const router = Router();
 const admin = (req, res, next) => req.user.role === "ADMIN"
@@ -48,6 +49,10 @@ router.param("cinemaId", (req, res, next, value) => {
   next();
 });
 
+router.get('/critical-analysis/availability', requireAuth, admin, (req, res) => {
+  res.json({ available: researchConfigured() });
+});
+
 router.get("/cinemas/:cinemaId/profile", requireAuth, canRead, async (req, res) => {
   const profile = await prisma.cinemaProfile.findUnique({ where: { cinemaId: Number(req.params.cinemaId) } });
   res.json(profile ?? { cinemaId: Number(req.params.cinemaId), description: "", favoredTerms: [], avoidedTerms: [] });
@@ -74,6 +79,62 @@ router.post("/cinemas/:cinemaId/films/:filmId/research", requireAuth, admin, asy
   } catch (error) {
     console.error("Recherche TMDB impossible:", error.message);
     res.status(502).json({ error: "Recherche TMDB indisponible. Réessayez plus tard." });
+  }
+});
+
+router.post("/cinemas/:cinemaId/films/:filmId/critical-analysis", requireAuth, admin, async (req, res) => {
+  const cinemaId = Number(req.params.cinemaId), filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: "Film invalide" });
+  if (!researchConfigured()) return res.status(503).json({ error: "Analyse cinéphile indisponible : configurer OPENAI_API_KEY sur Railway." });
+  const film = await prisma.film.findUnique({ where: { id: filmId }, include: { director: true, filmTags: { include: { tag: true } } } });
+  if (!film) return res.status(404).json({ error: "Film introuvable" });
+  try {
+    const recommendation = await ensureRecommendation(cinemaId, filmId, film);
+    if (recommendation.evidence?.criticalJob && !req.body?.refresh)
+      return res.json({ status: 'in_progress' });
+    const [profile, projections] = await Promise.all([
+      prisma.cinemaProfile.findUnique({ where: { cinemaId }, include: { cinema: { select: { name: true } } } }),
+      prisma.filmProjection.findMany({
+        where: { cinemaId, date: { lt: new Date() }, audienceCount: { not: null } },
+        select: { filmId: true, audienceCount: true, film: { select: { title: true, category: true } } },
+      }),
+    ]);
+    const response = await startCriticalResearch(film, profile, attendancePortrait(projections));
+    const evidence = { ...recommendation.evidence, criticalJob: response.id };
+    if (req.body?.refresh) delete evidence.criticalAnalysis;
+    await prisma.filmRecommendation.update({ where: { id: recommendation.id }, data: { evidence } });
+    res.json({ status: 'in_progress' });
+  } catch (error) {
+    console.error('Analyse cinéphile impossible:', error.message);
+    res.status(502).json({ error: "Impossible de lancer l'analyse cinéphile." });
+  }
+});
+
+router.get("/cinemas/:cinemaId/films/:filmId/critical-analysis", requireAuth, canRead, async (req, res) => {
+  const filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: "Film invalide" });
+  const recommendation = await prisma.filmRecommendation.findUnique({ where: {
+    cinemaId_filmId: { cinemaId: Number(req.params.cinemaId), filmId },
+  } });
+  if (!recommendation) return res.json({ status: 'absent' });
+  const { criticalJob, criticalAnalysis } = recommendation.evidence || {};
+  if (!criticalJob) return res.json(criticalAnalysis ? { status: 'completed', analysis: criticalAnalysis } : { status: 'absent' });
+  if (!researchConfigured()) return res.status(503).json({ error: "Analyse cinéphile indisponible : OPENAI_API_KEY manquante." });
+  try {
+    const response = await retrieveCriticalResearch(criticalJob);
+    if (['queued', 'in_progress'].includes(response.status)) return res.json({ status: response.status });
+    const evidence = { ...recommendation.evidence };
+    delete evidence.criticalJob;
+    if (response.status !== 'completed') {
+      await prisma.filmRecommendation.update({ where: { id: recommendation.id }, data: { evidence } });
+      return res.status(502).json({ error: "L'analyse a échoué ; vous pouvez la relancer." });
+    }
+    evidence.criticalAnalysis = formatCriticalResearch(response);
+    await prisma.filmRecommendation.update({ where: { id: recommendation.id }, data: { evidence } });
+    res.json({ status: 'completed', analysis: evidence.criticalAnalysis });
+  } catch (error) {
+    console.error('Récupération analyse cinéphile impossible:', error.message);
+    res.status(502).json({ error: "Impossible de récupérer l'analyse ; réessayez dans un instant." });
   }
 });
 
