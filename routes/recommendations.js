@@ -2,6 +2,8 @@ import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/jwt.js";
 import { recommendFilm } from "../lib/recommendationV1.js";
+import { attendancePortrait } from "../lib/attendancePortrait.js";
+import { researchFilm } from "../lib/filmResearch.js";
 
 const router = Router();
 const admin = (req, res, next) => req.user.role === "ADMIN"
@@ -21,6 +23,56 @@ router.param("cinemaId", (req, res, next, value) => {
 router.get("/cinemas/:cinemaId/profile", requireAuth, canRead, async (req, res) => {
   const profile = await prisma.cinemaProfile.findUnique({ where: { cinemaId: Number(req.params.cinemaId) } });
   res.json(profile ?? { cinemaId: Number(req.params.cinemaId), description: "", favoredTerms: [], avoidedTerms: [] });
+});
+
+router.get("/cinemas/:cinemaId/attendance-portrait", requireAuth, canRead, async (req, res) => {
+  const projections = await prisma.filmProjection.findMany({
+    where: { cinemaId: Number(req.params.cinemaId), date: { lt: new Date() }, audienceCount: { not: null } },
+    select: { filmId: true, audienceCount: true, film: { select: { title: true, category: true } } },
+  });
+  res.json(attendancePortrait(projections));
+});
+
+router.post("/cinemas/:cinemaId/films/:filmId/research", requireAuth, admin, async (req, res) => {
+  const filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: "Film invalide" });
+  const film = await prisma.film.findUnique({ where: { id: filmId }, select: { tmdbId: true, filmTags: { select: { tag: { select: { label: true } } } } } });
+  if (!film) return res.status(404).json({ error: "Film introuvable" });
+  try {
+    const research = await researchFilm(film);
+    const existing = await prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId: Number(req.params.cinemaId), filmId } } });
+    if (!existing) return res.status(409).json({ error: "Lancez d'abord l'analyse du film" });
+    const updated = await prisma.filmRecommendation.update({ where: { id: existing.id }, data: { evidence: { ...existing.evidence, research } } });
+    res.json(updated);
+  } catch (error) {
+    console.error("Recherche TMDB impossible:", error.message);
+    res.status(502).json({ error: "Recherche TMDB indisponible. Réessayez plus tard." });
+  }
+});
+
+router.post("/cinemas/:cinemaId/selections/:selectionId/research", requireAuth, admin, async (req, res) => {
+  const selectionId = Number(req.params.selectionId);
+  if (!Number.isSafeInteger(selectionId) || selectionId <= 0) return res.status(400).json({ error: "Sélection invalide" });
+  const selection = await prisma.selection.findUnique({ where: { id: selectionId }, select: { films: { select: { filmId: true } } } });
+  if (!selection) return res.status(404).json({ error: "Sélection introuvable" });
+  if (selection.films.length > 30) return res.status(400).json({ error: "Limite de 30 films par recherche ; lancez les autres individuellement." });
+  const results = [];
+  for (let offset = 0; offset < selection.films.length; offset += 4) {
+    const batch = await Promise.all(selection.films.slice(offset, offset + 4).map(async ({ filmId }) => {
+      try {
+        const [film, existing] = await Promise.all([
+          prisma.film.findUnique({ where: { id: filmId }, select: { tmdbId: true, filmTags: { select: { tag: { select: { label: true } } } } } }),
+          prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId: Number(req.params.cinemaId), filmId } } }),
+        ]);
+        if (!existing) return { filmId, error: "Analyse préalable requise" };
+        const research = await researchFilm(film);
+        await prisma.filmRecommendation.update({ where: { id: existing.id }, data: { evidence: { ...existing.evidence, research } } });
+        return { filmId, ok: true };
+      } catch (error) { return { filmId, error: "Recherche indisponible" }; }
+    }));
+    results.push(...batch);
+  }
+  res.json(results);
 });
 
 router.put("/cinemas/:cinemaId/profile", requireAuth, admin, async (req, res) => {
