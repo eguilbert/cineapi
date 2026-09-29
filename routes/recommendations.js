@@ -4,7 +4,7 @@ import { requireAuth } from "../middleware/jwt.js";
 import { recommendFilm } from "../lib/recommendationV1.js";
 import { attendancePortrait } from "../lib/attendancePortrait.js";
 import { researchFilm } from "../lib/filmResearch.js";
-import { researchConfigured, startCriticalResearch, retrieveCriticalResearch, formatCriticalResearch } from "../lib/criticalResearch.js";
+import { researchConfigured, startCriticalResearch, retrieveCriticalResearch, formatCriticalResearch, suggestCriticalTags, normalizeCriticalTags } from "../lib/criticalResearch.js";
 
 const router = Router();
 const admin = (req, res, next) => req.user.role === "ADMIN"
@@ -168,6 +168,105 @@ router.get("/cinemas/:cinemaId/films/:filmId/critical-analysis", requireAuth, ca
   } catch (error) {
     console.error('Récupération analyse cinéphile impossible:', error.message);
     res.status(502).json({ error: "Impossible de récupérer l'analyse ; réessayez dans un instant." });
+  }
+});
+
+router.post('/cinemas/:cinemaId/films/:filmId/critical-analysis/tags/suggest', requireAuth, admin, async (req, res) => {
+  const cinemaId = Number(req.params.cinemaId), filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: 'Film invalide' });
+  if (!researchConfigured()) return res.status(503).json({ error: 'Analyse indisponible : clé API absente.' });
+  const recommendation = await prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId, filmId } } });
+  const analysis = recommendation?.evidence?.criticalAnalysis;
+  if (!analysis) return res.status(404).json({ error: 'Analyse absente' });
+  if (analysis.tags?.length) return res.json({ analysis });
+  try {
+    const tags = await suggestCriticalTags(analysis);
+    const updatedAnalysis = { ...analysis, tags };
+    await prisma.filmRecommendation.update({ where: { id: recommendation.id },
+      data: { evidence: { ...recommendation.evidence, criticalAnalysis: updatedAnalysis } } });
+    res.json({ analysis: updatedAnalysis });
+  } catch (error) {
+    console.error('Extraction des tags impossible:', error);
+    res.status(502).json({ error: 'Impossible de proposer des tags pour ce film.' });
+  }
+});
+
+router.post('/cinemas/:cinemaId/films/:filmId/critical-analysis/tags/apply', requireAuth, admin, async (req, res) => {
+  const cinemaId = Number(req.params.cinemaId), filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: 'Film invalide' });
+  const recommendation = await prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId, filmId } } });
+  const analysis = recommendation?.evidence?.criticalAnalysis;
+  if (!analysis) return res.status(404).json({ error: 'Analyse absente' });
+  const proposed = normalizeCriticalTags(analysis.tags);
+  const requested = Array.isArray(req.body?.labels) ? req.body.labels : proposed.map(({ label }) => label);
+  const tags = proposed.filter(({ label }) => requested.includes(label));
+  if (!tags.length) return res.status(400).json({ error: 'Aucun tag proposé' });
+  try {
+    const applied = await prisma.$transaction(async (tx) => {
+      const linked = [];
+      for (const { label, category } of tags) {
+        const existing = await tx.filmTag.findFirst({ where: { label: { equals: label, mode: 'insensitive' } } });
+        const tag = existing || await tx.filmTag.upsert({ where: { label }, update: {},
+          create: { label, category, validated: true } });
+        linked.push(tag);
+      }
+      await tx.filmFilmTag.createMany({ data: linked.map(({ id }) => ({ filmId, tagId: id })), skipDuplicates: true });
+      return linked;
+    });
+    const updatedAnalysis = { ...analysis, appliedTags: tags.map(({ label }) => label), tagsAppliedAt: new Date().toISOString() };
+    await prisma.filmRecommendation.update({ where: { id: recommendation.id },
+      data: { evidence: { ...recommendation.evidence, criticalAnalysis: updatedAnalysis } } });
+    res.json({ analysis: updatedAnalysis, tags: applied });
+  } catch (error) {
+    console.error('Ajout des tags impossible:', error);
+    res.status(500).json({ error: 'Impossible de lier les tags au film.' });
+  }
+});
+
+router.get('/cinemas/:cinemaId/films/:filmId/comparable-attendance', requireAuth, canRead, async (req, res) => {
+  const cinemaId = Number(req.params.cinemaId), filmId = Number(req.params.filmId);
+  if (!Number.isSafeInteger(filmId) || filmId <= 0) return res.status(400).json({ error: 'Film invalide' });
+  try {
+    const [film, recommendation] = await Promise.all([
+      prisma.film.findUnique({ where: { id: filmId }, select: {
+        filmTags: { select: { tag: { select: { label: true } } } },
+      } }),
+      prisma.filmRecommendation.findUnique({ where: { cinemaId_filmId: { cinemaId, filmId } }, select: { evidence: true } }),
+    ]);
+    if (!film) return res.status(404).json({ error: 'Film introuvable' });
+    const labels = [...new Set([
+      ...film.filmTags.map(({ tag }) => tag.label),
+      ...normalizeCriticalTags(recommendation?.evidence?.criticalAnalysis?.tags).map(({ label }) => label),
+    ].map((label) => label.toLocaleLowerCase('fr')))];
+    if (labels.length < 2) return res.json({ targetTags: labels, films: [] });
+    const projections = await prisma.filmProjection.findMany({
+      where: { cinemaId, filmId: { not: filmId }, date: { lt: new Date() }, audienceCount: { not: null },
+        film: { filmTags: { some: { tag: { label: { in: labels, mode: 'insensitive' } } } } } },
+      select: { filmId: true, date: true, audienceCount: true, film: { select: {
+        title: true, releaseDate: true, filmTags: { select: { tag: { select: { label: true } } } },
+      } } },
+    });
+    const byFilm = new Map();
+    for (const projection of projections) {
+      let item = byFilm.get(projection.filmId);
+      if (!item) {
+        const sharedTags = [...new Set(projection.film.filmTags.map(({ tag }) => tag.label)
+          .filter((label) => labels.includes(label.toLocaleLowerCase('fr'))))];
+        if (sharedTags.length < 2) continue;
+        item = { filmId: projection.filmId, title: projection.film.title,
+          sharedTags, projectionCount: 0, totalAdmissions: 0 };
+        byFilm.set(projection.filmId, item);
+      }
+      item.projectionCount++;
+      item.totalAdmissions += projection.audienceCount;
+    }
+    const films = [...byFilm.values()].map((item) => ({ ...item,
+      averagePerShow: Math.round(item.totalAdmissions / item.projectionCount),
+    })).sort((a, b) => b.sharedTags.length - a.sharedTags.length || b.projectionCount - a.projectionCount).slice(0, 8);
+    res.json({ targetTags: labels, films });
+  } catch (error) {
+    console.error('Films comparables indisponibles:', error);
+    res.status(500).json({ error: 'Films comparables indisponibles' });
   }
 });
 
