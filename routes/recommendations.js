@@ -205,7 +205,8 @@ router.post('/cinemas/:cinemaId/films/:filmId/critical-analysis/tags/apply', req
     const applied = await prisma.$transaction(async (tx) => {
       const linked = [];
       for (const { label, category } of tags) {
-        const tag = await tx.filmTag.upsert({ where: { label }, update: {},
+        const existing = await tx.filmTag.findFirst({ where: { label: { equals: label, mode: 'insensitive' } } });
+        const tag = existing || await tx.filmTag.upsert({ where: { label }, update: {},
           create: { label, category, validated: true } });
         linked.push(tag);
       }
