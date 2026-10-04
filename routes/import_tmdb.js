@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { createTmdbService } from '../services/tmdb-service.mjs';
-import { requireAuth } from '../middleware/requireAuth.js';
+import { requireAuth } from '../middleware/jwt.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 
 // La fabrique reste exportée pour une intégration alternative.
