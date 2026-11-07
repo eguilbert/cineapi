@@ -21,6 +21,7 @@ router.get("/", async (req, res) => {
         id: true,
         name: true,
         status: true,
+        cinemas: { select: { cinemaId: true } },
       },
       orderBy: {
         date: "desc", // facultatif : pour afficher les plus récentes d'abord
@@ -39,6 +40,7 @@ router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
+      cinemas: { select: { cinemaId: true } },
       films: {
         include: {
           film: {
@@ -83,6 +85,7 @@ router.get("/:id", async (req, res) => {
   const result = {
     id: selection.id,
     name: selection.name,
+    cinemas: selection.cinemas,
     films: selection.films.map((f) => {
       const stats = normalizeInterestStats(statsByFilm[f.film.id] || {});
       const votes = getInterestCount(stats);
@@ -149,13 +152,18 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/selections
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, requireProgrammer, async (req, res) => {
   const { name, films } = req.body;
 
   try {
     // 1. Créer la sélection
     const selection = await prisma.selection.create({
-      data: { name },
+      data: {
+        name,
+        ...(req.user.role === "PROGRAMMEUR" && {
+          cinemas: { create: { cinemaId: req.user.cinemaId } },
+        }),
+      },
     });
 
     // 2. Pour chaque film, upsert + lier à la sélection
@@ -210,7 +218,7 @@ router.post("/", async (req, res) => {
 });
 
 // PUT update selection
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const { id } = req.params;
   const { films = [] } = req.body; // tableau de films à ajouter
 
@@ -278,13 +286,41 @@ router.put("/:id", async (req, res) => {
 //   res.json({ success: true, film });
 // });
 function requireAdmin(req, res, next) {
-  console.log("requireAdmin req.user =", req.user); // TEMP
-
-  if (req.user?.role === "ADMIN") return next();
-  return res.status(403).json({ error: "Accès admin requis" });
+  if (req.user.role === "ADMIN") return next();
+  return res.status(403).json({ error: "Action réservée aux admins" });
 }
 
-router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
+function requireProgrammer(req, res, next) {
+  if (req.user.role === "ADMIN" ||
+      (req.user.role === "PROGRAMMEUR" && req.user.cinemaId != null)) return next();
+  return res.status(403).json({ error: "Droits de programmation requis" });
+}
+
+async function requireSelectionAccess(req, res, next) {
+  if (req.user.role === "ADMIN") return next();
+  const id = Number(req.params.id ?? req.params.selectionId);
+  if (!Number.isSafeInteger(id) || id <= 0) {
+    return res.status(400).json({ error: "Sélection invalide" });
+  }
+  try {
+    const selection = await prisma.selection.findFirst({
+      where: {
+        id,
+        OR: [
+          { cinemas: { none: {} } },
+          { cinemas: { some: { cinemaId: req.user.cinemaId } } },
+        ],
+      },
+      select: { id: true },
+    });
+    if (!selection) return res.status(403).json({ error: "Sélection inaccessible" });
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+router.post("/:id/add-film", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const selectionId = Number.parseInt(req.params.id, 10);
   const { filmId, tmdbId, category } = req.body;
 
@@ -443,7 +479,7 @@ router.post("/:id/add-film", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // DELETE /api/selections/:id/films
-router.delete("/:id/films", requireAuth, requireAdmin, async (req, res) => {
+router.delete("/:id/films", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const selectionId = Number.parseInt(req.params.id, 10);
   const filmId = Number.parseInt(String(req.body?.filmId ?? ""), 10);
 
@@ -468,7 +504,7 @@ router.delete("/:id/films", requireAuth, requireAdmin, async (req, res) => {
 });
 
 // DELETE /api/selections/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -508,7 +544,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 // routes/selection-close-vote.ts
-router.put("/selection/:id/close-vote", async (req, res) => {
+router.put("/selection/:id/close-vote", requireAuth, requireAdmin, async (req, res) => {
   const selectionId = req.params.id;
 
   try {
@@ -565,7 +601,7 @@ router.put("/selection/:id/close-vote", async (req, res) => {
 });
 
 // Exemple Express
-router.post("/:id/approve", async (req, res) => {
+router.post("/:id/approve", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const selectionId = parseInt(req.params.id, 10);
   const { films, nbVotants } = req.body || {};
 
@@ -654,7 +690,7 @@ router.post("/:id/approve", async (req, res) => {
 
 // POST /api/selections/:id/programming
 // body: { items: [{ filmId, cinemas: [2,5], perCinema: { "2": { suggested, capLabel, notes, cycleId? }, "5": {...} } }] }
-router.post("/:id/programming", async (req, res) => {
+router.post("/:id/programming", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const selectionId = parseInt(req.params.id, 10);
   const { items } = req.body || {};
 
@@ -668,6 +704,9 @@ router.post("/:id/programming", async (req, res) => {
       return res.status(400).json({ error: "item invalide" });
     }
     for (const cid of it.cinemas) {
+      if (req.user.role === "PROGRAMMEUR" && Number(cid) !== req.user.cinemaId) {
+        return res.status(403).json({ error: "Programmation réservée à votre cinéma" });
+      }
       const cfg = it.perCinema?.[cid];
       if (!cfg) continue;
       const s = Number(cfg.suggested ?? 0);
@@ -751,9 +790,10 @@ router.post(
   },
 );
 
-router.post("/:selectionId/films", requireAuth, async (req, res) => {
+router.post("/:selectionId/films", requireAuth, requireProgrammer, requireSelectionAccess, async (req, res) => {
   const selectionId = Number(req.params.selectionId);
   const filmId = Number(req.body.filmId);
+  const { category } = req.body;
 
   try {
     const sf = await prisma.selectionFilm.upsert({
