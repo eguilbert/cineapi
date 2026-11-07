@@ -32,6 +32,7 @@ router.get("/:id", async (req, res) => {
   const selection = await prisma.selection.findUnique({
     where: { id: Number(req.params.id) },
     include: {
+      cinemas: { select: { cinemaId: true } },
       films: {
         include: {
           film: {
@@ -93,6 +94,7 @@ router.get("/:id", async (req, res) => {
   const result = {
     id: selection.id,
     name: selection.name,
+    cinemas: selection.cinemas,
     films: selection.films.map((f) => {
       const stats = normalizeInterestStats(statsByFilm[f.film.id] || {});
       const votes = getInterestCount(stats);
